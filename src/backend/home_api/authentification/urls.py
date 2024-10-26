@@ -1,5 +1,5 @@
 
-from django.urls import path
+from django.urls import include, path
 
 from authentification.views import email_confirm_redirect, password_reset_confirm_redirect
 from rest_framework_simplejwt.views import TokenVerifyView
@@ -13,11 +13,18 @@ from dj_rest_auth.registration.views import (
 from dj_rest_auth.views import (
     PasswordResetConfirmView,
     PasswordResetView,
-    LoginView, 
-    LogoutView, 
+    LogoutView,
+    LoginView,
 )
 
-from authentification.views import authorize_42, oauth_callback, get_user_profile
+from authentification.views import (
+    authorize_42, 
+    oauth_callback, 
+    get_user_profile,
+    LoginViewCustom,
+    MFAValidationViewCustom,
+    MFADeactivateView,
+)
 
 urlpatterns = [
     # JWT
@@ -26,7 +33,7 @@ urlpatterns = [
     
     # Auth
     path("register/", RegisterView.as_view(), name="rest_register"),
-    path("login/", LoginView.as_view(), name="rest_login"),
+    path("login/", LoginViewCustom.as_view(), name="rest_login"),
     path("logout/", LogoutView.as_view(), name="rest_logout"),
 
     # Email verification
@@ -44,6 +51,12 @@ urlpatterns = [
     path("42/authorize/", authorize_42, name="42_authorize"),
     path("42/callback/", oauth_callback, name="42_callback"),
     path("42/get_user/", get_user_profile, name="42_get_user"),
+
+    # 2FA
+    path("2fa/", include("trench.urls")),
+    path("2fa/validate/", MFAValidationViewCustom.as_view(), name="mfa_validate"),
+    path("2fa/deactivate/", MFADeactivateView.as_view(), name="mfa_deactivate"),
+    # path("2fa/", include('trench.urls.jwt')),
 ]
 
 

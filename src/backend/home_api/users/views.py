@@ -20,10 +20,22 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
         return super().get_serializer_class()
 
 
+
 class UserUpdateProfileViewSet(viewsets.ModelViewSet):
     serializer_class = UserDetailSerializer
-    queryset = User.objects.all()
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
         return self.request.user
+
+
+class UserSearchView(viewsets.ReadOnlyModelViewSet):
+    serializer_class = UserListSerializer
+    queryset = User.objects.all()
+
+    #TODO : friends management
+    def get_queryset(self):
+        query = self.request.query_params.get('q', '')
+        if (len(query) < 3):
+            return User.objects.none()
+        return User.objects.filter(username__icontains=query).filter(email__icontains=query).filter(is_active=True).distinct()

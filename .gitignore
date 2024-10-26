@@ -41,3 +41,5 @@ client_secret.json
 venv/
 .env
 
+*.db
+

@@ -51,15 +51,16 @@ INSTALLED_APPS = [
 
     "dj_rest_auth",
     "dj_rest_auth.registration",
+    'trench',
 
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
 
-
     'anymail',
 
     'corsheaders',
+    
 ]
 
 MIDDLEWARE = [
@@ -75,10 +76,12 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'home_api.urls'
 
+# os.path.join(BASE_DIR, 'media')
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -158,6 +161,9 @@ REST_AUTH = {
     'USE_JWT': True,
     'JWT_AUTH_COOKIE': 'transcendence-token',
     'JWT_AUTH_REFRESH_COOKIE': 'transcendence-refresh-token',
+    'JWT_AUTH_SECURE': False,  # Permet d'envoyer les cookies sans HTTPS (dev uniquement)
+    'JWT_AUTH_SAMESITE': 'Lax',  # Permet d'envoyer les cookies cross-site
+    'JWT_AUTH_HTTPONLY': True,  # Empêche JavaScript d'accéder aux cookies
 }
 
 REST_USE_JWT = True
@@ -165,16 +171,12 @@ REST_USE_JWT = True
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1000),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-    'AUTH_COOKIE_HTTP_ONLY': True,  # pour éviter le vol de cookie par XSS
-    'AUTH_COOKIE_SAMESITE': False, # 'None', pour permettre les requêtes cross-origin
-    'AUTH_COOKIE_SECURE': False, 
 }
-
 
 SITE_ID = 1
 
 
-# MAILGUN 
+# MAILGUN ==================================================
 ANYMAIL = {
     "MAILGUN_API_KEY": env('MAILGUN_API_KEY'),
     "MAILGUN_SENDER_DOMAIN": env('MAILGUN_SENDER_DOMAIN'),
@@ -182,23 +184,65 @@ ANYMAIL = {
 
 
 EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
-DEFAULT_FROM_EMAIL = "ethanmorrata13@gmail.com"
+DEFAULT_FROM_EMAIL = "raphaelgiraud12@gmail.com"
 SERVER_EMAIL = "toukoumcode@gmail.com"
 
-ACCOUNT_EMAIL_REQUIRED = False
-# ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+
+
+# All Auth ==================================================
+
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+
+
+ACCOUNT_AUTHENTICATION_METHOD = "username_email"
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = True
+
+ACCOUNT_EMAIL_VERIFICATION = "none"
 
 # Redirect for email confirmation
 EMAIL_CONFIRM_REDIRECT_BASE_URL = "http://localhost:5500/email/confirm/"
 PASSWORD_RESET_CONFIRM_REDIRECT_BASE_URL = "http://localhost:5500/password-reset/confirm/"
 
 
-CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5500",
-]
 
+# =========================================================
+
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = True
 
 CLIENT_ID = env('CLIENT_ID')
 CLIENT_SECRET = env('CLIENT_SECRET')
 REDIRECT_URI = env('REDIRECT_URI')
+
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+# TRENCH ==================================================
+
+TRENCH_AUTH = {
+    "DEFAULT_VALIDITY_PERIOD": 30,
+    "MFA_METHODS": {
+        'email': {
+            "HANDLER": "trench.backends.basic_mail.SendMailMessageDispatcher",
+            'VERBOSE_NAME': 'email',
+            'SOURCE_FIELD': 'email',
+            "VALIDITY_PERIOD": 30,
+            'EMAIL_SUBJECT': 'Your verification code',
+            'EMAIL_PLAIN_TEMPLATE': "templates/email/mfa_code.txt",
+            'EMAIL_HTML_TEMPLATE': "templates/email/mfa_code.html",
+        },
+        "app": {
+            "VERBOSE_NAME": "app",
+            "VALIDITY_PERIOD": 30,
+            "USES_THIRD_PARTY_CLIENT": True,
+            "HANDLER": "trench.backends.application.ApplicationMessageDispatcher",
+        }
+    }
+}
+
+# =========================================================

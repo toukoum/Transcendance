@@ -11,3 +11,5 @@ dj-rest-auth[with_social]==4.0.0
 django-anymail[mailgun]
 django-cors-headers
 requests
+Pillow
+django-trench

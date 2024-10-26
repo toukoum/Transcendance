@@ -1,29 +1,29 @@
-
-
 services:
   db:
-      image: postgres
-      container_name: postgres
-      volumes:
-        - ./postgres:/var/lib/postgresql/data
-      env_file:
-        - .env
-      environment:
-        POSTGRES_DB: ${POSTGRES_DB}
-        POSTGRES_USER: ${POSTGRES_USER}
-        POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      ports: 
-        - "5432:5432"
+    image: postgres
+    container_name: postgres
+    volumes:
+      - ./postgres:/var/lib/postgresql/data
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports: 
+      - "5432:5432"
 
   pgadmin:
-      image: dpage/pgadmin4
-      container_name: pgadmin
-      env_file:
-        - .env
-      environment:
-        PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
-        PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
-      ports:
-        - "8888:80"
-      depends_on:
-        - db
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    env_file:
+      - .env
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    volumes:
+      - ./pgadmin:/var/lib/pgadmin  # Volume pour sauvegarder les configurations
+    ports:
+      - "8888:80"
+    depends_on:
+      - db
