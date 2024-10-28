@@ -22,10 +22,12 @@ from django.conf.urls.static import static
 from rest_framework.routers import DefaultRouter
 
 from users.views import UserViewSet
+from friends.views import FriendshipViewSet
 
 router = DefaultRouter()
 
 router.register(r'users', UserViewSet, basename='users')
+router.register(r'friends', FriendshipViewSet, basename='friends')
 
 urlpatterns = [
     path('admin/', admin.site.urls),

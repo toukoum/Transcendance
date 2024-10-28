@@ -2,7 +2,6 @@ asgiref==3.8.1
 Django==5.1.2
 sqlparse==0.5.1
 typing_extensions==4.12.2
-django-environ
 psycopg2-binary
 djangorestframework
 djangorestframework-simplejwt
@@ -13,3 +12,4 @@ django-cors-headers
 requests
 Pillow
 django-trench
+python-dotenv

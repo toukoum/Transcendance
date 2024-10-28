@@ -13,24 +13,31 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from datetime import timedelta
 import os
 from pathlib import Path
-import environ
+from dotenv import load_dotenv
+import logging
+
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-env = environ.Env(DEBUG=(bool, False))
-environ.Env.read_env(os.path.join(BASE_DIR.parent.parent.parent, '.env'))
+load_dotenv(os.path.join(BASE_DIR.parent.parent.parent, '.env'))
+
+
 
 WSGI_APPLICATION = 'home_api.wsgi.application'
+
+logging.basicConfig(level=logging.DEBUG)
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('SECRET_KEY')
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env('DEBUG_DJANGO')
+DEBUG = os.getenv('DEBUG_DJANGO')
 
 ALLOWED_HOSTS = []
 
@@ -45,6 +52,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'authentification',
     'users',
+    'friends',
 
     'rest_framework',
     'rest_framework.authtoken',
@@ -100,11 +108,11 @@ TEMPLATES = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env('POSTGRES_DB'),
-        'USER': env('POSTGRES_USER'),
-        'PASSWORD': env('POSTGRES_PASSWORD'),
-        'HOST': env('POSTGRES_HOST'),
-        'PORT': env('POSTGRES_PORT'),
+        'NAME': os.getenv('POSTGRES_DB'),
+        'USER': os.getenv('POSTGRES_USER'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+        'HOST': os.getenv('POSTGRES_HOST'),
+        'PORT': os.getenv('POSTGRES_PORT'),
     }
 }
 
@@ -178,8 +186,8 @@ SITE_ID = 1
 
 # MAILGUN ==================================================
 ANYMAIL = {
-    "MAILGUN_API_KEY": env('MAILGUN_API_KEY'),
-    "MAILGUN_SENDER_DOMAIN": env('MAILGUN_SENDER_DOMAIN'),
+    "MAILGUN_API_KEY": os.getenv('MAILGUN_API_KEY'),
+    "MAILGUN_SENDER_DOMAIN": os.getenv('MAILGUN_SENDER_DOMAIN'),
 }
 
 
@@ -191,14 +199,11 @@ SERVER_EMAIL = "toukoumcode@gmail.com"
 
 # All Auth ==================================================
 
-import logging
 
-logging.basicConfig(level=logging.DEBUG)
-
-
-ACCOUNT_AUTHENTICATION_METHOD = "username_email"
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_USERNAME_REQUIRED = True
+# A changer pour que ca marche !
+# ACCOUNT_AUTHENTICATION_METHOD = "username_email"
+# ACCOUNT_EMAIL_REQUIRED = True
+# ACCOUNT_USERNAME_REQUIRED = True
 
 ACCOUNT_EMAIL_VERIFICATION = "none"
 
@@ -213,9 +218,9 @@ PASSWORD_RESET_CONFIRM_REDIRECT_BASE_URL = "http://localhost:5500/password-reset
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = True
 
-CLIENT_ID = env('CLIENT_ID')
-CLIENT_SECRET = env('CLIENT_SECRET')
-REDIRECT_URI = env('REDIRECT_URI')
+CLIENT_ID = os.getenv('CLIENT_ID')
+CLIENT_SECRET = os.getenv('CLIENT_SECRET')
+REDIRECT_URI = os.getenv('REDIRECT_URI')
 
 
 MEDIA_URL = '/media/'
@@ -231,14 +236,14 @@ TRENCH_AUTH = {
             "HANDLER": "trench.backends.basic_mail.SendMailMessageDispatcher",
             'VERBOSE_NAME': 'email',
             'SOURCE_FIELD': 'email',
-            "VALIDITY_PERIOD": 30,
+            "VALIDITY_PERIOD": 60 * 10,
             'EMAIL_SUBJECT': 'Your verification code',
             'EMAIL_PLAIN_TEMPLATE': "templates/email/mfa_code.txt",
             'EMAIL_HTML_TEMPLATE': "templates/email/mfa_code.html",
         },
         "app": {
             "VERBOSE_NAME": "app",
-            "VALIDITY_PERIOD": 30,
+            "VALIDITY_PERIOD": 60 * 10,
             "USES_THIRD_PARTY_CLIENT": True,
             "HANDLER": "trench.backends.application.ApplicationMessageDispatcher",
         }

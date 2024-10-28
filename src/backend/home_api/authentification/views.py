@@ -13,6 +13,11 @@ import random, string
 
 from rest_framework.decorators import api_view
 
+from django.contrib.auth.models import User
+
+from authentification.utils.utils import sent_custom_JWT
+
+
 
 # 2FA =================================================================================================
 from dj_rest_auth.registration.views import LoginView
@@ -76,6 +81,7 @@ def authorize_42(request):
     )
     return redirect(authorize_url)
 
+
 @api_view(['GET'])
 def oauth_callback(request):
     code = request.GET.get('code')
@@ -97,14 +103,47 @@ def oauth_callback(request):
 
     response = requests.post(token_url, data=data)
 
-    if response.status_code == 200:
-        token_info = response.json()
-        access_token = token_info.get('access_token')
-        request.session['access_token'] = access_token
-        return Response({"detail": "Successfully logged in with 42"}, status=status.HTTP_200_OK)
-    else:
+    if response.status_code != 200:
         return Response({"detail": "Invalid code"}, status=status.HTTP_400_BAD_REQUEST)
+
+    token_info = response.json()
+    access_token = token_info.get('access_token')
+    request.session['access_token'] = access_token
+
+    response_42 = get_data_user_42(request)
+    if response_42.status_code != 200:
+        return Response({"detail": "Error retrieving user profile"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    user_data = response_42.json()
+
+    email = user_data.get('email')
+    username = user_data.get('login')  # Or use another unique identifier if needed
+
+    print("=====> Email: " + email)
+    print("=====> Username: " + username)
+
+    user, created = User.objects.get_or_create(email=email, defaults={'username': username})
     
+    if created:
+        user.set_unusable_password()  # No password since we're using OAuth
+        user.save()
+
+
+    return (sent_custom_JWT(request, user))
+    
+
+
+def get_data_user_42(request):
+    access_token = request.session.get('access_token')
+    if not access_token:
+        return redirect('42_authorize')
+
+    headers = {'Authorization': f'Bearer {access_token}'}
+    profile_url = "https://api.intra.42.fr/v2/me"
+    response = requests.get(profile_url, headers=headers)
+    
+    return response
+
 
 @api_view(['GET'])
 def get_user_profile(request):
@@ -149,7 +188,6 @@ class LoginViewCustom(LoginView):
         self.serializer.is_valid(raise_exception=True)
         user = self.serializer.validated_data.get("user")        
 
-        print("=====> Voici l'user: " + user.username)
         if hasattr(user, 'profile') and user.profile.is_2fa_enabled:
             auth_method = (
                 user.mfa_methods
@@ -175,8 +213,6 @@ class LoginViewCustom(LoginView):
         return self.get_response()
     
 
-
-
 class MFAValidationViewCustom(APIView):
     """
     Vue pour valider le code MFA et finaliser la connexion de l'utilisateur.
@@ -193,31 +229,7 @@ class MFAValidationViewCustom(APIView):
                 ephemeral_token=serializer.validated_data["ephemeral_token"],
             )
             
-            if (user and user.is_authenticated):
-                print("WTFFFFFF Le user est bien authentifié en 2FA!")
-
-            access_token, refresh_token = jwt_encode(user)
-
-            if api_settings.SESSION_LOGIN:
-                django_login(request, user)
-
-            response_data = {
-                "user": user,
-                "access": access_token,
-                "refresh": refresh_token,
-            }
-
-            if api_settings.JWT_AUTH_RETURN_EXPIRATION:
-                response_data["access_expiration"] = timezone.now() + jwt_settings.ACCESS_TOKEN_LIFETIME
-                response_data["refresh_expiration"] = timezone.now() + jwt_settings.REFRESH_TOKEN_LIFETIME
-
-            serializer = JWTSerializer(instance=response_data, context={"request": request})
-            response = Response(serializer.data, status=status.HTTP_200_OK)
-
-            set_jwt_cookies(response, access_token, refresh_token)
-            
-            return response
-
+            return (sent_custom_JWT(request, user))
 
         except MFAValidationError as cause:
             return ErrorResponse(error=cause, status=HTTP_401_UNAUTHORIZED)
@@ -233,8 +245,17 @@ class MFADeactivateView(APIView):
         user = request.user
         user.profile.is_2fa_enabled = False
         user.profile.save()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(context={"detail": "2FA disabled"}, status=status.HTTP_200_OK)
 
 
+class MFAActivateView(APIView):
+    """
+    Vue pour activer la double authentification de l'utilisateur.
+    """
 
-
+    permission_classes = (IsAuthenticated,)
+    def post(self, request: Request) -> Response:
+        user = request.user
+        user.profile.is_2fa_enabled = True
+        user.profile.save()
+        return Response(context={"detail": "2FA enabled"}, status=status.HTTP_200_OK)
