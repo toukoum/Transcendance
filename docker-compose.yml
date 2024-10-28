@@ -12,6 +12,8 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports: 
       - "5432:5432"
+    networks:
+      - trans_network
 
   pgadmin:
     image: dpage/pgadmin4
@@ -22,8 +24,40 @@ services:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     volumes:
-      - ./pgadmin:/var/lib/pgadmin  # Volume pour sauvegarder les configurations
+      - ./pgadmin:/var/lib/pgadmin
     ports:
       - "8888:80"
     depends_on:
       - db
+
+
+  backend:
+    build: ./src/backend
+    container_name: backend
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    networks:
+      - trans_network
+    volumes:
+      - ./src/backend:/app
+      - .env:/app/.env
+    depends_on:
+      - db
+    
+
+  frontend:
+    container_name: frontend
+    build: ./src/frontend
+    ports:
+      - "3000:80"
+    networks:
+      - trans_network
+    volumes:
+      - ./src/frontend:/app
+
+
+networks:
+  trans_network:
+    driver: bridge
