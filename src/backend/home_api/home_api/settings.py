@@ -43,6 +43,9 @@ ALLOWED_HOSTS = []
 
 # Application definition
 INSTALLED_APPS = [
+    'daphne',
+
+
     "django.contrib.sites",
     'django.contrib.admin',
     'django.contrib.auth',
@@ -53,6 +56,7 @@ INSTALLED_APPS = [
     'authentification',
     'users',
     'friends',
+    'chat',
 
     'rest_framework',
     'rest_framework.authtoken',
@@ -67,7 +71,8 @@ INSTALLED_APPS = [
 
     'anymail',
 
-    'corsheaders',
+    'corsheaders',  
+
     
 ]
 
@@ -83,8 +88,6 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'home_api.urls'
-
-# os.path.join(BASE_DIR, 'media')
 
 TEMPLATES = [
     {
@@ -202,9 +205,9 @@ SERVER_EMAIL = "toukoumcode@gmail.com"
 
 
 # A changer pour que ca marche !
-# ACCOUNT_AUTHENTICATION_METHOD = "username_email"
-# ACCOUNT_EMAIL_REQUIRED = True
-# ACCOUNT_USERNAME_REQUIRED = True
+ACCOUNT_AUTHENTICATION_METHOD = "username_email"
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = True
 
 ACCOUNT_EMAIL_VERIFICATION = "none"
 
@@ -255,4 +258,16 @@ TRENCH_AUTH = {
     }
 }
 
-# =========================================================
+
+# Channels ==================================================
+
+ASGI_APPLICATION = "home_api.asgi.application"
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)],
+        },
+    },
+}

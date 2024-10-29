@@ -42,4 +42,4 @@ venv/
 .env
 
 *.db
-*/migrations/
+*/migrations/*
