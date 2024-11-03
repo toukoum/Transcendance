@@ -15,14 +15,16 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 import logging
+import environ
 
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-load_dotenv(os.path.join(BASE_DIR.parent.parent.parent, '.env'))
+# load_dotenv(os.path.join(BASE_DIR.parent.parent.parent, '.env'))
 
+env = environ.Env()
 
 
 WSGI_APPLICATION = 'home_api.wsgi.application'
@@ -34,10 +36,12 @@ logging.basicConfig(level=logging.DEBUG)
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = env.str('SECRET_KEY')
+# SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG_DJANGO')
+DEBUG = env.bool('DEBUG_DJANGO', default=True)
+# DEBUG = os.getenv('DEBUG_DJANGO')
 
 ALLOWED_HOSTS = []
 
@@ -112,11 +116,16 @@ TEMPLATES = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_DB'),
-        'USER': os.getenv('POSTGRES_USER'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-        'HOST': os.getenv('POSTGRES_HOST'),
-        'PORT': os.getenv('POSTGRES_PORT'),
+		'NAME': env.str('POSTGRES_DB'),
+        'USER': env.str('POSTGRES_USER'),
+        'PASSWORD': env.str('POSTGRES_PASSWORD'),
+        'HOST': env.str('POSTGRES_HOST'),
+        'PORT': env.str('POSTGRES_PORT'),
+        # 'NAME': os.getenv('POSTGRES_DB'),
+        # 'USER': os.getenv('POSTGRES_USER'),
+        # 'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+        # 'HOST': os.getenv('POSTGRES_HOST'),
+        # 'PORT': os.getenv('POSTGRES_PORT'),
     }
 }
 
@@ -190,8 +199,10 @@ SITE_ID = 1
 
 # MAILGUN ==================================================
 ANYMAIL = {
-    "MAILGUN_API_KEY": os.getenv('MAILGUN_API_KEY'),
-    "MAILGUN_SENDER_DOMAIN": os.getenv('MAILGUN_SENDER_DOMAIN'),
+    "MAILGUN_API_KEY": env.str('MAILGUN_API_KEY', default=''),
+    "MAILGUN_SENDER_DOMAIN": env.str('MAILGUN_SENDER_DOMAIN', default=''),
+    # "MAILGUN_API_KEY": os.getenv('MAILGUN_API_KEY'),
+    # "MAILGUN_SENDER_DOMAIN": os.getenv('MAILGUN_SENDER_DOMAIN'),
 }
 
 
@@ -226,9 +237,12 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5500"
 ]
 
-CLIENT_ID = os.getenv('CLIENT_ID')
-CLIENT_SECRET = os.getenv('CLIENT_SECRET')
-REDIRECT_URI = os.getenv('REDIRECT_URI')
+CLIENT_ID = env.str('CLIENT_ID', default='')
+CLIENT_SECRET = env.str('CLIENT_SECRET', default='')
+REDIRECT_URI = env.str('REDIRECT_URI', default='')
+# CLIENT_ID = os.getenv('CLIENT_ID')
+# CLIENT_SECRET = os.getenv('CLIENT_SECRET')
+# REDIRECT_URI = os.getenv('REDIRECT_URI')
 
 
 MEDIA_URL = '/media/'
