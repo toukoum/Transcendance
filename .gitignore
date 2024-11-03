@@ -43,3 +43,12 @@ venv/
 
 *.db
 */migrations/*
+
+##############################
+## Env variables
+##############################
+.env
+.env*.local
+
+
+.data/
