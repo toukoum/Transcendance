@@ -1,12 +1,73 @@
+:root {
+  --bs-primary: #000000; /* Remplacez avec votre couleur souhaitée */
+  --bs-secondary: #6c757d;
+  --bs-success: #28a745;
+  --bs-danger: #dc3545;
+  --bs-warning: #ffc107;
+  --bs-info: #17a2b8;
+  --bs-light: #f8f9fa;
+  --bs-dark: #343a40;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                    FONTS                                   */
+/* -------------------------------------------------------------------------- */
+
+@font-face {
+  font-family: 'VCRosdNEUE';
+  src: url('../fonts/VCRosdNEUE.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Press Start 2P';
+  src: url('../fonts/PressStart2P-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+/* -------------------------------------------------------------------------- */
+
 body {
-	font-family: Arial, sans-serif;
+	font-family: "Press Start 2P", system-ui;
 	margin: 0;
 	padding: 0;
 	height: 100vh;
 	width: 100vw;
+  background-color: #f7c583;
 }
 
-#app {
+/* -------------------------------------------------------------------------- */
+/*                             OVERRIDE BOOTSTRAP                             */
+/* -------------------------------------------------------------------------- */
+
+.btn {
+	border-radius: var(--bs-border-radius-pill) !important;
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+.pa-btn {
+  color: #fff;
+  background-color: #6abc3a;
+  padding: 15px 40px 15px 40px;
+  margin: 10px;
+   font-size: 14px;
+font-family: "Press Start 2P", system-ui;
+  border: 0;
+  box-shadow: 0px 5px black, 0px -5px black, 5px 0px black, -5px 0px black, 0px 10px #00000038, 5px 5px #00000038, -5px 5px #00000038, inset 0px 5px #ffffff36 ;
+  cursor: pointer;
+}
+.pa-btn:active {
+  transform: translateY(5px);
+  box-shadow: 0px 5px black, 0px -5px black, 5px 0px black, -5px 0px black,inset 0px 5px #00000038;
+}
+
+
+
+/* #app {
 	height: 100%;
 }
 
@@ -18,4 +79,4 @@ body {
 a {
 	text-decoration: none!important;
 	color: inherit;
-}
+} */

@@ -13,7 +13,14 @@ export class Auth {
 	 * @returns {Promise}
 	 */
 	async getUser() {
-		return await this.api.request.get("auth/user");
+		// use cache if available
+		if (window.user !== undefined) {
+			return await {
+				data: window.user,
+				error: null
+			}
+		}
+		return await this.api.request.get("user/me/");
 	}
 
 	/**
@@ -22,10 +29,24 @@ export class Auth {
 	 * @param {String} password - The password
 	 */
 	async loginWithIdentifier(identifier, password) {
-		return await this.api.request.post("login", {
-			identifier,
-			password
-		});
+		// if its a email
+		let response = null;
+		if (identifier.includes("@")) {
+			response = await this.api.request.post("auth/login/", {
+				email: identifier,
+				password
+			});
+		} else {
+			response = await this.api.request.post("auth/login/", {
+				username: identifier,
+				password
+			});
+		}
+
+		if (response.data.user) {
+			window.user = response.data.user;
+		}
+		return response;
 	}
 
 	/**
@@ -33,14 +54,14 @@ export class Auth {
 	 * @param {String} provider - The provider
 	 */
 	async loginWithOAuth(provider) {
-		return await this.api.request.get(`login/${provider}`);
+		return await this.api.request.get(`login/${provider}/`);
 	}
 
 	/**
 	 * @brief Logout the user
 	 */
 	async logout() {
-		return await this.api.request.post("logout");
+		return await this.api.request.post("auth/logout/");
 	}
 
 	/**
@@ -49,11 +70,17 @@ export class Auth {
 	 * @param {String} email - The email
 	 * @param {String} password - The password
 	 */
-	async register(username, email, password) {
-		return await this.api.request.post("register", {
+	async register({
+		username,
+		email,
+		password,
+		passwordConfirm
+	}) {
+		return await this.api.request.post("auth/register/", {
 			username,
 			email,
-			password
+			password1: password,
+			password2: passwordConfirm
 		});
 	}
 }
