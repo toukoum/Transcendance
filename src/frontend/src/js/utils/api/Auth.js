@@ -20,7 +20,7 @@ export class Auth {
 				error: null
 			}
 		}
-		return await this.api.request.get("user/me/");
+		return await this.api.request.get("me/");
 	}
 
 	/**

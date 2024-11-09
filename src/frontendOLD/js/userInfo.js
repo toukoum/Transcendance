@@ -3,7 +3,7 @@ let userInfo;
 
 async function fetchUserInfo() {
     try {
-        const response = await fetch(`${API_BASE_URL}user/me`, {
+        const response = await fetch(`${API_BASE_URL}me/`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -48,7 +48,7 @@ document.getElementById('avatar-form').addEventListener('submit', async function
     formData.append('avatar', avatarInput.files[0]);
 
     try {
-        const response = await fetch('http://localhost:8000/v1/user/me/', {
+        const response = await fetch('http://localhost:8000/v1/me/', {
             method: 'PATCH',
             credentials: 'include',
             body: formData
