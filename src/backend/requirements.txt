@@ -15,4 +15,3 @@ django-trench
 python-dotenv
 channels[daphne]
 channels_redis
-django-environ

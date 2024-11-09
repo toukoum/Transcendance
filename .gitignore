@@ -42,7 +42,8 @@ venv/
 .env
 
 *.db
-*/migrations/*
+**/migrations/*
+!**/migrations/__init__.py
 
 ##############################
 ## Env variables
