@@ -5,9 +5,16 @@ export class Home extends Component {
 		super("main-layout");
 	}
 	content() {
-		return (`
-			<h1>Home</h1>
-			<p>This is the home page</p>
+		const user = window.user;
+		return (/*html*/`
+			<div>
+				${user ? (/*html*/`
+					<h1>Hello, ${user.username}!</h1>
+				`) : ""}
+	
+				<!-- Basic dashboard -->
+
+			</div>
 		`);
 	}
 }

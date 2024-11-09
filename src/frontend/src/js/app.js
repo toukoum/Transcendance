@@ -17,12 +17,15 @@ export class App {
 			routes: [
 				new Route("/", "home-page"),
 				new Route("/search", "search-page"),
-				new Route("", "not-found-page"),
 				// Auth
 				new Route("/auth/login", "auth-login-page"),
 				new Route("/auth/signup", "auth-signup-page"),
 				// User
 				new Route("/user/:username", "user-page"),
+				// Play
+				new Route("/play", "play-page"),
+				// 404
+				new Route("", "not-found-page"),
 			],
 			// Order matters: the first middleware will be executed first
 			middlewares: [

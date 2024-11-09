@@ -1,4 +1,4 @@
-// import { api } from "../api/Api";
+import { api } from "../api/Api.js";
 // import { Route } from "../Router";
 
 const privateRoutes = [
@@ -12,14 +12,21 @@ const anonRoutes = [
 
 export const authMiddleware = async (route, next) => {
 	console.log("Auth Middleware");
+	
+	const { data: user } = await api.auth.getUser();
+	if (user) {
+		console.log("User is logged in");
+		window.user = user;
+	} else {
+		console.log("User is not logged in");
+		window.user = null;
+	}
 
-	const isLogged = false;
-
-	if (!isLogged && privateRoutes.includes(route.path)) {
+	if (!user && privateRoutes.includes(route.path)) {
 		window.router.redirect("/auth/login");
 		return
 	}
-	if (isLogged && anonRoutes.includes(route.path)) {
+	if (user && anonRoutes.includes(route.path)) {
 		window.router.redirect("/");
 		return
 	}

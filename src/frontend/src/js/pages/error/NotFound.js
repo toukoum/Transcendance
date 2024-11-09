@@ -15,12 +15,6 @@ export class NotFound extends Component {
 			</div>
 		`);
 	}
-	style() {
-		return (`
-			<style>
-			</style>
-		`);
-	}
 }
 
 customElements.define("not-found-page", NotFound);
