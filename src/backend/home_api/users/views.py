@@ -10,23 +10,19 @@ from rest_framework.permissions import IsAuthenticated
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
 
     serializer_class = UserListSerializer
-    detail_serializer_class = UserDetailSerializer
 
     queryset = User.objects.all()
     
-    def get_serializer_class(self):
-        if self.action == 'retrieve':
-            return self.detail_serializer_class
-        return super().get_serializer_class()
-
+    lookup_field = 'username'
 
 
 class UserUpdateProfileViewSet(viewsets.ModelViewSet):
     serializer_class = UserDetailSerializer
     permission_classes = [IsAuthenticated]
 
+
     def get_object(self):
-        return self.request.user
+        return self.request.user 
 
 
 class UserSearchView(viewsets.ReadOnlyModelViewSet):

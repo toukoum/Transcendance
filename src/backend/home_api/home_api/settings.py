@@ -21,8 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 WSGI_APPLICATION = 'home_api.wsgi.application'
 
-logging.basicConfig(level=logging.DEBUG)
-
+#logging.basicConfig(level=logging.DEBUG)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
