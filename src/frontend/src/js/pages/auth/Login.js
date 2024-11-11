@@ -2,7 +2,6 @@ import { images } from "../../../config/images.js";
 import { api } from "../../utils/api/Api.js";
 import { ApiRequestError } from "../../utils/api/parser/ApiRequestError.js";
 import { Component } from "../../utils/Component.js";
-
 export class Login extends Component {
 	constructor() {
 		super("main-layout");

@@ -1,4 +1,5 @@
 import { api } from "../api/Api.js";
+import { startNotification } from "../notification/notification.js";
 // import { Route } from "../Router";
 
 const privateRoutes = [
@@ -16,6 +17,7 @@ export const authMiddleware = async (route, next) => {
 	const { data: user } = await api.auth.getUser();
 	if (user) {
 		console.log("User is logged in");
+		startNotification();
 		window.user = user;
 	} else {
 		console.log("User is not logged in");

@@ -36,6 +36,10 @@ urlpatterns = [
     path('v1/auth/', include('authentification.urls')),
     path('v1/chat/', include('chat.urls')),
 
+		path('v1/notif/', include('notification.urls')),
+
+		path('v1/games/', include('games.urls')),
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
