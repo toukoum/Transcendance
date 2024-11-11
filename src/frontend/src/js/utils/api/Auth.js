@@ -14,9 +14,9 @@ export class Auth {
 	 */
 	async getUser() {
 		// use cache if available
-		if (window.user !== undefined) {
+		if (window.auth !== undefined) {
 			return await {
-				data: window.user,
+				data: window.auth,
 				error: null
 			}
 		}
@@ -44,7 +44,7 @@ export class Auth {
 		}
 
 		if (response.data.user) {
-			window.user = response.data.user;
+			window.auth = response.data.user;
 		}
 		return response;
 	}

@@ -3,8 +3,7 @@ import "./search/Search.js"
 import "./error/index.js"
 
 /* ---------------------------------- Auth ---------------------------------- */
-import "./auth/Login.js"
-import "./auth/Signup.js"
+import "./auth/index.js"
 
 /* ---------------------------------- User ---------------------------------- */
 import "./user/User.js"

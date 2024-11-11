@@ -13,15 +13,7 @@ export class MainLayout extends Component {
 			<header-component></header-component>
 			${this.childrens()}
 		</div>
-		`);
-		return (/*html*/`
-		<div class="container-fluid d-flex flex-row h-100 p-0">
-			<sidebar-component></sidebar-component>
-			<main class="container-fluid d-flex flex-column p-0">
-				<header-component></header-component>
-				${this.childrens()}
-			</main>
-		</div>
+		<toast-provider/>
 		`);
 	}
 }

@@ -107,6 +107,18 @@ body {
   color: var(--accent) !important;
 }
 
+/* ---------------------------------- Input --------------------------------- */
+
+/* ------------------------------- Form Control ------------------------------ */
+.form-control {
+  background-color: var(--muted) !important;
+  color: var(--primary) !important;
+  border-color: var(--muted) !important;
+}
+.form-control::placeholder {
+  color: var(--muted-foreground) !important;
+}
+
 
 
 /* -------------------------------------------------------------------------- */

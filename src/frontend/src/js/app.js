@@ -1,5 +1,6 @@
 import { Router, Route } from "./utils/Router.js";
 
+import "./provider/index.js";
 import "./pages/index.js";
 import "./components/index.js";
 import "./layout/index.js";
