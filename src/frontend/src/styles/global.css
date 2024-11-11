@@ -1,12 +1,14 @@
 :root {
-  --bs-primary: #000000; /* Remplacez avec votre couleur souhaitée */
-  --bs-secondary: #6c757d;
-  --bs-success: #28a745;
-  --bs-danger: #dc3545;
-  --bs-warning: #ffc107;
-  --bs-info: #17a2b8;
-  --bs-light: #f8f9fa;
-  --bs-dark: #343a40;
+  --primary: white;
+
+  --accent: #ffc400;
+
+  --background: #0f0f0f;
+  --background-main: black;
+
+  --muted: #141414;
+  --muted-hover: #2e2e2e;
+  --muted-foreground: #919191;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -30,21 +32,81 @@
 /* -------------------------------------------------------------------------- */
 
 body {
-	font-family: "Press Start 2P", system-ui;
+	/* font-family: "Press Start 2P", system-ui; */
+  font-family: Arial, sans-serif;
 	margin: 0;
 	padding: 0;
 	height: 100vh;
 	width: 100vw;
-  background-color: #f7c583;
+  color: #fff;
+  background-color: black;
 }
 
 /* -------------------------------------------------------------------------- */
 /*                             OVERRIDE BOOTSTRAP                             */
 /* -------------------------------------------------------------------------- */
 
-.btn {
-	border-radius: var(--bs-border-radius-pill) !important;
+/* ------------------------------- Background ------------------------------- */
+.bg-background {
+  background-color: var(--background) !important;
 }
+.bg-background-main {
+  background-color: var(--background-main) !important;
+}
+
+/* ---------------------------------- Text ---------------------------------- */
+.text-primary {
+  color: var(--primary) !important;
+}
+.text-accent {
+  color: var(--accent) !important;
+}
+.text-muted {
+  color: var(--muted) !important;
+}
+.text-muted-foreground {
+  color: var(--muted-foreground) !important;
+}
+
+/* --------------------------------- Border --------------------------------- */
+.border-muted-foreground {
+  border-color: var(--muted-foreground) !important;
+}
+
+/* --------------------------------- Buttons -------------------------------- */
+.btn {
+	border-radius: var(--bs-border-radius) !important;
+}
+/* BTN-MUTED */
+.btn-muted {
+  color: var(--primary) !important;
+  background-color: var(--muted) !important;
+  border-color: var(--muted) !important;
+}
+.btn-muted:hover {
+  color: var(--primary) !important;
+  background-color: var(--muted-hover) !important;
+  border-color: var(--muted-hover) !important;
+}
+/* only change color for enabled */
+.btn-muted-enabled {
+  color: var(--accent) !important;
+  background-color: var(--muted-hover) !important;
+  border-color: var(--muted-hover) !important;
+}
+.btn-muted-enabled:hover {
+  color: var(--accent) !important;
+  background-color: var(--muted-hover) !important;
+  border-color: var(--muted-hover) !important;
+}
+
+.nav-link {
+  color: var(--primary) !important;
+}
+.nav-link:hover {
+  color: var(--accent) !important;
+}
+
 
 
 /* -------------------------------------------------------------------------- */

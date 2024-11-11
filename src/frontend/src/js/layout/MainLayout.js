@@ -9,7 +9,7 @@ export class MainLayout extends Component {
 	// }
 	content() {
 		return (/*html*/`
-		<div class="d-flex flex-column p-4 h-100">
+		<div class="d-flex flex-column h-100 bg-background-main">
 			<header-component></header-component>
 			${this.childrens()}
 		</div>
