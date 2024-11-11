@@ -3,11 +3,11 @@ import { api } from "../api/Api.js";
 
 const privateRoutes = [
 	"/user/:username",
+	"/settings",
 ];
 
 const anonRoutes = [
-	"/auth/login",
-	"/auth/signup",
+	"/auth",
 ];
 
 export const authMiddleware = async (route, next) => {
@@ -15,20 +15,21 @@ export const authMiddleware = async (route, next) => {
 	
 	const { data: user } = await api.auth.getUser();
 	if (user) {
-		console.log("User is logged in");
-		window.user = user;
+		console.log(`User is logged in as ${JSON.stringify(user)}`);
+		window.auth = user;
 	} else {
 		console.log("User is not logged in");
-		window.user = null;
+		window.auth = null;
 	}
 
-	if (!user && privateRoutes.includes(route.path)) {
+	if (!user && privateRoutes.some((r) => route.path.startsWith(r))) {
 		window.router.redirect("/auth/login");
 		return
 	}
-	if (user && anonRoutes.includes(route.path)) {
-		window.router.redirect("/");
-		return
+
+	if (user && anonRoutes.some((r) => route.path.startsWith(r))) {
+		window.router.redirect("/"); // Redirect to home
+		return;
 	}
 
 	next();

@@ -66,6 +66,24 @@ export class Request {
 		});
 	}
 
+	static async patch(endpoint, data = {}, options = {}) {
+		if (typeof data !== "object") {
+			throw new TypeError("Data must be an object");
+		}
+		if (typeof options !== "object") {
+			throw new TypeError("Options must be an object");
+		}
+		return await Request.request(endpoint, {
+			method: "PATCH",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			credentials: "include",
+			body: JSON.stringify(data),
+			...options,
+		});
+	}
+
 	static async request(endpoint, options) {
 		if (typeof endpoint !== "string") {
 			throw new TypeError("Endpoint must be a string");
