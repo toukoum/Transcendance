@@ -14,12 +14,14 @@ from notification.utils import send_notification
 def testNotif(request):
 		
 		channel_layer = get_channel_layer()
+		userId = request.user.id
+		group_name = f'user_{userId}'
 		async_to_sync(channel_layer.group_send)(
-			'notification',
+			group_name,
 			{
 				'type': 'send_notification',
 				'data': {
-					'type': 'friendship_request',
+					'type': 'TEST',
 					'message': 'Salutttttt bg, je suis une notification',
 				}
 			}

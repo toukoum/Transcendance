@@ -20,7 +20,7 @@ export function startNotification(){
 				console.log(notification.data)
 				break
 			default:
-				console.log('Unknown notification type', notification)
+				console.log('NOTIFICATION', notification)
 		}
 	}
 
