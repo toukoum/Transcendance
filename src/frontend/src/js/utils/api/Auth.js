@@ -83,4 +83,43 @@ export class Auth {
 			password2: passwordConfirm
 		});
 	}
+
+	/**
+	 * @brief Update the authenticated user
+	 * @param {Object} data - The data to update
+	 * @returns {Promise}
+	 */
+	async update({
+		username,
+		firstName,
+		lastName,
+		bio
+	}) {
+		return await this.api.request.patch("me/", {
+			username,
+			first_name: firstName,
+			last_name: lastName,
+			profile: {
+				bio
+			}
+		});
+	}
+
+	/**
+	 * @brief Change the password of the authenticated user
+	 * @param {String} currentPassword - The current password
+	 * @param {String} newPassword - The new password
+	 * @param {String} newPasswordConfirm - The new password confirmation
+	 */
+	async changePassword({
+		currentPassword,
+		newPassword,
+		newPasswordConfirm
+	}) {
+		return await this.api.request.post("auth/password/change/", {
+			current_password: currentPassword,
+			new_password1: newPassword,
+			new_password2: newPasswordConfirm
+		});
+	}
 }

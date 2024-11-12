@@ -23,6 +23,7 @@ export const authMiddleware = async (route, next) => {
 	}
 
 	if (!user && privateRoutes.some((r) => route.path.startsWith(r))) {
+		// window.router.redirect(`/auth/login?redirect=${route.path}`); TODO: Implement redirect
 		window.router.redirect("/auth/login");
 		return
 	}

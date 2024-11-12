@@ -40,7 +40,7 @@ const schemaProfile = zod.object({
 export class SettingsProfile extends Component {
 	content() {
 		const user = window.auth;
-		console.log(`User: ${JSON.stringify(user)}`);
+		if (!user) window.router.redirect("/auth/login&redirect=/settings/profile");
 		return (/*html*/`
 			<settings-layout>
 				<!-- Start form -->
@@ -105,7 +105,7 @@ export class SettingsProfile extends Component {
 					bio
 				});
 
-				const { data, error } = await api.me.update({
+				const { data, error } = await api.auth.update({
 					username,
 					firstName,
 					lastName,
@@ -113,7 +113,12 @@ export class SettingsProfile extends Component {
 				})
 				if (error) throw error;
 				window.auth = data;
-
+				// clear errors
+				form.querySelectorAll(".is-invalid").forEach(input => input.classList.remove("is-invalid"));
+				form.querySelectorAll(".form-text").forEach(errorElement => {
+					errorElement.innerText = "";
+					errorElement.style.display = "none";
+				});
 				Toast.success("Profile updated successfully");
 			} catch (error) {
 				if (error instanceof ApiRequestError) {
