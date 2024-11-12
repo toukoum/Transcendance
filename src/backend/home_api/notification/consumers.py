@@ -30,12 +30,10 @@ class NotificationConsumer(AsyncWebsocketConsumer):
 				# Peut être utilisé si on veut recevoir des messages du client
 				pass
 
-		async def send_notification_consumer(self, event):
+		async def send_notification(self, event):
 				# Méthode pour envoyer une notification
 				data = event['data']
-				notification_type = data['type']
 
 				await self.send(text_data=json.dumps({
-						'type': notification_type,
 						'data': data
 				}))

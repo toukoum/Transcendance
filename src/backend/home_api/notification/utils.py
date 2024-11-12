@@ -13,7 +13,7 @@ def send_notification(data, user2_id):
 		async_to_sync(channel_layer.group_send)(
 				group_name,
 				{
-						'type': 'send_notification_consumer',
-						'data': data
+					'type': 'send_notification',
+					'data': data
 				}
 	)

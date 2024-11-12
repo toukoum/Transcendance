@@ -29,8 +29,8 @@ application = ProtocolTypeRouter(
             AuthMiddlewareStack(
                 URLRouter(
                     chat_websocket_urlpatterns +
-										notification_websocket_urlpatterns +
-										games_websocket_urlpatterns
+                    notification_websocket_urlpatterns +
+                    games_websocket_urlpatterns
                 )
             )
         )

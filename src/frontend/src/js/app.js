@@ -24,9 +24,11 @@ export class App {
 				new Route("/user/:username", "user-page"),
 				// Play
 				new Route("/play", "play-page"),
+
 				// raf test
 				new Route("/raf", "raf-test-page"),
 				new Route("/raf/play", "raf-play-page"),
+				new Route("/raf/notif", "raf-notif-page"),
 				
 				// 404
 				new Route("", "not-found-page"),
