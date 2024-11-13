@@ -25,10 +25,13 @@ class MatchViewSet(viewsets.ModelViewSet):
 				except User.DoesNotExist:
 						return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 				
+				if (player1 == player2):
+						return Response({'error': 'You cannot play against yourself'}, status=status.HTTP_400_BAD_REQUEST)	
+
 				match = Match.objects.create()
 
-				match_player1 = MatchPlayer.objects.create(match=match, player_id=player1)
-				match_player2 = MatchPlayer.objects.create(match=match, player_id=player2)
+				match_player1 = MatchPlayer.objects.create(match_id=match, player_id=player1)
+				match_player2 = MatchPlayer.objects.create(match_id=match, player_id=player2)
 
 				serializer = MatchSerializer(match)
 

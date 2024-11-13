@@ -12,11 +12,13 @@ export class RafTestPage extends Component {
 				Chargement des utilisateurs...
 			</div>
 
+
 			<form id="join-game-form" class="w-100 mt-4 border border-primary">
 				<label for="game-id">Game ID:</label>
 				<input type="text" id="game-id" name="game-id" required>
 				<button type="submit">Join game</button>
 			</form>
+
 		`);
 	}
 
@@ -101,8 +103,10 @@ export class RafTestPage extends Component {
 
 			// Connexion WebSocket à la partie spécifiée par l'ID
 			socketGameManager.connect(gameId);
-			// set a little delay
 		});
+
+
+		
 	}
 }
 

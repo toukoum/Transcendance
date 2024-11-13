@@ -15,9 +15,10 @@ class Match(models.Model):
 
 
 class MatchPlayer(models.Model):
-		match = models.ForeignKey(Match, on_delete=models.CASCADE)
+		match_id = models.ForeignKey(Match, on_delete=models.CASCADE)
 		player_id = models.ForeignKey(User, on_delete=models.CASCADE)
 		score = models.IntegerField(default=0)
+		connected = models.BooleanField(default=False)
 
 		def __str__(self):
-				return f'{self.player_id.username} in match {self.match.id}'
+				return f'{self.player_id.username} in match {self.match_id.id}'

@@ -25,7 +25,7 @@ class SocketGameManager {
 		this.socketGame.onmessage = (event) => {
 			const messageData = JSON.parse(event.data);
 			console.log("=== Message SERVER ====");
-			if (messageData.message === 'Game starting!') {
+			if (messageData.message === 'START') {
 				console.log("Game is starting! Redirecting to play page...");
 				window.router.push('/raf/play');
 			} else {

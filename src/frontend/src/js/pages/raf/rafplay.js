@@ -12,12 +12,14 @@ export class RafPlayPage extends Component {
 			<div id="game" class="w-100 border border-primary">
 				Le jeu va commencer...
 			</div>
+
 		`);
 	}
 
 
 	script() {
 
+		
 		const game = document.getElementById("game");
 		const socketGame = socketGameManager.getSocket();
 
@@ -31,7 +33,8 @@ export class RafPlayPage extends Component {
 				// Mise à jour de l'affichage des informations de jeu
 				const messageDiv = document.createElement("div");
 				messageDiv.innerHTML = `
-					<p>Ball position - X: ${messageData.ball.x}, Y: ${messageData.ball.y}</p>
+					<p>Ball position - X: ${messageData.ball_position[0]}, Y: ${messageData.ball_position[1]}</p>
+					<p>Ball position - X: ${messageData.ball_velocity[0]}, Y: ${messageData.ball_velocity[1]}</p>
 					<p>Score - Player 1: ${messageData.score.player1}, Player 2: ${messageData.score.player2}</p>
 				`;
 

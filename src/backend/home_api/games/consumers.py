@@ -1,191 +1,158 @@
-from asyncio import sleep
-from channels.generic.websocket import AsyncWebsocketConsumer
-from django.utils import timezone
-from asgiref.sync import sync_to_async
 import json
-
-from .models import Match, MatchPlayer
+from channels.generic.websocket import AsyncWebsocketConsumer
+from games.models import Match, MatchPlayer
 from django.contrib.auth.models import User
-
+from channels.db import database_sync_to_async
+import asyncio
 class GameConsumer(AsyncWebsocketConsumer):
-    
-    active_connections = {}
-
     async def connect(self):
         self.game_id = self.scope['url_route']['kwargs']['game_id']
-        self.group_name = f'game_{self.game_id}'
+        self.room_group_name = f'game_{self.game_id}'
+        self.user = self.scope['user']
 
-        # Ajouter le joueur au groupe de la partie
+        can_join = await self.can_join_match()
+        if not can_join:
+            print("===== User can't join match ❌=====")
+            await self.close()
+            return
+
+        print(f"User {self.user} connected to game {self.game_id} in group {self.room_group_name}")
+
         await self.channel_layer.group_add(
-            self.group_name,
+            self.room_group_name,
             self.channel_name
         )
-        print("\n\n===========")
-        print(f"User {self.scope['user']} connected to game {self.game_id} in group {self.group_name}")
-        print(f"Added {self.channel_name} to group {self.group_name}")
-
-        if self.game_id not in self.active_connections:
-            self.active_connections[self.game_id] = set()
-        self.active_connections[self.game_id].add(self.channel_name)
-        
-        print(f"Active connections for game {self.game_id}: {self.active_connections[self.game_id]}")
-        print("\n\n===========")
 
         await self.accept()
 
-        # Notifier et vérifier la connexion des deux joueurs
+        await self.update_player_connection_status(connected=True)
         await self.check_both_players_connected()
 
+    async def disconnect(self, close_code):
+        await self.update_player_connection_status(connected=False)
+        await self.channel_layer.group_discard(
+            self.room_group_name,
+            self.channel_name
+        )
 
 
     async def check_both_players_connected(self):
-        """
-        Check if both players are connected to the game.
-        """
+        player_connected = await database_sync_to_async(
+            MatchPlayer.objects.filter(match_id=self.game_id, connected=True).count
+        )()
 
-        await self.channel_layer.group_send(
-            self.group_name,
-            {
-                'type': 'test_message',
-                'message': 'Test MESSSAGGGEEEEE mon gars'
-            }
-        )
-
-        if len(self.active_connections[self.game_id]) == 2:
-            # Notify both players that the game can start
-            print('=====> Both players connected to game', self.game_id)
-            await self.send_start_game()
-        else:
-            # Envoyer un message d'attente si les deux joueurs ne sont pas encore connectés
+        if player_connected == 2:
+            print('=====> Both players connected to game ', self.game_id)
             await self.channel_layer.group_send(
-                self.group_name,
+                self.room_group_name,
+                {
+                    'type': 'game_start',
+                    'message': 'START'
+                }
+            )
+            asyncio.create_task(self.game_loop())
+        else:
+            print('=====> Not all players are connected to game', self.game_id)
+            await self.channel_layer.group_send(
+                self.room_group_name,
                 {
                     'type': 'game_waiting',
                     'message': 'Waiting for the other player to connect...'
                 }
             )
 
-    async def test_message(self, event):
-        message = event['message']
-        print(f"Test message received by {self.scope['user']} in game {self.game_id}")
-        await self.send(text_data=json.dumps({
-            'message': message
-        }))
+    async def game_loop(self):
+        ball_position = [50, 50]
+        ball_velocity = [1, 1]
+        player1_position = 50
+        player2_position = 50
+        score = {"player1": 0, "player2": 0}
 
-
-    async def disconnect(self, close_code):
-        
-        if self.game_id in self.active_connections:
-          self.active_connections[self.game_id].discard(self.channel_name)
-          if not self.active_connections[self.game_id]:
-              # Supprimer la clé si plus personne n'est connecté
-              del self.active_connections[self.game_id]
-
-        print("\n\n===========")
-        print(f"User {self.scope['user']} disconnected from game {self.game_id} in group {self.group_name}")
-        # Retirer le joueur du groupe de la partie
-        await self.channel_layer.group_discard(
-            self.group_name,
-            self.channel_name
-        )
-
-        
-    async def send_start_game(self):
-        # Notifie les deux joueurs que la partie peut commencer
-        print(f"Sending 'Game starting!' to group {self.group_name} for game {self.game_id}")
-
-        await self.channel_layer.group_send(
-            self.group_name,
-            {
-                'type': 'game_start',
-                'message': 'Game starting!'
-            }
-        )
-
-        # launch the game
-        await self.launch_game()
-
-    async def game_start(self, event):
-        message = event['message']
-        print(f"Sending start message to= {self.scope['user']} in game= {self.game_id}")
-
-        await self.send(text_data=json.dumps({
-            'message': message
-        }))
-
-    
-
-    async def game_waiting(self, event):
-        message = event['message']
-        await self.send(text_data=json.dumps({
-            'message': message
-        }))
-
-
-    async def launch_game(self):
-        """
-        Simule le lancement du jeu avec une balle en mouvement.
-        """
-        # Position initiale de la balle
-        ball = {
-            'x': 0,
-            'y': 0,
-            'dx': 1,
-            'dy': 1
-        }
-
-        # Scores des joueurs
-        score = {
-            'player1': 0,
-            'player2': 0
-        }
-
-        # Boucle de jeu pour envoyer les mises à jour de l'état
         while True:
-            # Met à jour la position de la balle
-            ball['x'] += ball['dx']
-            ball['y'] += ball['dy']
+            ball_position[0] += ball_velocity[0]
+            ball_position[1] += ball_velocity[1]
 
-            # Vérifie les rebonds (exemple de simple logique pour tester)
-            if ball['x'] <= 0 or ball['x'] >= 100:  # Limites horizontales
-                ball['dx'] *= -1  # Change de direction
-            if ball['y'] <= 0 or ball['y'] >= 100:  # Limites verticales
-                ball['dy'] *= -1  # Change de direction
+            if ball_position[1] <= 0 or ball_position[1] >= 100:  # Bords haut et bas
+                ball_velocity[1] *= -1
 
-            # Envoie l'update de l'état du jeu à tous les clients connectés
+            if ball_position[0] <= 0:  # Collision avec le mur 1
+                score['player1'] += 1
+                ball_position = [50, 50] 
+
+            elif ball_position[0] >= 100:  # Collision avec le mur 2
+                score['player2'] += 1
+                ball_position = [50, 50]
+
             await self.channel_layer.group_send(
-                self.group_name,
+                self.room_group_name,
                 {
                     'type': 'game_update',
-                    'ball': ball,
+                    'ball_position': ball_position,
+                    'ball_velocity': ball_velocity,
+                    'player1_position': player1_position,
+                    'player2_position': player2_position,
                     'score': score
                 }
             )
+            #await asyncio.sleep(0.02) # 50 FPS
+            await asyncio.sleep(1) 
 
-            # Pause de 1 seconde avant la prochaine mise à jour
-            await sleep(1)
-    
     async def game_update(self, event):
-        """
-        Envoie l'update de l'état du jeu au client.
-        """
         await self.send(text_data=json.dumps({
-            'type': 'game_update',
-            'ball': event['ball'],
+            'ball_position': event['ball_position'],
+            'ball_velocity': event['ball_velocity'],
+            'player1_position': event['player1_position'],
+            'player2_position': event['player2_position'],
             'score': event['score']
         }))
+  
+    async def game_start(self, event):
+        
+        message = event['message']
+        await self.send(text_data=json.dumps({
+                    'message': message
+                }))
+  
+  
+    async def game_waiting(self, event):
+        
+        message = event['message']
+        await self.send(text_data=json.dumps({
+                    'message': message
+                }))
+  
 
+        
+    @database_sync_to_async
+    def update_player_connection_status(self, connected):
+        match_player = MatchPlayer.objects.get(match_id=self.game_id, player_id=self.user.id)
+        match_player.connected = connected
+        match_player.save()
 
+    @database_sync_to_async
+    def can_join_match(self):
+        """
+          Check:
+            - If the match exists
+            - If the user is in the match
+            - If the user is not in another ongoing match
+        """
+        try:
+            match = Match.objects.get(id=self.game_id)
+        except Match.DoesNotExist:
+            return False
+        
+        is_player_in_match = MatchPlayer.objects.filter(match_id=match, player_id=self.user).exists()
+        if not is_player_in_match:
+            return False
+        
+        ## A REMETTRE PLUS TARD
+        #ongoing_matches = Match.objects.filter(
+        #    matchplayer__player_id=self.user,
+        #    end_time__isnull=True
+        #).exclude(id=self.game_id)
 
-    async def receive(self, text_data):
-        data = json.loads(text_data)
-        action_type = data.get('action')
-
-        if action_type == 'update_score':
-            player = self.scope['user']
-            score = data.get('score')
-            await self.update_player_score(player, score)
-
-        elif action_type == 'end_game':
-            winner_id = data.get('winner_id')
-            await self.end_match(winner_id)
+        #if ongoing_matches.exists():
+        #    return False
+        
+        return True
