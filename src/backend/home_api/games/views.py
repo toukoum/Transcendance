@@ -8,8 +8,9 @@ from games.models import Match, MatchPlayer
 from games.serializers import MatchSerializer
 
 from django.contrib.auth.models import User
+from rest_framework.views import APIView
 
-class MatchViewSet(viewsets.ModelViewSet):
+class CreateMatchViewSet(viewsets.ModelViewSet):
         queryset = Match.objects.all()
         serializer_class = MatchSerializer
         permission_classes = [IsAuthenticated]
@@ -49,9 +50,29 @@ class MatchViewSet(viewsets.ModelViewSet):
 
                 match = Match.objects.create()
 
-                match_player1 = MatchPlayer.objects.create(match_id=match, player_id=player1)
-                match_player2 = MatchPlayer.objects.create(match_id=match, player_id=player2)
+                match_player1 = MatchPlayer.objects.create(match_id=match, player_id=player1, is_player1=True)
+                match_player2 = MatchPlayer.objects.create(match_id=match, player_id=player2, is_player1=False)
 
                 serializer = MatchSerializer(match)
 
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class MatchInfoView(APIView):
+		permission_classes = [IsAuthenticated]
+
+		def get(self, request):
+				"""
+					Return the match info for the current player or nothing
+				"""
+				player_id = request.user.id
+				match = Match.objects.filter(
+					matchplayer__player_id=player_id,
+					end_time__isnull=True
+				).order_by('-start_time').first()
+
+				if match is None:
+						return Response({"id": None})
+
+				serializer = MatchSerializer(match)
+				return Response(serializer.data)

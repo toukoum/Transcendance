@@ -7,43 +7,78 @@ export class RafPlayPage extends Component {
 	}
 	
 	content() {
-		return (/*html*/`
-
-			<div id="game" class="w-100 border border-primary">
-				Le jeu va commencer...
-			</div>
-
-		`);
+    return (/*html*/`
+        <div id="game" class="w-100 border border-primary">
+            <canvas id="pongCanvas" width="800" height="300"></canvas>
+        </div>
+    `);
 	}
 
 
 	script() {
+    const canvas = document.getElementById("pongCanvas");
+    const ctx = canvas.getContext("2d");
+    const socketGame = socketGameManager.getSocket();
 
-		
-		const game = document.getElementById("game");
-		const socketGame = socketGameManager.getSocket();
+    if (!socketGame) {
+        console.error("No game socket available");
+        return;
+    }
 
-		if (!socketGame) {
-			console.error("No game socket available");
-		} else {
-			socketGame.onmessage = (event) => {
-				const messageData = JSON.parse(event.data);
-				console.log("Message from game server:", messageData);
+    // Variables pour stocker l'état du jeu
+    let gameState = {
+        ball: { pos: [0, 0], radius: 1 },
+        player1: { pos_y: 50, width: 1, height: 20 },
+        player2: { pos_y: 50, width: 1, height: 20 },
+        score: { player1: 0, player2: 0 }
+    };
 
-				// Mise à jour de l'affichage des informations de jeu
-				const messageDiv = document.createElement("div");
-				messageDiv.innerHTML = `
-					<p>Ball position - X: ${messageData.ball_position[0]}, Y: ${messageData.ball_position[1]}</p>
-					<p>Ball position - X: ${messageData.ball_velocity[0]}, Y: ${messageData.ball_velocity[1]}</p>
-					<p>Score - Player 1: ${messageData.score.player1}, Player 2: ${messageData.score.player2}</p>
-				`;
+    // Fonction pour dessiner le jeu
+    function drawGame() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-				// Efface le contenu précédent et ajoute le nouveau
-				game.innerHTML = "";
-				game.appendChild(messageDiv);
-			};
-		}
+        // Dessiner la balle
+        ctx.beginPath();
+        ctx.arc(
+            gameState.ball.pos[0] * (canvas.width / 100), // Adaptation de la position
+            gameState.ball.pos[1] * (canvas.height / 100),
+            gameState.ball.radius * (canvas.width / 100),
+            0, Math.PI * 2
+        );
+        ctx.fill();
+
+        // Dessiner les raquettes
+        ctx.fillRect(10, gameState.player1.pos_y * (canvas.height / 100), 10, gameState.player1.height * (canvas.height / 100));
+        ctx.fillRect(canvas.width - 20, gameState.player2.pos_y * (canvas.height / 100), 10, gameState.player2.height * (canvas.height / 100));
+
+        // Afficher le score
+        ctx.font = "16px Arial";
+        ctx.fillText(`Player 1: ${gameState.score.player1}`, 10, 20);
+        ctx.fillText(`Player 2: ${gameState.score.player2}`, canvas.width - 100, 20);
+    }
+
+    // Réception des données du serveur
+    socketGame.onmessage = (event) => {
+        const messageData = JSON.parse(event.data);
+        if (messageData.type === "game_update") {
+            gameState = messageData.game_state;
+            drawGame();
+        }
+    };
+
+    // Gestion du mouvement des raquettes
+    window.addEventListener("keydown", (e) => {
+        let direction = 0;
+        if (e.key === "ArrowUp") direction = -1;
+        if (e.key === "ArrowDown") direction = 1;
+        
+        if (direction !== 0) {
+						console.log("sending paddle move");
+            socketGame.send(JSON.stringify({ type: "paddle_move", direction }));
+        }
+    });
 	}
+
 }
 
 customElements.define("raf-play-page", RafPlayPage);

@@ -19,6 +19,7 @@ class MatchPlayer(models.Model):
 		player_id = models.ForeignKey(User, on_delete=models.CASCADE)
 		score = models.IntegerField(default=0)
 		connected = models.BooleanField(default=False)
+		is_player1 = models.BooleanField(default=False)  # Nouveau champ pour indiquer si le joueur est le joueur 1
 
 		def __str__(self):
 				return f'{self.player_id.username} in match {self.match_id.id}'
