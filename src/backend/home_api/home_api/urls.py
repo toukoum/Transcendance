@@ -23,22 +23,24 @@ from rest_framework.routers import DefaultRouter
 
 from users.views import UserViewSet
 from friends.views import FriendshipViewSet
+from games.views import MatchViewSet
 
 router = DefaultRouter()
 
 router.register(r'users', UserViewSet, basename='users')
 router.register(r'friends', FriendshipViewSet, basename='friends')
+router.register(r'games', MatchViewSet, basename='games')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('v1/', include(router.urls)),
     path('v1/', include('users.urls')),
+    path('v1/', include('games.urls')),
     path('v1/auth/', include('authentification.urls')),
     path('v1/chat/', include('chat.urls')),
 
     path('v1/notif/', include('notification.urls')),
 
-    path('v1/games/', include('games.urls')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

@@ -15,7 +15,7 @@ class Match(models.Model):
 
 
 class MatchPlayer(models.Model):
-		match_id = models.ForeignKey(Match, on_delete=models.CASCADE)
+		match_id = models.ForeignKey(Match, on_delete=models.CASCADE, related_name='match_players')
 		player_id = models.ForeignKey(User, on_delete=models.CASCADE)
 		score = models.IntegerField(default=0)
 		connected = models.BooleanField(default=False)

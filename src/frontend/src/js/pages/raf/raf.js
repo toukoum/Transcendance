@@ -25,7 +25,7 @@ export class RafTestPage extends Component {
 	async createGame(username) {
 		try {
 			// Crée une nouvelle partie en invitant l'opponent
-			const gameResponse = await fetch("http://localhost:8000/v1/games/new/", {
+			const gameResponse = await fetch("http://localhost:8000/v1/game/new/", {
 				method: "POST",
 				credentials: "include",
 				headers: {
