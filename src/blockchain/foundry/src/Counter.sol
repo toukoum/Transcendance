@@ -1,14 +1,24 @@
-// SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.13;
+// SPDX-License-Identifier: MIT
 
-contract Counter {
-    uint256 public number;
+pragma solidity >=0.7.0 <0.9.0;
+contract Pong{
 
-    function setNumber(uint256 newNumber) public {
-        number = newNumber;
+	struct Game {
+		uint gamesPlayed;
+		uint wins;
+		uint loses;
+	}
+
+	mapping(address => Game) private addressToGame;
+
+    function win(address walletLooser) public {
+		addressToGame[msg.sender].gamesPlayed += 1;
+		addressToGame[walletLooser].gamesPlayed += 1;
+		addressToGame[msg.sender].wins += 1;
+		addressToGame[walletLooser].loses += 1;
     }
 
-    function increment() public {
-        number++;
-    }
+	function getGame(address wallet) public view returns (uint, uint, uint) {
+		return (addressToGame[wallet].gamesPlayed, addressToGame[wallet].wins, addressToGame[wallet].loses);
+	}
 }
