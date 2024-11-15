@@ -1,5 +1,6 @@
 import { Component } from "../../utils/Component.js";
 import { socketGameManager } from "./socketGameManager.js";
+import { avatarUpload } from "./avatarUpload.js"
 
 export class RafTestPage extends Component {
 	constructor() {
@@ -17,6 +18,14 @@ export class RafTestPage extends Component {
 				<input type="text" id="game-id" name="game-id" required>
 				<button type="submit">Join game</button>
 			</form>
+
+
+			// <form id="avatarForm" class="w-100 mt-4 border border-primary">
+			// 		<label for="avatarInput">Upload Avatar:</label>
+			// 		<input type="file" id="avatarInput" name="avatar" required>
+			// 		<button type="submit">Upload Avatar</button>
+			// </form>
+
 
 		`);
 	}
@@ -89,6 +98,7 @@ export class RafTestPage extends Component {
 		}
 	}
 
+
 	script() {
 		// Charger les utilisateurs au démarrage
 		this.loadUsers();
@@ -104,8 +114,8 @@ export class RafTestPage extends Component {
 			socketGameManager.connect(gameId);
 		});
 
+		avatarUpload()
 
-		
 	}
 }
 
