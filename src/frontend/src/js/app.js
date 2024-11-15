@@ -25,10 +25,18 @@ export class App {
 				new Route("/user/:username", "user-page"),
 				// Play
 				new Route("/play", "play-page"),
+
+
+				// raf test
+				new Route("/raf", "raf-test-page"),
+				new Route("/raf/play", "raf-play-page"),
+				new Route("/raf/notif", "raf-notif-page"),
+				
 				// Settings
 				new Route("/settings", "settings-profile-page"),
 				new Route("/settings/profile", "settings-profile-page"),
 				new Route("/settings/security", "settings-security-page"),
+        
 				// 404
 				new Route("", "not-found-page"),
 			],

@@ -18,5 +18,20 @@ def main():
     execute_from_command_line(sys.argv)
 
 
+    if 'migrate' in sys.argv:
+        from django.contrib.auth.models import User
+        if not User.objects.filter(username='jul').exists():
+            User.objects.create_superuser('jul', 'jul@gmail.com', 'jul')
+
+        if not User.objects.filter(username='toukoum').exists():
+            User.objects.create_user('toukoum', 'toukoumcode@gmail.com', 'ekb.UGU0kyr*xaj_tup')
+        
+
+        if not User.objects.filter(username='raph').exists():
+            User.objects.create_user('raph', 'raphaelgiraud12@gmail.com', 'ekb.UGU0kyr*xaj_tup')
+
+
+
+
 if __name__ == '__main__':
     main()

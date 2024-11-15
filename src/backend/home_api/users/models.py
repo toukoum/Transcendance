@@ -9,7 +9,7 @@ class Profile(models.Model):
     bio = models.TextField(max_length=500, blank=True)
     location = models.CharField(max_length=30, blank=True)
     birth_date = models.DateField(null=True, blank=True)
-    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
+    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True, default="http://localhost:8000/media/avatars/default-avatar.png")
 
     is_2fa_enabled = models.BooleanField(default=False)
 
@@ -17,10 +17,6 @@ class Profile(models.Model):
         return self.user.username
     
     def save(self, *args, **kwargs):
-        if self.pk is None:  # This indicates a new instance
-            print("Attempting to create a new Profile instance for user:", self.user)
-        else:
-            print("Updating Profile instance for user:", self.user)
         super(Profile, self).save(*args, **kwargs)
     
 
