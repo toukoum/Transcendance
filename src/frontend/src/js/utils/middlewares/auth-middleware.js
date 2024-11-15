@@ -1,4 +1,5 @@
 import { api } from "../api/Api.js";
+import { startNotification } from "../notification/notification.js";
 // import { Route } from "../Router";
 
 const privateRoutes = [

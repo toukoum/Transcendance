@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 from users.models import Profile
 from rest_framework_simplejwt.tokens import AccessToken
 
+
+
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
@@ -54,6 +56,10 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
         return jwt_data
         
+class UserWrapperSerializer(serializers.Serializer):
+    user = UserDetailSerializer(source='*')
+
+
 
 class UserListSerializer(serializers.ModelSerializer):
     class Meta:

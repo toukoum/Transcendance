@@ -17,6 +17,8 @@ export class Header extends Component {
 				<li><link-component href="/leaderboard" class="nav-link px-2">Leaderboard</link-component></li>
 			</ul>
 
+			<test-notif></test-notif>
+
 			<div class="col-md-3 justify-content-end d-flex gap-2">
 				${user ? (/*html*/`
 					<usernav-component></usernav-component>

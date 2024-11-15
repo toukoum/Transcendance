@@ -3,7 +3,7 @@ from rest_framework import status
 from django.contrib.auth.models import User
 from requests import Response
 from rest_framework import viewsets
-from users.serializers import UserDetailSerializer, UserListSerializer
+from users.serializers import UserDetailSerializer, UserListSerializer, UserWrapperSerializer
 
 from rest_framework.permissions import IsAuthenticated
 
@@ -24,6 +24,12 @@ class UserUpdateProfileViewSet(viewsets.ModelViewSet):
     def get_object(self):
         return self.request.user 
 
+class UserWrapperViewSet(viewsets.ModelViewSet):
+    serializer_class = UserWrapperSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
 
 class UserSearchView(viewsets.ReadOnlyModelViewSet):
     serializer_class = UserListSerializer

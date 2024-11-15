@@ -168,6 +168,8 @@ def get_user_profile(request):
 
 MFAMethod = get_mfa_model()
 
+from users.views import UserWrapperViewSet
+
 class LoginViewCustom(LoginView):
     authentication_classes = ()
 
@@ -186,7 +188,7 @@ class LoginViewCustom(LoginView):
         self.request = request
         self.serializer = self.get_serializer(data=request.data)
         self.serializer.is_valid(raise_exception=True)
-        user = self.serializer.validated_data.get("user")        
+        user = self.serializer.validated_data.get("user")
 
         if hasattr(user, 'profile') and user.profile.is_2fa_enabled:
             auth_method = (
@@ -210,8 +212,22 @@ class LoginViewCustom(LoginView):
             else:
                 print("===> Le 2fa n'est pas activé pour cet utilisateur yo")
         self.login()
-        return self.get_response()
-    
+
+        access_token, refresh_token = jwt_encode(user)
+
+        # FOR LOUP, renvoyer les info de /v1/me/ une fois qu'on est login
+        view = UserWrapperViewSet(request=request, format_kwarg=self.format_kwarg)
+        view.kwargs = {'pk': user.pk}
+        view.request = request
+        view.action = 'retrieve'
+        
+        # Simuler un appel à 'retrieve' en appelant la méthode directement
+        response = view.retrieve(request)
+
+        set_jwt_cookies(response, access_token, refresh_token)
+
+        return (response)
+
 
 class MFAValidationViewCustom(APIView):
     """

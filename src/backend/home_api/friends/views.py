@@ -1,18 +1,20 @@
 
 from friends.models import Friendship
-from friends.serializers import FriendshipSerializer
+from friends.serializers import FriendshipSerializer, DetailFriendshipSerializer
 from rest_framework import viewsets
-
 from rest_framework.permissions import IsAuthenticated
 
 from rest_framework.response import Response
 from rest_framework import status
-
 from django.db.models import Q
-
 from rest_framework.decorators import action
-
 from django.contrib.auth.models import User
+
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+
+from notification.utils import send_notification
+
 
 class FriendshipViewSet(viewsets.ModelViewSet):
 
@@ -48,26 +50,41 @@ class FriendshipViewSet(viewsets.ModelViewSet):
             return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
         
 
-        print("Salut la compagnie: ", data)
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save(user1=user1, user2=user2)
+
+
+        send_notification(
+            data={
+                'message': f'{user1.username} wants to be friends with you',
+                'type': 'friendship_request',
+                'user1_id': user1.id,
+                'user1_username': user1.username,
+                'request_id': serializer.data['id'],
+            },
+            user2_id=user2_id,
+        )
     
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-
-
     def list(self, request, *args, **kwargs):
+        """
+        get all friends of the authenticated user
+        """
         user = request.user
-        friendship = Friendship.objects.filter((Q(user1=user) | Q(user2=user)) & Q(status='accepted'))
+        #friendship = Friendship.objects.filter((Q(user1=user) | Q(user2=user)) & Q(status='accepted'))
+        friendship = Friendship.objects.filter((Q(user1=user) | Q(user2=user)))
         serializer = self.get_serializer(friendship, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
 
 
     @action (detail=True, methods=['post'])
     def accept(self, request, pk=None):
+        """
+        accept a friendship request
+        """
         print(request.data)
         friendship = self.get_object()
         if friendship.user2 != request.user:
@@ -91,8 +108,13 @@ class FriendshipViewSet(viewsets.ModelViewSet):
 
         return Response({'status': 'Friendship rejected'}, status=status.HTTP_200_OK)
     
+
+
     @action (detail=False, methods=['get'], url_path='sent')
     def sent_requests(self, request):
+        """
+        get all friendship requests sent by the authenticated user
+        """
         user = request.user
         sent_requests = Friendship.objects.filter(user1=user, status='pending')
         serializer = self.get_serializer(sent_requests, many=True)
@@ -108,6 +130,8 @@ class FriendshipViewSet(viewsets.ModelViewSet):
 
     @action (detail=True, methods=['delete'])
     def delete(self, request, pk=None):
+        if pk is None:
+            return Response({'error': 'You must provide a friendship id'}, status=status.HTTP_400_BAD_REQUEST)
         friendship = self.get_object()
         if friendship.user1 != request.user and friendship.user2 != request.user and friendship.status == 'accepted':
             return Response({'error': 'You can not delete this friendship request'}, status=status.HTTP_400_BAD_REQUEST)
@@ -117,3 +141,13 @@ class FriendshipViewSet(viewsets.ModelViewSet):
         friendship.delete()
 
         return Response({'status': 'Friendship deleted'}, status=status.HTTP_200_OK)
+    
+
+    def update(self, request, *args, **kwargs):
+        # Disable PUT requests
+        return Response({'error': 'PUT requests are not allowed on friendships'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def partial_update(self, request, *args, **kwargs):
+        # Disable PATCH requests
+        return Response({'error': 'PATCH requests are not allowed on friendships'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    
