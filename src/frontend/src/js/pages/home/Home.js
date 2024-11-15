@@ -5,7 +5,7 @@ export class Home extends Component {
 		super("main-layout");
 	}
 	content() {
-		const user = window.user;
+		const user = window.auth;
 		return (/*html*/`
 			<div>
 				${user ? (/*html*/`

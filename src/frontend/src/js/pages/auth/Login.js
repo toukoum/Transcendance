@@ -1,4 +1,5 @@
 import { images } from "../../../config/images.js";
+import { Toast } from "../../provider/toast-provider.js";
 import { api } from "../../utils/api/Api.js";
 import { ApiRequestError } from "../../utils/api/parser/ApiRequestError.js";
 import { Component } from "../../utils/Component.js";
@@ -78,13 +79,14 @@ export class Login extends Component {
 				} = Object.fromEntries(formData.entries());
 				const { data, error } = await api.auth.loginWithIdentifier(identifier, password);
 				if (error) throw error;
-				console.log('login data', data);
 				window.router.push(redirectTo || "/");
 			} catch (error) {
 				if (error instanceof ApiRequestError) {
 					console.error(error.message);
+					Toast.error(error.message);
 				} else {
 					console.error("An error occurred");
+					Toast.error("An error occurred");
 				}
 			}
 		});

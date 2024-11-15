@@ -3,7 +3,7 @@ import { Component } from "../../utils/Component.js";
 
 export class UserNav extends Component {
 	content() {
-		const user = window.user;
+		const user = window.auth;
 		if (!user) return "";
 		return (/*html*/`
 		<div class="dropdown">

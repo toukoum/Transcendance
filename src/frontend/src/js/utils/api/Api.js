@@ -1,4 +1,5 @@
 import { Auth } from "./Auth.js";
+import { Me } from "./Me.js";
 import { ApiRequest } from "./ApiRequest.js";
 
 export class Api {
@@ -6,6 +7,7 @@ export class Api {
 		this.baseUrl = "http://localhost:8000/v1";
 		this.auth = new Auth(this);
 		this.request = new ApiRequest(this);
+		this.me = new Me(this);
 	}
 }
 

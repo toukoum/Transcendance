@@ -1,5 +1,6 @@
 import { Router, Route } from "./utils/Router.js";
 
+import "./provider/index.js";
 import "./pages/index.js";
 import "./components/index.js";
 import "./layout/index.js";
@@ -25,11 +26,17 @@ export class App {
 				// Play
 				new Route("/play", "play-page"),
 
+
 				// raf test
 				new Route("/raf", "raf-test-page"),
 				new Route("/raf/play", "raf-play-page"),
 				new Route("/raf/notif", "raf-notif-page"),
 				
+				// Settings
+				new Route("/settings", "settings-profile-page"),
+				new Route("/settings/profile", "settings-profile-page"),
+				new Route("/settings/security", "settings-security-page"),
+        
 				// 404
 				new Route("", "not-found-page"),
 			],

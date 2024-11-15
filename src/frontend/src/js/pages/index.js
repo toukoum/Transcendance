@@ -3,8 +3,7 @@ import "./search/Search.js"
 import "./error/index.js"
 
 /* ---------------------------------- Auth ---------------------------------- */
-import "./auth/Login.js"
-import "./auth/Signup.js"
+import "./auth/index.js"
 
 /* ---------------------------------- User ---------------------------------- */
 import "./user/User.js"
@@ -17,3 +16,8 @@ import "./play/Play.js"
 import "./raf/raf.js"
 import "./raf/rafplay.js"
 import "./raf/rafNotif.js"
+
+/* -------------------------------- Settings -------------------------------- */
+import "./settings/index.js"
+
+

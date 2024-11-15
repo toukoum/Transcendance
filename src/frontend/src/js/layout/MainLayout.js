@@ -9,19 +9,11 @@ export class MainLayout extends Component {
 	// }
 	content() {
 		return (/*html*/`
-		<div class="d-flex flex-column p-4 h-100">
+		<div class="d-flex flex-column h-100 bg-background-main">
 			<header-component></header-component>
 			${this.childrens()}
 		</div>
-		`);
-		return (/*html*/`
-		<div class="container-fluid d-flex flex-row h-100 p-0">
-			<sidebar-component></sidebar-component>
-			<main class="container-fluid d-flex flex-column p-0">
-				<header-component></header-component>
-				${this.childrens()}
-			</main>
-		</div>
+		<toast-provider/>
 		`);
 	}
 }
