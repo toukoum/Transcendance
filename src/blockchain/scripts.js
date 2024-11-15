@@ -42,7 +42,7 @@ const ABI = `[
 	}
 ]`;
 
-const contractAddress = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512'
+const contractAddress = '0x5fbdb2315678afecb367f032d93f642f64180aa3'
 
 const connectWallet = async () => {
 	try {
@@ -69,8 +69,6 @@ const reloadContract = async () => {
 	contract = new ethers.Contract(contractAddress, ABI, signer);
 };
 
-//const contract = new ethers.Contract(contractAddress, ABI, signer);
-
 const getNumber = async () => {
 	const number = await contract.number();
 	console.log(`Number: ${number}`);
@@ -78,8 +76,12 @@ const getNumber = async () => {
 
 
 const incr = async () => {
-	const name = await newContract.number()
-	console.log(`Name: ${name}`)
+	const contractWithWallet = contract.connect(signer);
+	const tx = await contractWithWallet.incre();
+	await tx.wait();
+	console.log(tx);
+	const after = await contract.number()
+    console.log(`after: ${after}`)
 };
 
 const decr = async () => {
