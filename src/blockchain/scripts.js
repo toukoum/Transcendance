@@ -3,15 +3,14 @@ let signer;
 let contract;
 const ABI = `[
 	{
-		"inputs": [],
-		"name": "decre",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "incre",
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "walletLooser",
+				"type": "address"
+			}
+		],
+		"name": "win",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -19,18 +18,23 @@ const ABI = `[
 	{
 		"inputs": [
 			{
-				"internalType": "uint256",
-				"name": "_number",
-				"type": "uint256"
+				"internalType": "address",
+				"name": "wallet",
+				"type": "address"
 			}
 		],
-		"stateMutability": "nonpayable",
-		"type": "constructor"
-	},
-	{
-		"inputs": [],
-		"name": "number",
+		"name": "getGame",
 		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			},
 			{
 				"internalType": "uint256",
 				"name": "",
@@ -50,14 +54,19 @@ const connectWallet = async () => {
 			alert("MetaMask n'est pas installé !");
 			return;
 		}
-
-		const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-		console.log("Connecté avec le compte:", accounts[0]);
-		provider = new ethers.providers.Web3Provider(window.ethereum);
-		const balance = await provider.getBalance(accounts[0]);
-		console.log("Balance:", ethers.utils.formatEther(balance), "ETH");
-		signer = provider.getSigner();
-		contract = new ethers.Contract(contractAddress, ABI, signer);  // Charger le contrat après avoir obtenu le signer
+		if (provider == null && signer == null) {
+			console.log("Connexion au portefeuille en cours...");
+			document.getElementById("connectButton").innerHTML = "Connexion en cours...";
+			document.getElementById("connectButton").disabled = true;
+			const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+			console.log("Connecté avec le compte:", accounts[0]);
+			document.getElementById("connectButton").innerHTML = "Wallet connecté";
+			provider = new ethers.providers.Web3Provider(window.ethereum);
+			const balance = await provider.getBalance(accounts[0]);
+			console.log("Balance:", ethers.utils.formatEther(balance), "ETH");
+			signer = provider.getSigner();
+			contract = new ethers.Contract(contractAddress, ABI, signer);
+		}
 	} catch (error) {
 		console.error("Erreur lors de la connexion au portefeuille:", error);
 	}
@@ -85,8 +94,8 @@ const incr = async () => {
 };
 
 const decr = async () => {
-	const name = await contract.number()
-	console.log(`Name: ${name}`)
+	sessionStorage.setItem("number", Number(sessionStorage.getItem("number")) + 1);
+	console.log(sessionStorage.getItem("number"));
 };
 
 document.getElementById("connectButton").addEventListener("click", connectWallet);
