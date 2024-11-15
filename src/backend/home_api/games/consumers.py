@@ -7,14 +7,15 @@ import asyncio
 
 class GameConsumer(AsyncWebsocketConsumer):
     
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.state_lock = asyncio.Lock()
+    
+    state_lock = asyncio.Lock()
+    players = {}
 
     async def connect(self):
         self.game_id = self.scope['url_route']['kwargs']['game_id']
         self.room_group_name = f'game_{self.game_id}'
         self.user = self.scope['user']
+        self.user_id = self.user.id
 
         can_join = await self.can_join_match()
         if not can_join:
@@ -22,46 +23,40 @@ class GameConsumer(AsyncWebsocketConsumer):
             await self.close()
             return
 
-        print(f"User {self.user} connected to game {self.game_id} in group {self.room_group_name}")
-
-        self.player1_id = None
-        self.player2_id = None
-
-     
-
-        await self.assign_player_roles()
+        print(f"User {self.user} (ID: {self.user_id}) connected to game {self.game_id} in group {self.room_group_name}")
 
         await self.channel_layer.group_add(
             self.room_group_name,
             self.channel_name
         )
 
+        await self.update_player_connection_status(connected=True)
         await self.accept()
 
-        await self.update_player_connection_status(connected=True)
+        if (self.user_id in self.players):
+            print("RECONECTING")
+            return ;
         
+    
+        async with self.state_lock:
+            self.players[self.user_id] = {
+                "pos_y": 50,
+                "vel": 10,
+                "width": 1,
+                "height": 20,
+                "padding": 2,
+                "score": 0,
+            }
+
         self.ball = {
             "pos": [50, 50],
             "vel": [1, 1],
             "radius": 1
         }
-        self.player1 = {
-            "pos_y": 50,
-            "vel": 10,
-            "width": 1,
-            "height": 20,
-            "padding": 2
-        }
-        self.player2 = {
-            "pos_y": 50,
-            "vel": 10,
-            "width": 1,
-            "height": 20,
-            "padding": 2
-        }
-        self.score = {"player1": 0, "player2": 0}
-        
-        
+        self.player1_id = None
+        self.player2_id = None
+
+        await self.assign_player_roles()
         await self.check_both_players_connected()
 
     @database_sync_to_async
@@ -82,7 +77,11 @@ class GameConsumer(AsyncWebsocketConsumer):
     async def disconnect(self, close_code):
         await self.update_player_connection_status(connected=False)
         print(f"User {self.user} disconnected from game {self.game_id} with close code {close_code}")
-
+        
+        # async with self.state_lock:
+        #     if self.user_id in self.players:
+        #         del self.players[self.user_id]
+                
         await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name
@@ -115,56 +114,54 @@ class GameConsumer(AsyncWebsocketConsumer):
             )
 
     async def game_loop(self):
-        print("SALUT")
         
         while True:
             async with self.state_lock:
-                print("Game loop - pos_y Player 1:", self.player1['pos_y'])
-                print("Game loop - pos_y Player 2:", self.player2['pos_y'])
-                self.ball["pos"][0] += self.ball["vel"][0]
-                self.ball["pos"][1] += self.ball["vel"][1]
+                player1 = self.players[self.player1_id]
+                player2 = self.players[self.player2_id]
+                ball = self.ball
+                
+                ball["pos"][0] += ball["vel"][0]
+                ball["pos"][1] += ball["vel"][1]
 
                 # Up Down
-                if self.ball["pos"][1] - self.ball["radius"] <= 0 or self.ball["pos"][1] + self.ball["radius"] >= 100:
-                    self.ball["vel"][1] *= -1
+                if ball["pos"][1] - ball["radius"] <= 0 or ball["pos"][1] + ball["radius"] >= 100:
+                    ball["vel"][1] *= -1
 
                 # Left Pad
-                if (self.ball["pos"][0] - self.ball["radius"] <= self.player1["padding"] + self.player1["width"] and
-                    self.player1["pos_y"] <= self.ball["pos"][1] <= self.player1["pos_y"] + self.player1["height"]):
-                    self.ball["vel"][0] *= -1  # Inverser la direction horizontale
+                if (ball["pos"][0] - ball["radius"] <= player1["padding"] + player1["width"] and
+                    player1["pos_y"] <= ball["pos"][1] <= player1["pos_y"] + player1["height"]):
+                    ball["vel"][0] *= -1
 
                 # Right Pad
-                elif (self.ball["pos"][0] + self.ball["radius"] >= 100 - self.player2["padding"] - self.player2["width"] and
-                    self.player2["pos_y"] <= self.ball["pos"][1] <= self.player2["pos_y"] + self.player2["height"]):
-                    self.ball["vel"][0] *= -1  # Inverser la direction horizontale
+                elif (ball["pos"][0] + ball["radius"] >= 100 - player2["padding"] - player2["width"] and
+                    player2["pos_y"] <= ball["pos"][1] <= player2["pos_y"] + player2["height"]):
+                    ball["vel"][0] *= -1
 
                 # Left Wall
-                if self.ball["pos"][0] - self.ball["radius"] <= 0:
-                    self.score["player2"] += 1
-                    self.ball["pos"] = [50, 50]
+                if ball["pos"][0] - ball["radius"] <= 0:
+                    player2["score"] += 1
+                    ball["pos"] = [50, 50]
 
                 # Right Wall
-                elif self.ball["pos"][0] + self.ball["radius"] >= 100:
-                    self.score["player1"] += 1
-                    self.ball["pos"] = [50, 50]
+                elif ball["pos"][0] + ball["radius"] >= 100:
+                    player1["score"] += 1
+                    ball["pos"] = [50, 50]
                     
-
-
                 # Envoie de l’état de la partie aux joueurs
                 await self.channel_layer.group_send(
                     self.room_group_name,
                     {
                         'type': 'game_update',
                         'game_state': {
-                        'ball': self.ball,
-                        'player1': self.player1,
-                        'player2': self.player2,
-                        'score': self.score
+                            'ball': ball,
+                            'player1': player1,
+                            'player2': player2,
                         }
                     }
                 )
-            #await asyncio.sleep(0.02)  # 50 FPS
-            await asyncio.sleep(1)  # 50 FPS
+            await asyncio.sleep(0.02)  # 50 FPS
+            # await asyncio.sleep(1)  # 50 FPS
 
 
     async def game_update(self, event):
@@ -183,8 +180,6 @@ class GameConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({
                     'type': 'Waiting for the other player to connect...',
                 }))
-  
-
         
     @database_sync_to_async
     def update_player_connection_status(self, connected):
@@ -221,22 +216,17 @@ class GameConsumer(AsyncWebsocketConsumer):
         return True
 
     async def receive(self, text_data):
-        async with self.state_lock:
             data = json.loads(text_data)
 
             # Vérifier que le type d'action est bien 'paddle_move'
             if data['type'] == 'paddle_move':
                 direction = data['direction']
-                if self.scope['user'].id == self.player1_id:
-                    print(f"==== PLAYER 1 MOVE (Username: {self.scope['user']}) ====")
-                    print("POS Y PLAYER 1 before:", self.player1['pos_y'])
-                    self.player1['pos_y'] = self.update_paddle_position(self.player1, direction)
-                    print("POS Y PLAYER 1 after:", self.player1['pos_y'])
-                else:
-                    print(f"==== PLAYER 2 MOVE (Username: {self.scope['user']}) ====")
-                    print("POS Y PLAYER 2 before:", self.player2['pos_y'])
-                    self.player2['pos_y'] = self.update_paddle_position(self.player2, direction)
-                    print("POS Y PLAYER 2 after:", self.player2['pos_y'])
+                print(f"==== PLAYER {self.user_id} MOVE (Username: {self.user}) ====")
+                async with self.state_lock:
+                    self.players[self.user_id]["pos_y"] = self.update_paddle_position(self.players[self.user_id], direction)
+                
+                
+                
 
     def update_paddle_position(self, player, direction):
         new_pos_y = player['pos_y'] + (direction * player['vel'])

@@ -16,6 +16,7 @@ class SocketGameManager {
 		this.socketGame = new WebSocket(`ws://localhost:8000/ws/games/${gameId}/`);
 		this.socketGame.onopen = () => {
 			console.log("NINO=> WebSocket connection opened for game:", gameId);
+			window.router.push('/raf/play');
 		};
 
 		this.socketGame.onerror = (error) => {
@@ -27,7 +28,6 @@ class SocketGameManager {
 			console.log("=== Message SERVER ====");
 			if (messageData.type === 'START') {
 				console.log("Game is starting! Redirecting to play page...");
-				window.router.push('/raf/play');
 			} else {
 				console.log("Message from game server:", messageData);
 			}

@@ -28,9 +28,8 @@ export class RafPlayPage extends Component {
     // Variables pour stocker l'état du jeu
     let gameState = {
         ball: { pos: [0, 0], radius: 1 },
-        player1: { pos_y: 50, width: 1, height: 20 },
-        player2: { pos_y: 50, width: 1, height: 20 },
-        score: { player1: 0, player2: 0 }
+        player1: { pos_y: 50, width: 1, height: 20, score: 0 },
+        player2: { pos_y: 50, width: 1, height: 20, score: 0 },
     };
 
     // Fonction pour dessiner le jeu
@@ -53,13 +52,14 @@ export class RafPlayPage extends Component {
 
         // Afficher le score
         ctx.font = "16px Arial";
-        ctx.fillText(`Player 1: ${gameState.score.player1}`, 10, 20);
-        ctx.fillText(`Player 2: ${gameState.score.player2}`, canvas.width - 100, 20);
+        ctx.fillText(`Player 1: ${gameState.player1.score}`, 10, 20);
+        ctx.fillText(`Player 2: ${gameState.player2.score}`, canvas.width - 100, 20);
     }
 
     // Réception des données du serveur
     socketGame.onmessage = (event) => {
         const messageData = JSON.parse(event.data);
+        console.log(messageData);
         if (messageData.type === "game_update") {
             gameState = messageData.game_state;
             drawGame();
