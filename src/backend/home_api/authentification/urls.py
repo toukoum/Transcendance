@@ -5,15 +5,14 @@ from rest_framework_simplejwt.views import TokenVerifyView
 from dj_rest_auth.jwt_auth import get_refresh_view
 
 from dj_rest_auth.registration.views import (
-    RegisterView,
     ResendEmailVerificationView,
     VerifyEmailView,
 )
-from dj_rest_auth.views import (
-    PasswordResetConfirmView,
-    PasswordResetView,
-    LogoutView,
-)
+
+#from dj_rest_auth.views import (
+#    PasswordResetConfirmView,
+#    PasswordResetView,
+#)
 
 from authentification.views import (
     email_confirm_redirect,
@@ -25,6 +24,11 @@ from authentification.views import (
     MFAValidationViewCustom,
     MFADeactivateView,
     MFAActivateView,
+		LogoutViewCustom,
+    RegisterViewCustom,
+		PasswordChangeViewCustom,
+
+
 )
 
 urlpatterns = [
@@ -33,9 +37,12 @@ urlpatterns = [
     path('token/refresh/', get_refresh_view().as_view(), name='token_refresh'),
     
     # Auth
-    path("register/", RegisterView.as_view(), name="rest_register"),
+    path("register/", RegisterViewCustom.as_view(), name="rest_register"),
     path("login/", LoginViewCustom.as_view(), name="rest_login"),
-    path("logout/", LogoutView.as_view(), name="rest_logout"),
+    path("logout/", LogoutViewCustom.as_view(), name="rest_logout"),
+
+		# Password change
+		path("password/change/", PasswordChangeViewCustom.as_view(), name="rest_password_change"),
 
     # Email verification
     path("register/verify-email/", VerifyEmailView.as_view(), name="rest_verify_email"),
@@ -43,10 +50,10 @@ urlpatterns = [
     path("account-confirm-email/<str:key>/", email_confirm_redirect, name="account_confirm_email"),
     path("account-confirm-email/", VerifyEmailView.as_view(), name="account_email_verification_sent"),
     
-    # Password reset
-    path("password/reset/", PasswordResetView.as_view(), name="rest_password_reset"),
-    path("password/reset/confirm/<str:uidb64>/<str:token>/", password_reset_confirm_redirect, name="password_reset_confirm"),
-    path("password/reset/confirm/", PasswordResetConfirmView.as_view(), name="password_reset_confirm"),
+    ## Password reset (quand on a oublié son mot de passe)
+    #path("password/reset/", PasswordResetView.as_view(), name="rest_password_reset"),
+    #path("password/reset/confirm/<str:uidb64>/<str:token>/", password_reset_confirm_redirect, name="password_reset_confirm"),
+    #path("password/reset/confirm/", PasswordResetConfirmView.as_view(), name="password_reset_confirm"),
 
     # 42 OAUTH
     path("42/authorize/", authorize_42, name="42_authorize"),

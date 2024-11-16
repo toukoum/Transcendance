@@ -65,7 +65,7 @@ INSTALLED_APPS = [
 
     'anymail',
 
-    'corsheaders', 
+    'corsheaders',
 
     'channels',
 
@@ -185,6 +185,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'dj_rest_auth.jwt_auth.JWTCookieAuthentication',
     ],
+		'EXCEPTION_HANDLER': 'home_api.utils.custom_exception_handler',
 }
 
 

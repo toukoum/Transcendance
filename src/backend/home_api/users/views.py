@@ -15,7 +15,9 @@ from rest_framework.permissions import IsAuthenticated
 
 from rest_framework.views import APIView
 
-class UserViewSet(viewsets.ReadOnlyModelViewSet):
+from home_api.utils import BaseViewSet, BaseReadOnlyViewSet, format_response
+
+class UserViewSet(BaseReadOnlyViewSet):
 
     serializer_class = UserListSerializer
     detail_serializer_class = UserDetailSerializer
@@ -28,7 +30,7 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
             return self.detail_serializer_class
         return super().get_serializer_class()
 
-class UserUpdateProfileViewSet(viewsets.ModelViewSet):
+class UserUpdateProfileViewSet(BaseViewSet):
     serializer_class = UserSelfSerializer
     permission_classes = [IsAuthenticated]
 
@@ -36,14 +38,14 @@ class UserUpdateProfileViewSet(viewsets.ModelViewSet):
     def get_object(self):
         return self.request.user 
 
-class UserWrapperViewSet(viewsets.ModelViewSet):
+class UserWrapperViewSet(BaseViewSet):
     serializer_class = UserWrapperSerializer
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
         return self.request.user
 
-class UserSearchView(viewsets.ReadOnlyModelViewSet):
+class UserSearchView(BaseReadOnlyViewSet):
     serializer_class = UserListSerializer
     queryset = User.objects.all()
 
@@ -62,10 +64,8 @@ class UploadAvatar(APIView):
     
     def post(self, request):
         user_profile = request.user.profile
-        print("DATA AVATAR: ", request.data)
         serializer = ProfileAvatarSerializer(user_profile, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+            return format_response(data=serializer.data)
+        return format_response(error=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
