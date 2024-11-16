@@ -126,13 +126,22 @@ export class SettingsProfile extends Component {
 					Toast.error(error.message);
 				} else if (error instanceof zod.ZodError) {
 					error.errors.forEach(err => {
-						const input = form.querySelector(`[name="${err.path[0]}"]`);
-						const errorElement = form.querySelector(`#${err.path[0]}-error`);
-						if (input && errorElement) {
-							input.classList.add("is-invalid");
-							errorElement.innerText = err.message;
-							errorElement.style.display = "block";
-						}
+						err.path.forEach(path => {
+							const input = form.querySelector(`[name="${path}"]`);
+							const errorElement = form.querySelector(`#${path}-error`);
+							if (input && errorElement) {
+								input.classList.add("is-invalid");
+								errorElement.innerText = err.message;
+								errorElement.style.display = "block";
+							}
+						});
+						// const input = form.querySelector(`[name="${err.path[0]}"]`);
+						// const errorElement = form.querySelector(`#${err.path[0]}-error`);
+						// if (input && errorElement) {
+						// 	input.classList.add("is-invalid");
+						// 	errorElement.innerText = err.message;
+						// 	errorElement.style.display = "block";
+						// }
 					});
 				} else {
 					// console.error(`An error occurred: ${error}`);

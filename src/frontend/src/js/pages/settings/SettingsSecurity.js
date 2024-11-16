@@ -109,13 +109,22 @@ export class SettingsSecurity extends Component {
 					Toast.error(error.message);
 				} else if (error instanceof zod.ZodError) {
 					error.errors.forEach(err => {
-						const input = twofaForm.querySelector(`[name="${err.path[0]}"]`);
-						const errorElement = twofaForm.querySelector(`#${err.path[0]}-error`);
-						if (input && errorElement) {
-							input.classList.add("is-invalid");
-							errorElement.innerText = err.message;
-							errorElement.style.display = "block";
-						}
+						error.errors.forEach(err => {
+							const input = twofaForm.querySelector(`[name="${err.path[0]}"]`);
+							const errorElement = twofaForm.querySelector(`#${err.path[0]}-error`);
+							if (input && errorElement) {
+								input.classList.add("is-invalid");
+								errorElement.innerText = err.message;
+								errorElement.style.display = "block";
+							}
+						});
+						// const input = twofaForm.querySelector(`[name="${err.path[0]}"]`);
+						// const errorElement = twofaForm.querySelector(`#${err.path[0]}-error`);
+						// if (input && errorElement) {
+						// 	input.classList.add("is-invalid");
+						// 	errorElement.innerText = err.message;
+						// 	errorElement.style.display = "block";
+						// }
 					});
 				} else {
 					// console.error(`An error occurred: ${error}`);

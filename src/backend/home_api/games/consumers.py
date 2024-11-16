@@ -6,8 +6,6 @@ from channels.db import database_sync_to_async
 import asyncio
 
 class GameConsumer(AsyncWebsocketConsumer):
-    
-    
     state_lock = asyncio.Lock()
     players = {}
 
