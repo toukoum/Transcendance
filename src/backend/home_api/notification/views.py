@@ -9,27 +9,32 @@ from rest_framework.decorators import api_view
 
 from notification.utils import send_notification
 
-from home_api.utils import format_response
+from home_api.utils import (
+	format_response,
+	BaseReadOnlyViewSet,
+	BaseViewSet,
+)
 
+from rest_framework.permissions import IsAuthenticated
+from notification.serializers import NotificationListSerializer
+from notification.models import Notification
 
 @api_view(['POST'])
 def testNotif(request):
 		
-		channel_layer = get_channel_layer()
-		userId = request.user.id
-		group_name = f'user_{userId}'
-		async_to_sync(channel_layer.group_send)(
-			group_name,
-			{
-				'type': 'send_notification',
-				'data': {
-					'type': 'TEST',
-					'message': 'Salutttttt bg, je suis une notification',
+		send_notification(
+			user=request.user,
+			data={
+				'message': 'Bonjour je suis une NOTIF batard'
+			},
+			event_type='TESTING',
+			action={
+				'primary': {
+					'url': 'http://localhost:8000/v1/me/',
+					'label': 'User profile'
 				}
 			}
 		)
-
-		return format_response(data='Notification sent')
 
 
 
@@ -45,3 +50,14 @@ def testNotifUser(request):
 
 		send_notification(data, userId)
 		return format_response(data='Notification sent')
+
+class NotificationsViewSet(BaseViewSet):
+
+	permission_classes = [IsAuthenticated]
+	serializer_class = NotificationListSerializer
+
+	def get_queryset(self):
+		user_id = self.request.user.id
+		return Notification.objects.filter(user_id=user_id).order_by('-created_at')\
+
+	

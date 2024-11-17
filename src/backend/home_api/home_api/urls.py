@@ -34,12 +34,12 @@ router.register(r'games', MatchViewSet, basename='games')
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('v1/', include(router.urls)),
+    path('v1/', include('notification.urls')),
     path('v1/', include('users.urls')),
     path('v1/', include('games.urls')),
     path('v1/auth/', include('authentification.urls')),
     path('v1/chat/', include('chat.urls')),
 
-    path('v1/notif/', include('notification.urls')),
 
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

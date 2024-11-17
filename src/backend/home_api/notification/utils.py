@@ -2,12 +2,23 @@
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
-def send_notification(user_id, data, event_type="divers", user_from=None, action=None):		
+from notification.models import Notification
+from django.contrib.auth.models import User
+
+def send_notification(user, data, event_type="divers", user_from=None, action=None):		
   """
   send a notification to a user by his id
   """
-  # send notification to user2
-  group_name = f'user_{user_id}'
+  
+  group_name = f'user_{user.id}'
+
+  Notification.objects.create(
+      user=user,
+      user_from=user_from,
+      event_type=event_type,
+      data=data,
+      action=action
+  )
 
   channel_layer = get_channel_layer()
   async_to_sync(channel_layer.group_send)(
