@@ -1,4 +1,5 @@
 
+from home_api.utils import format_response
 from friends.models import Friendship
 from friends.serializers import FriendshipSerializer, DetailFriendshipSerializer
 from rest_framework import viewsets
@@ -14,9 +15,9 @@ from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
 from notification.utils import send_notification
+from home_api.utils import BaseViewSet
 
-
-class FriendshipViewSet(viewsets.ModelViewSet):
+class FriendshipViewSet(BaseViewSet):
 
     def get_queryset(self):
         user = self.request.user
@@ -47,7 +48,7 @@ class FriendshipViewSet(viewsets.ModelViewSet):
         try:
             user2 = User.objects.get(id=user2_id)
         except User.DoesNotExist:
-            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+            return format_response(error='User not found', status=404)
         
 
         serializer = self.get_serializer(data=data)
@@ -56,17 +57,19 @@ class FriendshipViewSet(viewsets.ModelViewSet):
 
 
         send_notification(
-            data={
-                'message': f'{user1.username} wants to be friends with you',
-                'type': 'friendship_request',
-                'user1_id': user1.id,
-                'user1_username': user1.username,
-                'request_id': serializer.data['id'],
-            },
-            user2_id=user2_id,
+          data={
+              'event_type': 'friendship_request',
+              'details': f'{user1.username} wants to be friends with you',
+              'user_id_from': user1.id,
+              'action': {
+                  'accept': f'http://localhost:3000/friends/accept/{serializer.data.get("id")}/',
+                  'reject': f'http://localhost:3000/friends/reject/{serializer.data.get("id")}/'
+              }
+          },
+          user2_id=user2_id,
         )
     
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return format_response(data=serializer.data, status=201)
 
 
     def list(self, request, *args, **kwargs):
@@ -77,7 +80,7 @@ class FriendshipViewSet(viewsets.ModelViewSet):
         #friendship = Friendship.objects.filter((Q(user1=user) | Q(user2=user)) & Q(status='accepted'))
         friendship = Friendship.objects.filter((Q(user1=user) | Q(user2=user)))
         serializer = self.get_serializer(friendship, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return format_response(data=serializer.data, status=200)
 
 
     @action (detail=True, methods=['post'])
@@ -88,25 +91,25 @@ class FriendshipViewSet(viewsets.ModelViewSet):
         print(request.data)
         friendship = self.get_object()
         if friendship.user2 != request.user:
-            return Response({'error': 'You can not accept this friendship request'}, status=status.HTTP_400_BAD_REQUEST)
+            return format_response(error='You can not accept this friendship request', status=400)
         
         friendship.status = 'accepted'
         friendship.save()
-
-        return Response({'status': 'Friendship accepted'}, status=status.HTTP_200_OK)
+        
+        return format_response(data=self.get_serializer(friendship).data, status=200)
 
     @action (detail=True, methods=['post'])
     def reject(self, request, pk=None):
         print(request.data)
         friendship = self.get_object()
         if friendship.user2 != request.user:
-            return Response({'error': 'You can not reject this friendship request'}, status=status.HTTP_400_BAD_REQUEST)
+            return format_response(error='You can not reject this friendship request', status=400)
         
         friendship.status = 'rejected'
         #suppression de la demande d'amitié
         friendship.delete()
 
-        return Response({'status': 'Friendship rejected'}, status=status.HTTP_200_OK)
+        return format_response(data=self.get_serializer(friendship).data, status=200)
     
 
 
@@ -118,36 +121,36 @@ class FriendshipViewSet(viewsets.ModelViewSet):
         user = request.user
         sent_requests = Friendship.objects.filter(user1=user, status='pending')
         serializer = self.get_serializer(sent_requests, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return format_response(data=serializer.data, status=200)
     
     @action (detail=False, methods=['get'], url_path='received')
     def received_requests(self, request):
         user = request.user
         received_requests = Friendship.objects.filter(user2=user, status='pending')
         serializer = self.get_serializer(received_requests, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return format_response(data=serializer.data, status=200)
     
 
     @action (detail=True, methods=['delete'])
     def delete(self, request, pk=None):
         if pk is None:
-            return Response({'error': 'You must provide a friendship id'}, status=status.HTTP_400_BAD_REQUEST)
+            return format_response(error='You must provide a friendship id', status=400)
         friendship = self.get_object()
         if friendship.user1 != request.user and friendship.user2 != request.user and friendship.status == 'accepted':
-            return Response({'error': 'You can not delete this friendship request'}, status=status.HTTP_400_BAD_REQUEST)
+            return format_response(error='You can not delete this friendship', status=400)
         elif friendship.user1 != request.user and friendship.status == 'pending':
-            return Response({'error': 'You can not delete this friendship request'}, status=status.HTTP_400_BAD_REQUEST)
+            return format_response(error='You can not delete this friendship request', status=400)
 
         friendship.delete()
 
-        return Response({'status': 'Friendship deleted'}, status=status.HTTP_200_OK)
+        return format_response(data={'status': 'Friendship deleted'}, status=200)
     
 
     def update(self, request, *args, **kwargs):
         # Disable PUT requests
-        return Response({'error': 'PUT requests are not allowed on friendships'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        return format_response(error='PUT requests are not allowed on friendships', status=405)
 
     def partial_update(self, request, *args, **kwargs):
         # Disable PATCH requests
-        return Response({'error': 'PATCH requests are not allowed on friendships'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        return format_response(error='PATCH requests are not allowed on friendships', status=405)
     

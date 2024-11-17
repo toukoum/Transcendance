@@ -9,6 +9,8 @@ from rest_framework.decorators import api_view
 
 from notification.utils import send_notification
 
+from home_api.utils import format_response
+
 
 @api_view(['POST'])
 def testNotif(request):
@@ -27,7 +29,7 @@ def testNotif(request):
 			}
 		)
 
-		return Response({"message": "Hello, world!"})
+		return format_response(data='Notification sent')
 
 
 
@@ -42,4 +44,4 @@ def testNotifUser(request):
 		}
 
 		send_notification(data, userId)
-		return Response({"message": "Notif bien envoye"})
+		return format_response(data='Notification sent')

@@ -4,6 +4,7 @@ from django.http import HttpResponseRedirect
 
 import requests
 from rest_framework.permissions import IsAuthenticated
+from dj_rest_auth.jwt_auth import unset_jwt_cookies
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
@@ -17,10 +18,13 @@ from django.contrib.auth.models import User
 
 from authentification.utils.utils import sent_custom_JWT
 
+from home_api.utils import format_response
+
 
 
 # 2FA =================================================================================================
-from dj_rest_auth.registration.views import LoginView
+from dj_rest_auth.registration.views import LoginView, RegisterView
+from dj_rest_auth.views import LogoutView, PasswordChangeView
 from django.conf import settings  
 from trench.utils import get_mfa_model, user_token_generator
 from trench import serializers
@@ -134,6 +138,9 @@ def oauth_callback(request):
 
 
 def get_data_user_42(request):
+    """
+    Petite fonction de test pour récupérer les infos de l'utilisateur 42
+    """
     access_token = request.session.get('access_token')
     if not access_token:
         return redirect('42_authorize')
@@ -157,9 +164,9 @@ def get_user_profile(request):
     
     if response.status_code == 200:
         user_profile = response.json()
-        return Response(user_profile)
+        return format_response(data=user_profile)
     else:
-        return Response({"detail": "Error retrieving user profile"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return format_response(error="Error retrieving user profile", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 # ==============================
@@ -182,7 +189,13 @@ class LoginViewCustom(LoginView):
                 many=True,
             ).data,
         }
-        return Response(data)
+        return format_response(data=data)
+    
+    def format_response(self, data=None, error=None, status_code=200):
+        return Response({
+            "data": data,
+            "error": error
+        }, status=status_code)
 
     def post(self, request, *args, **kwargs):
         self.request = request
@@ -222,13 +235,16 @@ class LoginViewCustom(LoginView):
         view.action = 'retrieve'
         
         # Simuler un appel à 'retrieve' en appelant la méthode directement
+        # response = format_response(view.retrieve(request).data)
         response = view.retrieve(request)
 
         set_jwt_cookies(response, access_token, refresh_token)
-
+  
         return (response)
+    
 
 
+  
 class MFAValidationViewCustom(APIView):
     """
     Vue pour valider le code MFA et finaliser la connexion de l'utilisateur.
@@ -244,11 +260,9 @@ class MFAValidationViewCustom(APIView):
                 code=serializer.validated_data["code"],
                 ephemeral_token=serializer.validated_data["ephemeral_token"],
             )
-            
-            return (sent_custom_JWT(request, user))
-
+            return format_response(data=sent_custom_JWT(request, user))
         except MFAValidationError as cause:
-            return ErrorResponse(error=cause, status=HTTP_401_UNAUTHORIZED)
+            return format_response(error=cause, status_code=HTTP_401_UNAUTHORIZED)
 
 
 class MFADeactivateView(APIView):
@@ -261,7 +275,7 @@ class MFADeactivateView(APIView):
         user = request.user
         user.profile.is_2fa_enabled = False
         user.profile.save()
-        return Response(data={"detail": "2FA disabled"}, status=status.HTTP_200_OK)
+        return format_response(data={"detail": "2FA disabled"}, status=status.HTTP_200_OK)
 
 
 class MFAActivateView(APIView):
@@ -274,4 +288,64 @@ class MFAActivateView(APIView):
         user = request.user
         user.profile.is_2fa_enabled = True
         user.profile.save()
-        return Response(data={"detail": "2FA enabled"}, status=status.HTTP_200_OK)
+        return format_response(data={"detail": "2FA enabled"}, status=status.HTTP_200_OK)
+
+class BaseCustomView:
+    success_message = "Success"
+    failure_message = "An error occurred"
+    success_status = status.HTTP_200_OK
+
+    def post(self, request, *args, **kwargs):
+        # Appel de la méthode parent pour obtenir la réponse originale
+        response = super().post(request, *args, **kwargs)
+
+        # FORMAT PERSO
+        if response.status_code == self.success_status:
+            return Response({
+                "data": {"message": self.success_message},
+                "error": None
+            }, status=response.status_code)
+        else:
+            return Response({
+                "data": None,
+                "error": {
+                    "message": self.failure_message,
+                    "status": response.status_code
+                }
+            }, status=response.status_code)
+
+# class LogoutViewCustom(BaseCustomView, LogoutView):
+#     success_message = "Successfully logged out"
+#     failure_message = "Failed to log out"
+#     success_status = status.HTTP_200_OK
+class LogoutViewCustom(LogoutView):
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        # Appliquer le format personnalisé
+        if response.status_code == status.HTTP_200_OK:
+            response = Response({
+                "data": {"message": "Successfully logged out"},
+                "error": None
+            }, status=response.status_code)
+            unset_jwt_cookies(response)
+            return response
+        else:
+            response = Response({
+                "data": None,
+                "error": {
+                    "message": "Failed to log out",
+                    "status": response.status_code
+                }
+            }, status=response.status_code)
+            unset_jwt_cookies(response)
+            return response
+
+class RegisterViewCustom(BaseCustomView, RegisterView):
+    success_message = "Successfully registered"
+    failure_message = "Failed to register"
+    success_status = status.HTTP_201_CREATED
+
+class PasswordChangeViewCustom(BaseCustomView, PasswordChangeView):
+    success_message = "Successfully changed password"
+    failure_message = "Failed to change password"
+    success_status = status.HTTP_200_OK

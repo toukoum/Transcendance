@@ -128,7 +128,7 @@ export class Play extends Component {
 				console.error(error);
 				if (error instanceof ApiRequestError) {
 					// TODO: change in django response to match object { data, error }
-					Toast.error(error.message.error);
+					Toast.error(error.message);
 				} else if (error instanceof zod.ZodError) {
 					error.errors.forEach(err => {
 						err.path.forEach(path => {

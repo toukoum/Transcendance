@@ -1,8 +1,7 @@
 from django.shortcuts import render
 from django.db.models import Q
 
-from rest_framework import viewsets, status
-from rest_framework.response import Response
+from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from games.models import Match, MatchPlayer
 
@@ -11,11 +10,12 @@ from games.serializers import MatchSerializer, MatchListSerializer, MatchCreateS
 from django.contrib.auth.models import User
 from rest_framework.views import APIView
 
-
+from home_api.utils import format_response
 from rest_framework.permissions import IsAuthenticated
+from home_api.utils import BaseViewSet
 
 
-class MatchViewSet(viewsets.ReadOnlyModelViewSet):
+class MatchViewSet(BaseViewSet):
     serializer_class = MatchListSerializer
     
     permission_classes = [IsAuthenticated]
@@ -23,9 +23,9 @@ class MatchViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         user_id = self.request.user.id
         return Match.objects.filter(match_players__player_id=user_id)
+        
     
   
-
 
 # class CreateMatchViewSet(viewsets.ModelViewSet):
 #     queryset = Match.objects.all()
@@ -77,10 +77,12 @@ class MatchView(APIView):
         try:
             match = Match.objects.get(id=request.data.get('id'))
         except Match.DoesNotExist:
-            return Response({"error": "Match not found"}, status=status.HTTP_404_NOT_FOUND)
+            return format_response(error="Match not found", status=404)
+            # return Response({"error": "Match not found"}, status=status.HTTP_404_NOT_FOUND)
         
         serializer = MatchSerializer(match)
-        return Response(serializer.data)
+        return format_response(data=serializer.data)
+        # return Response(serializer.data)
 
     """
     Create a new match
@@ -91,7 +93,8 @@ class MatchView(APIView):
             Q(player_id=request.user.id) &
             ~Q(match_id__state__in=[Match.State.FINISHED, Match.State.CANCELLED])
         ).exists():
-            return Response({"error": "You already have an ongoing match"}, status=status.HTTP_400_BAD_REQUEST)
+            return format_response(error="You already have an ongoing match", status=400)
+            # return Response({"error": "You already have an ongoing match"}, status=status.HTTP_400_BAD_REQUEST)
 
         serializer = MatchCreateSerializer(data=request.data)
         if serializer.is_valid():
@@ -100,8 +103,10 @@ class MatchView(APIView):
                 match_id=match,
                 player_id_id=request.user.id
             )
-            return Response(MatchSerializer(match).data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return format_response(data=MatchSerializer(match).data, status=201)
+            # return Response(MatchSerializer(match).data, status=status.HTTP_201_CREATED)
+        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return format_response(error=serializer.errors, status=400)
     
     """
     Join a match
@@ -122,14 +127,16 @@ class MatchCheckView(APIView):
         ).first()
 
         if match is None:
-            return Response({ "data": None, "error": None })
+            return format_response(data=None)
+            # return Response({ "data": None, "error": None })
         
         # Here match as None isnt an error, it just means the player is not in a match
         # if match is None:
         #     return Reponse({ "data": None, "error": "Player is not in a match" })
     
         serializer = MatchSerializer(match.match_id)
-        return Response({ "data": serializer.data, "error": None })
+        # return Response({ "data": serializer.data, "error": None })
+        return format_response(data=serializer.data)
 
 
 
@@ -147,7 +154,7 @@ class MatchInfoView(APIView):
         ).order_by('-start_time').first()
 
         if match is None:
-            return Response({"id": None})
+            return format_response(data=None)
 
         serializer = MatchSerializer(match)
-        return Response(serializer.data)
+        return format_response(data=serializer.data)

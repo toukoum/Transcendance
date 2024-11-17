@@ -6,10 +6,12 @@ export const gameMiddleware = async (route, next) => {
 	// Check if user is in a game
 	if (window.auth) {
 		const { data, error } = await api.game.onGame();
-		console.log(data, error);
-		if (error) console.error(`GAME MIDDLEWARE ERROR: ${error}`);
+		if (error) return console.error(`GAME MIDDLEWARE ERROR: ${error}`);
 		// TODO: handle throw on middleware and show error page
-		console.log(data);
+		if (data) {
+			console.log("User is in a game");
+			window.router.push(`/play/${data.id}`);
+		}
 		// if (data) {
 		// 	console.log("User is in a game");
 		// 	window.router.push(`/play/${data.id}`);

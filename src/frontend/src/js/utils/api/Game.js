@@ -26,6 +26,12 @@ export class Game {
 	 * @returns {Promise}
 	 */
 	async onGame() {
+		if (window.isInGame !== undefined) {
+			return await {
+				data: window.isInGame,
+				error: null
+			}
+		}
 		return await this.api.request.get("game/check/");
 	}
 
