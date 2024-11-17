@@ -48,7 +48,7 @@ export class Toast extends Component {
         // Create new toast element
         const toast = document.createElement('div');
         toast.classList.add('toast');
-        toast.classList.add(type === 'success' ? 'bg-success' : 'bg-danger');
+        toast.classList.add(type === 'success' ? 'bg-success' : type === 'danger' ? 'bg-danger' : 'bg-info');
         toast.classList.add('text-white');
         toast.setAttribute('role', 'alert');
         toast.setAttribute('aria-live', 'assertive');
@@ -83,6 +83,13 @@ export class Toast extends Component {
     // Static method to show an error toast
     static error(message) {
         window.dispatchEvent(new CustomEvent('toast.error', {
+            detail: { message }
+        }));
+    }
+
+    // Static method to show an info toast
+    static info(message) {
+        window.dispatchEvent(new CustomEvent('toast.info', {
             detail: { message }
         }));
     }

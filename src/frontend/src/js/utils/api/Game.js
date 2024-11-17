@@ -15,10 +15,19 @@ export class Game {
 	 */
 	async create(config = {
 		duration,
-		numbersPlayer,
+		maxPlayers,
 		maxScore
 	}) {
 		return await this.api.request.post("game/", config);
+	}
+
+	/**
+	 * @brief Join a game
+	 * @param {String} gameId - The game id
+	 * @returns {Promise}
+	 */
+	async join(gameId) {
+		return await this.api.request.post(`game/${gameId}/join/`);
 	}
 
 	/**
@@ -33,6 +42,14 @@ export class Game {
 			}
 		}
 		return await this.api.request.get("game/check/");
+	}
+
+	/**
+	 * @brief Connect to a game
+	 * @param {String} gameId - The game id
+	 */
+	connect(gameId) {
+		return this.api.websocket.connect(`game/${gameId}/`);
 	}
 
 	

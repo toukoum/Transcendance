@@ -15,7 +15,7 @@ const schemaGame = zod.object({
 			message: "Duration must be at most 3600 seconds"
 		})
 		.nullable(),
-	numbersPlayer: zod
+	maxPlayers: zod
 		.literal(2),
 	maxScore: zod
 		.number()
@@ -36,6 +36,11 @@ const schemaGame = zod.object({
 	path: ["duration", "maxScore"]
 });
 
+const joinSchema = zod.object({
+	gameId: zod
+		.number()
+});
+
 export class Play extends Component {
 	content() {
 		return (/*html*/`
@@ -43,45 +48,92 @@ export class Play extends Component {
 			<div class="container container-md bg-background rounded rounded-3 p-4 my-4 d-flex flex-column gap-2">
 				<div>
 					<h2 class="text-center">Play</h2>
-					<p class="text-center text-muted-foreground">Create a new game</p>
 				</div>	
 				<separator-component></separator-component>
-				<!-- Start form -->
-				<form id="create-game-form" class="d-flex flex-column gap-1">
-					<!-- Duration -->
-					<div class="form-group">
-						<label for="duration">Duration</label>
-						<input type="number" id="duration" class="form-control" name="duration" value="60" placeholder="Duration in seconds">
-						<small id="duration-empty" class="form-text text-muted-foreground" style="display: none;">If no duration is set, the game will be infinite and max score will be required</small>
-						<small id="duration-error" class="form-text text-danger" style="display: none;"></small>
-					</div>
-					<!-- Numbers player -->
-					<div class="form-group">
-						<label for="numbers-player">Numbers of players</label>
-						<input type="number" id="numbers-player" class="form-control" name="numbersPlayer" value="2" placeholder="Nombre de joueurs" readonly>
-						<small id="numbersPlayer-error" class="form-text text-danger" style="display: none;"></small>
-					</div>
-					<!-- Max Score -->
-					 <!-- Score is falcultatif and NULL by default, ive score is set, the partie can end before duration if score is reached -->
-					<div class="form-group">
-						<label for="max-score">Max Score</label>
-						<input type="number" id="max-score" class="form-control" name="maxScore" value="" placeholder="Max Score" readonly>
-						<small id="maxScore-error" class="form-text text-danger" style="display: none;"></small>
-					</div>
-					<button-component id="submit-button" type="submit" variant="muted" class="d-flex align-items-center justify-content-center gap-2">	
-						<span id="loading-icon"  class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
-						Save
-					</button-component>
-				</form>
+				<div class="d-flex flex-column gap-2">
+					<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createGameModal">
+						Create Game
+					</button>
+					<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#joinGameModal">
+						Join Game
+					</button>
+				</div>
+			</div>
+			<!-- MODALS -->
+			<div class="modal fade" id="createGameModal" tabindex="-1" aria-labelledby="createGameModalLabel" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered">
+					<form id="create-game-form" class="modal-content">
+						<div class="modal-header">
+							<h1 class="modal-title fs-5" id="createGameModalLabel">Create Game</h1>
+							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+						</div>
+						<div class="modal-body">
+							<!-- Duration -->
+							<div class="form-group">
+								<label for="duration">Duration</label>
+								<input type="number" id="duration" class="form-control" name="duration" value="60" placeholder="Duration in seconds">
+								<small id="duration-empty" class="form-text text-muted-foreground" style="display: none;">If no duration is set, the game will be infinite and max score will be required</small>
+								<small id="duration-error" class="form-text text-danger" style="display: none;"></small>
+							</div>
+							<!-- Max players -->
+							<div class="form-group">
+								<label for="max-players">Max Players</label>
+								<input type="number" id="max-players" class="form-control" name="maxPlayers" value="2" placeholder="Nombre de joueurs" readonly>
+								<small id="maxPlayers-error" class="form-text text-danger" style="display: none;"></small>
+							</div>
+							<!-- Max Score -->
+							<!-- Score is falcultatif and NULL by default, ive score is set, the partie can end before duration if score is reached -->
+							<div class="form-group">
+								<label for="max-score">Max Score</label>
+								<input type="number" id="max-score" class="form-control" name="maxScore" value="" placeholder="Max Score" readonly>
+								<small id="maxScore-error" class="form-text text-danger" style="display: none;"></small>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+							<button-component id="createGameButton" type="submit" variant="muted" class="d-flex align-items-center justify-content-center gap-2">
+								<span id="createGameButtonLoading"  class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+								Create
+							</button-component>
+						</div>
+					</form>
+				</div>
+			</div>
+
+			<div class="modal fade" id="joinGameModal" tabindex="-1" aria-labelledby="joinGameModalLabel" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered">
+					<form id="join-game-form" class="modal-content">
+						<div class="modal-header">
+							<h1 class="modal-title fs-5" id="joinGameModalLabel">Join Game</h1>
+							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+						</div>
+						<div class="modal-body">
+							<!-- GAME ID -->
+							<div class="form-group">
+								<label for="gameId">Game ID</label>
+								<input type="number" id="gameId" class="form-control" name="gameId" placeholder="Game ID">
+								<small id="gameId-error" class="form-text text-danger" style="display: none;"></small>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+							<button-component id="joinGameButton" type="submit" variant="muted" class="d-flex align-items-center justify-content-center gap-2">
+								<span id="joinGameButtonLoading"  class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+								Join
+							</button-component>
+						</div>
+					</form>
+				</div>
 			</div>
 		</main-layout>
 		`);
 	}
 
 	script() {
+		/* ------------------------------- CREATE GAME ------------------------------ */
 		const form = this.querySelector("#create-game-form");
-		const submitButton = this.querySelector("#submit-button");
-		const loadingIcon = this.querySelector("#loading-icon");
+		const submitButton = this.querySelector("#createGameButton");
+		const loadingIcon = this.querySelector("#createGameButtonLoading");
 
 		const durationInput = this.querySelector("#duration");
 		const durationEmpty = this.querySelector("#duration-empty");
@@ -104,30 +156,28 @@ export class Play extends Component {
 				const formData = new FormData(form);
 				const {
 					duration,
-					numbersPlayer,
+					maxPlayers,
 					maxScore
 				} = Object.fromEntries(formData.entries());
-				console.log(duration, numbersPlayer, maxScore);
+				console.log(duration, maxPlayers, maxScore);
 
 				schemaGame.parse({
 					duration: duration === "" ? null : parseInt(duration),
-					numbersPlayer: parseInt(numbersPlayer),
+					maxPlayers: parseInt(maxPlayers),
 					maxScore: maxScore === "" ? null : parseInt(maxScore)
 				});
 
 				const { data, error } = await api.game.create({
 					duration,
-					numbersPlayer,
+					maxPlayers,
 					maxScore
 				});
 				if (error) throw error;
-				console.log('data', data);
 				Toast.success("Game created successfully");
 				window.router.push(`/play/${data.id}`);
 			} catch (error) {
 				console.error(error);
 				if (error instanceof ApiRequestError) {
-					// TODO: change in django response to match object { data, error }
 					Toast.error(error.message);
 				} else if (error instanceof zod.ZodError) {
 					error.errors.forEach(err => {
@@ -140,12 +190,6 @@ export class Play extends Component {
 								errorElement.style.display = "block";
 							}
 						});
-
-						// const input = form.querySelector(`[name="${err.path[0]}"]`);
-						// const errorElement = form.querySelector(`#${err.path[0]}-error`);
-						// input.classList.add("is-invalid");
-						// errorElement.innerText = err.message;
-						// errorElement.style.display = "block";
 					});
 				} else {
 					Toast.error("An error occurred while creating the game");
@@ -156,7 +200,58 @@ export class Play extends Component {
 			}
 		});
 
+		/* -------------------------------------------------------------------------- */
 
+		/* -------------------------------- JOIN GAME ------------------------------- */
+		const joinForm = this.querySelector("#join-game-form");
+		const joinSubmitButton = this.querySelector("#joinGameButton");
+		const joinLoadingIcon = this.querySelector("#joinGameButtonLoading");
+
+		// Submit form
+		joinForm.addEventListener("submit", async (e) => {
+			e.preventDefault();
+			try {
+				joinLoadingIcon.style.display = "inline-block";
+				joinSubmitButton.disabled = true;
+
+				const formData = new FormData(joinForm);
+				const {
+					gameId
+				} = Object.fromEntries(formData.entries());
+
+				joinSchema.parse({
+					gameId: parseInt(gameId)
+				});
+
+				const { data, error } = await api.game.join(gameId);
+				if (error) throw error;
+				Toast.success("Game joined successfully");
+				window.router.push(`/play/${data.id}`);
+			} catch (error) {
+				console.error(error);
+				if (error instanceof ApiRequestError) {
+					Toast.error(error.message);
+				} else if (error instanceof zod.ZodError) {
+					error.errors.forEach(err => {
+						err.path.forEach(path => {
+							const input = form.querySelector(`[name="${path}"]`);
+							const errorElement = form.querySelector(`#${path}-error`);
+							if (input && errorElement) {
+								input.classList.add("is-invalid");
+								errorElement.innerText = err.message;
+								errorElement.style.display = "block";
+							}
+						});
+					});
+				} else {
+					Toast.error("An error occurred while joining the game");
+				}
+			} finally {
+				joinLoadingIcon.style.display = "none";
+				joinSubmitButton.disabled = false;
+			}
+		});
+		/* -------------------------------------------------------------------------- */
 	}
 }
 

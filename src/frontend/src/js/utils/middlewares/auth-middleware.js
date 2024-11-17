@@ -5,6 +5,7 @@ import { startNotification } from "../notification/notification.js";
 const privateRoutes = [
 	"/user/:username",
 	"/settings",
+	"/play",
 ];
 
 const anonRoutes = [

@@ -70,24 +70,29 @@ class MatchViewSet(BaseViewSet):
 #         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class MatchView(APIView):
-    """
-    Get a match by id
-    """
-    def get(self, request):
-        try:
-            match = Match.objects.get(id=request.data.get('id'))
-        except Match.DoesNotExist:
-            return format_response(error="Match not found", status=404)
-            # return Response({"error": "Match not found"}, status=status.HTTP_404_NOT_FOUND)
+    # """
+    # Get a match by id
+    # """
+    # def get(self, request):
+    #     try:
+    #         match = Match.objects.get(id=request.data.get('id'))
+    #     except Match.DoesNotExist:
+    #         return format_response(error="Match not found", status=404)
+    #         # return Response({"error": "Match not found"}, status=status.HTTP_404_NOT_FOUND)
         
-        serializer = MatchSerializer(match)
-        return format_response(data=serializer.data)
+    #     serializer = MatchSerializer(match)
+    #     return format_response(data=serializer.data)
         # return Response(serializer.data)
+    permission_classes = [IsAuthenticated]
 
     """
     Create a new match
     """
     def post(self, request):
+        # Restrict to authenticated users
+        # if not request.user.is_authenticated:
+        #     return format_response(error="You must be authenticated to create a match", status=401)
+        
         # Check if the user already has an ongoing match
         if MatchPlayer.objects.filter(
             Q(player_id=request.user.id) &
@@ -99,6 +104,10 @@ class MatchView(APIView):
         serializer = MatchCreateSerializer(data=request.data)
         if serializer.is_valid():
             match = serializer.save() # Create the match
+            match.state = Match.State.WAITING # Set the match state to waiting
+            match.save()
+
+            # Add the current player to the match
             MatchPlayer.objects.create(
                 match_id=match,
                 player_id_id=request.user.id
@@ -108,10 +117,39 @@ class MatchView(APIView):
         # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return format_response(error=serializer.errors, status=400)
     
-    """
-    Join a match
-    """
-    # TODO: use PUT to join a match
+class MatchJoinView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, game_id):
+        """
+        Join a match
+
+        Conditions:
+        - The user is authenticated
+        - The match exists and his state is waiting for players
+        """
+        player_id = request.user.id
+        match_id = game_id
+
+        try:
+            match = Match.objects.get(id=match_id)
+        except Match.DoesNotExist:
+            return format_response(error="Match not found", status=404)
+
+        if match.state != Match.State.WAITING:
+            return format_response(error="Match is not waiting for players", status=400)
+        
+        try:
+            MatchPlayer.objects.create(
+                match_id=match,
+                player_id_id=player_id
+            )
+        except Exception as e:
+            return format_response(error=str(e), status=400)
+
+
+        return format_response(data=MatchSerializer(match).data)
+
 
 class MatchCheckView(APIView):
     permission_classes = [IsAuthenticated]

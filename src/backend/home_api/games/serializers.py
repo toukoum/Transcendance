@@ -30,9 +30,7 @@ class MatchCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Duration must be at least 30 seconds')
         if data.get('max_score') is not None and data.get('max_score') < 1:
             raise serializers.ValidationError('Max score must be at least 1')
-        # if data.get('max_players') < 2:
-        #     raise serializers.ValidationError('Max players must be at least 2')
-        
+
         return data
 
 

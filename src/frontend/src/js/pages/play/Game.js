@@ -2,19 +2,49 @@ import { Component } from "../../utils/Component.js";
 
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.170.0/+esm';
 import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.124/examples/jsm/controls/OrbitControls.js';
+import { api } from "../../utils/api/Api.js";
 
 export class Game extends Component {
 	content() {
+		const gameId = parseInt(this.getAttribute("id"));
+		// Redirect if not in game
+		if (!window.isInGame || window.isInGame.id !== gameId) {
+			window.router.redirect("/play"); // Add message ?error=notInGame
+		}
+
 		return (/*html*/`
 		<main-layout>
 			<div id="scene" class="h-100">
-				Game: ${this.getAttribute("id")}
+				Game: ${gameId}
 			</div>
 		</main-layout>
 		`);
 	}
 
 	script() {
+		const gameId = parseInt(this.getAttribute("id"));
+		// Connect to game
+		const ws = api.game.connect(gameId);
+
+		let pingInterval;
+
+		// Console message from ws
+		ws.on("open", () => {
+			console.log("Connected to game");
+
+			pingInterval = setInterval(() => {
+				ws.send({
+					type: "game_ping",
+					timestamp: Date.now()
+				});
+			}, 1000);
+		});
+		ws.on("message", (data) => {
+			console.log("Message from game", data);
+		});
+
+
+
 		// get size of scene
 		const div = document.getElementById("scene");
 		const windowWidth = div.clientWidth;
