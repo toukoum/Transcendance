@@ -16,6 +16,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 
 from home_api.utils import BaseViewSet, BaseReadOnlyViewSet, format_response
+from friends.models import Friendship
+from django.db.models import Case, When, Value, BooleanField
+
 
 class UserViewSet(BaseReadOnlyViewSet):
 
@@ -45,20 +48,41 @@ class UserWrapperViewSet(BaseViewSet):
     def get_object(self):
         return self.request.user
 
+
 class UserSearchView(BaseReadOnlyViewSet):
     serializer_class = UserListSerializer
     queryset = User.objects.all()
 
-    #TODO : friends management
     def get_queryset(self):
-        query = self.request.query_params.get('q', '')
-        if (len(query) < 3):
+        query = self.request.query_params.get('q', '').strip()
+
+        if len(query) < 3:
             return User.objects.none()
-        return User.objects.filter(username__icontains=query).filter(email__icontains=query).filter(is_active=True).distinct()
-    
+
+        # List d'amis actuel
+        friends = Friendship.objects.filter(
+            user1=self.request.user,
+            status='accepted'
+        ).values_list('user2', flat=True)
+
+        # Annoter les utilisateurs pour indiquer si ce sont des amis
+        users = User.objects.filter(
+            is_active=True,
+            username__icontains=query
+        ).annotate(
+            is_friend=Case(
+                When(id__in=friends, then=Value(1)),
+                default=Value(0),
+                output_field=BooleanField()
+            )
+        )
+        
+        # Retourner amis d'abord, puis par username, A TESTER
+        return users.order_by('-is_friend', 'username')
+				
 class UploadAvatar(APIView):
     """
-        Update avatar of the user
+			Update avatar of the user
     """
     permission_classes = [IsAuthenticated]
     

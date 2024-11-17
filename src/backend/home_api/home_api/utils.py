@@ -28,7 +28,6 @@ def format_response(data=None, error=None, status=200, response=None):
     """
     For the manual creation of responses
     """
-    print("salut a tous")
     if error:
       error = {
         "message": error,

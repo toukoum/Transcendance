@@ -234,7 +234,7 @@ class LoginViewCustom(LoginView):
         view.action = 'retrieve'
         
         # Simuler un appel à 'retrieve' en appelant la méthode directement
-        response = format_response(view.retrieve(request).data)
+        response = view.retrieve(request)
 
         set_jwt_cookies(response, access_token, refresh_token)
   
@@ -258,9 +258,9 @@ class MFAValidationViewCustom(APIView):
                 code=serializer.validated_data["code"],
                 ephemeral_token=serializer.validated_data["ephemeral_token"],
             )
-            return format_response(data=sent_custom_JWT(request, user))
+            return sent_custom_JWT(request, user)
         except MFAValidationError as cause:
-            return format_response(error=cause, status_code=HTTP_401_UNAUTHORIZED)
+            return format_response(error=str(cause), status=HTTP_401_UNAUTHORIZED)
 
 
 class MFADeactivateView(APIView):
@@ -312,10 +312,33 @@ class BaseCustomView:
                 }
             }, status=response.status_code)
 
-class LogoutViewCustom(BaseCustomView, LogoutView):
-    success_message = "Successfully logged out"
-    failure_message = "Failed to log out"
-    success_status = status.HTTP_200_OK
+
+
+from dj_rest_auth.jwt_auth import unset_jwt_cookies
+
+class LogoutViewCustom(LogoutView):
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        # Appliquer le format personnalisé
+        if response.status_code == status.HTTP_200_OK:
+            response = Response({
+                "data": {"message": "Successfully logged out"},
+                "error": None
+            }, status=response.status_code)
+            unset_jwt_cookies(response)
+            return response
+        else:
+            response = Response({
+                "data": None,
+                "error": {
+                    "message": "Failed to log out",
+                    "status": response.status_code
+                }
+            }, status=response.status_code)
+            unset_jwt_cookies(response)
+            return response
+        
+
 
 class RegisterViewCustom(BaseCustomView, RegisterView):
     success_message = "Successfully registered"

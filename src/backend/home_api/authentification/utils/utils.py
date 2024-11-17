@@ -9,6 +9,13 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth import login as django_login
 
+def format_response(data=None, error=None, status=200):
+    return Response({
+        "data": data,
+        "error": error
+    }, status=status)
+
+
 def sent_custom_JWT(request, user):
     """
         To Set JWT cookies in the user browser
@@ -30,8 +37,13 @@ def sent_custom_JWT(request, user):
         response_data["refresh_expiration"] = timezone.now() + jwt_settings.REFRESH_TOKEN_LIFETIME
 
     serializer = JWTSerializer(instance=response_data, context={"request": request})
-    response = Response(serializer.data, status=status.HTTP_200_OK)
-
-    set_jwt_cookies(response, access_token, refresh_token)
     
-    return response
+    formatted_response = format_response(
+        status=status.HTTP_200_OK,
+        data=serializer.data,
+    )
+
+    # Ajouter les cookies JWT à la réponse
+    set_jwt_cookies(formatted_response, access_token, refresh_token)
+
+    return formatted_response
