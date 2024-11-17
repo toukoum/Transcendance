@@ -51,17 +51,29 @@ class GameConsumer(AsyncWebsocketConsumer):
 #                                     GAME                                     #
 # ---------------------------------------------------------------------------- #
 
+    async def game_loop(self):
+        """
+        Main game loop
+        """
+        while True:
+            async with self.state_lock:
+                print('=====> Game loop')
+                pass
+            await asyncio.sleep(0.02)
+
+
     async def start_game(self, match):
         """
         Start the game
         """
-        await self.update_match_state(match, Match.State.IN_PROGRESS)
+        await self.update_match_state(match.id, Match.State.IN_PROGRESS)
         await self.channel_layer.group_send(
             self.room_group_name,
             {
                 'type': 'game_start',
             }
         )
+        asyncio.create_task(self.game_loop())
     
 
 # ---------------------------------------------------------------------------- #
@@ -136,7 +148,7 @@ class GameConsumer(AsyncWebsocketConsumer):
             
             print(f"=====> Connected players: {connected_players_count}/{match.max_players}")
             if connected_players_count == match.max_players:
-                pass # start the game
+                await self.start_game(match)
             else:
                 await self.channel_layer.group_send(
                     self.room_group_name,

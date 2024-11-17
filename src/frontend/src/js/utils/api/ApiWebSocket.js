@@ -30,7 +30,7 @@ export class ApiWebSocket {
 			this.emit("open");
 		}
 		this.socket.onmessage = (event) => {
-			console.log(`WebSocket message`, event.data);
+			// console.log(`WebSocket message`, event.data);
 			this.emit("message", event.data);
 		}
 		this.socket.onclose = () => {
@@ -39,7 +39,7 @@ export class ApiWebSocket {
 			this.emit("close");
 		}
 		this.socket.onerror = (error) => {
-			console.error(`WebSocket error`, error);
+			// console.error(`WebSocket error`, error);
 			this.emit("error", error);
 		}
 

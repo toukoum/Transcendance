@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 class Match(models.Model):
 	class State(models.TextChoices):
 			CREATED = 'created', 'Match created'
-			WAITING = 'wainting', 'Waiting for players'
+			WAITING = 'waiting', 'Waiting for players'
 			IN_PROGRESS = 'in_progress', 'Match in progress'
 			PAUSED = 'paused', 'Match paused'
 			FINISHED = 'finished', 'Match finished'
