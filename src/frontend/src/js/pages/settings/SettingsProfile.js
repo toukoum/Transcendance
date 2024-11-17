@@ -40,7 +40,7 @@ const schemaProfile = zod.object({
 export class SettingsProfile extends Component {
 	content() {
 		const user = window.auth;
-		console.log(`User: ${JSON.stringify(user)}`);
+		if (!user) window.router.redirect("/auth/login&redirect=/settings/profile");
 		return (/*html*/`
 			<settings-layout>
 				<!-- Start form -->
@@ -105,7 +105,7 @@ export class SettingsProfile extends Component {
 					bio
 				});
 
-				const { data, error } = await api.me.update({
+				const { data, error } = await api.auth.update({
 					username,
 					firstName,
 					lastName,
@@ -113,7 +113,12 @@ export class SettingsProfile extends Component {
 				})
 				if (error) throw error;
 				window.auth = data;
-
+				// clear errors
+				form.querySelectorAll(".is-invalid").forEach(input => input.classList.remove("is-invalid"));
+				form.querySelectorAll(".form-text").forEach(errorElement => {
+					errorElement.innerText = "";
+					errorElement.style.display = "none";
+				});
 				Toast.success("Profile updated successfully");
 			} catch (error) {
 				if (error instanceof ApiRequestError) {
@@ -121,13 +126,22 @@ export class SettingsProfile extends Component {
 					Toast.error(error.message);
 				} else if (error instanceof zod.ZodError) {
 					error.errors.forEach(err => {
-						const input = form.querySelector(`[name="${err.path[0]}"]`);
-						const errorElement = form.querySelector(`#${err.path[0]}-error`);
-						if (input && errorElement) {
-							input.classList.add("is-invalid");
-							errorElement.innerText = err.message;
-							errorElement.style.display = "block";
-						}
+						err.path.forEach(path => {
+							const input = form.querySelector(`[name="${path}"]`);
+							const errorElement = form.querySelector(`#${path}-error`);
+							if (input && errorElement) {
+								input.classList.add("is-invalid");
+								errorElement.innerText = err.message;
+								errorElement.style.display = "block";
+							}
+						});
+						// const input = form.querySelector(`[name="${err.path[0]}"]`);
+						// const errorElement = form.querySelector(`#${err.path[0]}-error`);
+						// if (input && errorElement) {
+						// 	input.classList.add("is-invalid");
+						// 	errorElement.innerText = err.message;
+						// 	errorElement.style.display = "block";
+						// }
 					});
 				} else {
 					// console.error(`An error occurred: ${error}`);

@@ -5,6 +5,7 @@ import { startNotification } from "../notification/notification.js";
 const privateRoutes = [
 	"/user/:username",
 	"/settings",
+	"/play",
 ];
 
 const anonRoutes = [
@@ -24,6 +25,7 @@ export const authMiddleware = async (route, next) => {
 	}
 
 	if (!user && privateRoutes.some((r) => route.path.startsWith(r))) {
+		// window.router.redirect(`/auth/login?redirect=${route.path}`); TODO: Implement redirect
 		window.router.redirect("/auth/login");
 		return
 	}

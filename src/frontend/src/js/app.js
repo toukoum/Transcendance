@@ -6,6 +6,7 @@ import "./components/index.js";
 import "./layout/index.js";
 import {
 	authMiddleware,
+	gameMiddleware,
 	localeMiddleware
 } from "./utils/middlewares/index.js";
 
@@ -25,6 +26,7 @@ export class App {
 				new Route("/user/:username", "user-page"),
 				// Play
 				new Route("/play", "play-page"),
+				new Route("/play/:id", "play-game-page"),
 
 
 				// raf test
@@ -44,6 +46,7 @@ export class App {
 			middlewares: [
 				localeMiddleware,
 				authMiddleware,
+				gameMiddleware,
 			],
 		});
 		window.router = this.#router;

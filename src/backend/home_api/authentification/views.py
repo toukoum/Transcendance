@@ -4,6 +4,7 @@ from django.http import HttpResponseRedirect
 
 import requests
 from rest_framework.permissions import IsAuthenticated
+from dj_rest_auth.jwt_auth import unset_jwt_cookies
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView

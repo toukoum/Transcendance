@@ -12,6 +12,7 @@ from dj_rest_auth.registration.views import (
 #from dj_rest_auth.views import (
 #    PasswordResetConfirmView,
 #    PasswordResetView,
+#    LogoutView,
 #)
 
 from authentification.views import (

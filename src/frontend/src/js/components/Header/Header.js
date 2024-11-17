@@ -13,7 +13,7 @@ export class Header extends Component {
 
 			<ul class="nav col-12 col-md-auto mb-2 justify-content-center align-items-center mb-md-0 gap-4" style="pointer-events: auto;">
 				<li><link-component href="/" class="nav-link px-2">Home</link-component></li>
-				<!-- <li><link-component href="/play" class="nav-link px-2 pa-btn">PLAY</link-component></li> -->
+				<li><link-component href="/play" class="nav-link px-2 pa-btn">PLAY</link-component></li>
 				<li><link-component href="/leaderboard" class="nav-link px-2">Leaderboard</link-component></li>
 			</ul>
 
