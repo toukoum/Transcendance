@@ -132,10 +132,11 @@ export class Toast extends Component {
 
 		// Toast content
 		toast.innerHTML = `
+			${title ? `
 			<div class="toast-header">
-				${title ? `<strong class="me-auto">${title}</strong>` : ''}
+				<strong class="me-auto">${title}</strong>
 				<button type="button" class="btn-close ms-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-			</div>
+			</div>` : ''}
 			<div class="toast-body">
 				${message}
 			</div>
