@@ -44,7 +44,7 @@ class GameConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         data = json.loads(text_data)
 
-        if data['type'] == 'game_ping':
+        if data['type'] == 'ping':
             await self.handle_ping(data)
 
 # ---------------------------------------------------------------------------- #
@@ -70,9 +70,16 @@ class GameConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_send(
             self.room_group_name,
             {
-                'type': 'game_start',
+                'type': 'game_state',
+                'state': 'in_progress',
             }
         )
+        # await self.channel_layer.group_send(
+        #     self.room_group_name,
+        #     {
+        #         'type': 'game_start',
+        #     }
+        # )
         asyncio.create_task(self.game_loop())
     
 
@@ -86,14 +93,9 @@ class GameConsumer(AsyncWebsocketConsumer):
         """
         print(f"=====> Received ping from user {self.user}")
         timestamp = data.get('timestamp', self.get_current_timestamp())
-        await self.send_pong(timestamp)
-
-    async def send_pong(self, timestamp):
-        """
-        
-        """
+        # Send pong
         await self.send(text_data=json.dumps({
-            'type': 'game_pong',
+            'type': 'pong',
             'message': 'Pong',
             'timestamp': timestamp
         }))
@@ -103,15 +105,15 @@ class GameConsumer(AsyncWebsocketConsumer):
 #                                  WS HANDLERS                                 #
 # ---------------------------------------------------------------------------- #
 
-    async def game_waiting(self, event):
+    async def game_state(self, event):
         """
         
         """
-        message = event.get('message', 'Waiting for all players to connect')
+        state = event.get('state', 'waiting')
         data = event.get('data', {})
         await self.send(text_data=json.dumps({
-            'type': 'game_waiting',
-            'message': message,
+            'type': 'state',
+            'state': state,
             'data': data
         }))
     
@@ -120,20 +122,20 @@ class GameConsumer(AsyncWebsocketConsumer):
         
         """
         await self.send(text_data=json.dumps({
-            'type': 'game_start',
+            'type': 'start',
         }))
 
-    async def game_pong(self, event):
-        """
+    # async def game_pong(self, event):
+    #     """
         
-        """
-        message = event.get('message', 'Pong')
-        timestamp = event.get('timestamp', self.get_current_timestamp())
-        await self.send(text_data=json.dumps({
-            'type': 'game_pong',
-            'message': message,
-            'timestamp': timestamp
-        }))
+    #     """
+    #     message = event.get('message', 'Pong')
+    #     timestamp = event.get('timestamp', self.get_current_timestamp())
+    #     await self.send(text_data=json.dumps({
+    #         'type': 'pong',
+    #         'message': message,
+    #         'timestamp': timestamp
+    #     }))
 
 # ---------------------------------------------------------------------------- #
 
@@ -144,19 +146,19 @@ class GameConsumer(AsyncWebsocketConsumer):
         match = await self.get_match(self.game_id)
 
         if match.state == Match.State.WAITING:
-            connected_players_count = await self.get_connected_players_count(self.game_id)
+            connected_players = await self.get_connected_players(self.game_id)
             
-            print(f"=====> Connected players: {connected_players_count}/{match.max_players}")
-            if connected_players_count == match.max_players:
+            print(f"=====> Connected players: {connected_players}/{match.max_players}")
+            if connected_players == match.max_players:
                 await self.start_game(match)
             else:
                 await self.channel_layer.group_send(
                     self.room_group_name,
                     {
-                        'type': 'game_waiting',
-                        'message': 'Waiting for all players to connect',
+                        'type': 'game_state',
+                        'state': 'waiting',
                         'data': {
-                            'connected_players': connected_players_count,
+                            'connected_players': connected_players,
                             'max_players': match.max_players
                         }
                     }
@@ -174,11 +176,12 @@ class GameConsumer(AsyncWebsocketConsumer):
         return Match.objects.get(id=game_id)
     
     @database_sync_to_async
-    def get_connected_players_count(self, game_id):
+    def get_connected_players(self, game_id):
         """
-        Récupérer le nombre de joueurs connectés de manière synchrone.
+        Get connected players
         """
         return MatchPlayer.objects.filter(match_id=game_id, state=MatchPlayer.State.CONNECTED).count()
+        # return MatchPlayer.objects.filter(match_id=game_id, state=MatchPlayer.State.CONNECTED).count()
     
 
     @database_sync_to_async
