@@ -13,6 +13,9 @@ const anonRoutes = [
 ];
 
 export const authMiddleware = async (route, next) => {
+	// MODIF DE RAF
+	startNotification();
+
 	console.log("Auth Middleware");
 	
 	const { data: user } = await api.auth.getUser();

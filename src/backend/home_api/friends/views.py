@@ -30,23 +30,24 @@ class FriendshipViewSet(BaseViewSet):
     def create(self, request, *args, **kwargs):
         data = request.data
         user1 = request.user
-        user2_id = data.get('user2')
 
-        if not user2_id:
-            return Response({'error': 'You must provide a user2 id'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            user2 = User.objects.get(username=data['user2'])
+        except User.DoesNotExist:
+            return format_response(error='User not found', status=404)
         
-        if int(user1.id) == int(user2_id):
-            return Response({'error': 'You can not be friends with yourself'}, status=status.HTTP_400_BAD_REQUEST)
+        if user1 == user2:
+            return format_response(error='You can not be friends with yourself', status=400)
 
 
-        existing_friendship = Friendship.objects.filter(Q(user1=user1, user2_id=user2_id) | Q(user1=user2_id, user2=user1))
+        existing_friendship = Friendship.objects.filter(Q(user1=user1, user2_id=user2.id) | Q(user1=user2.id, user2=user1))
         if existing_friendship.exists() and existing_friendship[0].status == 'accepted':
-            return Response({'error': 'You are already friends with this user'}, status=status.HTTP_400_BAD_REQUEST)
+            return format_response(error='You are already friends with this user', status=400)
         elif existing_friendship.exists() and existing_friendship[0].status == 'pending':
-            return Response({'error': 'You already sent a friendship request to this user'}, status=status.HTTP_400_BAD_REQUEST)
+            return format_response(error='You already sent a friendship request to this user', status=400)
         
         try:
-            user2 = User.objects.get(id=user2_id)
+            user2 = User.objects.get(id=user2.id)
         except User.DoesNotExist:
             return format_response(error='User not found', status=404)
         
@@ -57,16 +58,21 @@ class FriendshipViewSet(BaseViewSet):
 
 
         send_notification(
+          user=user2,
           data={
-              'event_type': 'friendship_request',
-              'details': f'{user1.username} wants to be friends with you',
-              'user_id_from': user1.id,
-              'action': {
-                  'accept': f'http://localhost:3000/friends/accept/{serializer.data.get("id")}/',
-                  'reject': f'http://localhost:3000/friends/reject/{serializer.data.get("id")}/'
-              }
+            'message': f'{user1.username} sent you a friendship request'
           },
-          user2_id=user2_id,
+          action={
+            'primary': {
+              'url': f'friends/{serializer.data["id"]}/accept/',
+              'label': 'Accept'
+            },
+            'secondary': {
+              'url': f'friends/{serializer.data["id"]}/reject/',
+              'label': 'Reject'
+            }
+          },
+          user_from=user1
         )
     
         return format_response(data=serializer.data, status=201)
@@ -88,7 +94,6 @@ class FriendshipViewSet(BaseViewSet):
         """
         accept a friendship request
         """
-        print(request.data)
         friendship = self.get_object()
         if friendship.user2 != request.user:
             return format_response(error='You can not accept this friendship request', status=400)
@@ -96,11 +101,24 @@ class FriendshipViewSet(BaseViewSet):
         friendship.status = 'accepted'
         friendship.save()
         
+        send_notification(
+          user=friendship.user1,
+          data={
+            'message': f'{request.user.username} accepted your friendship request'
+          },
+        )
+
+        send_notification(
+          user=friendship.user2,
+          data={
+            'message': f'You are now friends with {request.user.username}'
+          },    
+        )              
+        
         return format_response(data=self.get_serializer(friendship).data, status=200)
 
     @action (detail=True, methods=['post'])
     def reject(self, request, pk=None):
-        print(request.data)
         friendship = self.get_object()
         if friendship.user2 != request.user:
             return format_response(error='You can not reject this friendship request', status=400)
@@ -108,6 +126,20 @@ class FriendshipViewSet(BaseViewSet):
         friendship.status = 'rejected'
         #suppression de la demande d'amitié
         friendship.delete()
+
+        send_notification(
+          user=friendship.user1,
+          data={
+            'message': f'{request.user.username} rejected your friendship request'
+          },
+        )
+
+        send_notification(
+          user=friendship.user2,
+          data={
+            'message': f'You rejected the friendship request from {request.user.username}'
+          },    
+        )
 
         return format_response(data=self.get_serializer(friendship).data, status=200)
     
@@ -142,6 +174,14 @@ class FriendshipViewSet(BaseViewSet):
             return format_response(error='You can not delete this friendship request', status=400)
 
         friendship.delete()
+
+        other_user = friendship.user2 if friendship.user1 == request.user else friendship.user1
+        send_notification(
+            user=other_user,
+            data={
+          'message': f'{request.user.username} deleted the friendship'
+            },
+        )
 
         return format_response(data={'status': 'Friendship deleted'}, status=200)
     

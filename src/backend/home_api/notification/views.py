@@ -19,37 +19,40 @@ from rest_framework.permissions import IsAuthenticated
 from notification.serializers import NotificationListSerializer
 from notification.models import Notification
 
+from django.contrib.auth.models import User
+
 @api_view(['POST'])
 def testNotif(request):
 		
-		send_notification(
+		return send_notification(
 			user=request.user,
 			data={
 				'message': 'Bonjour je suis une NOTIF batard'
 			},
-			event_type='TESTING',
-			action={
-				'primary': {
-					'url': 'http://localhost:8000/v1/me/',
-					'label': 'User profile'
-				}
-			}
 		)
 
 
 
 @api_view(['POST'])
 def testNotifUser(request):
-		userId = request.data['userId']
-		userIdRequest = request.user.id
-		print(userIdRequest)
-		data = {
-			'message': 'Bonjour je suis une NOTIF batard',
-			'userFrom': userIdRequest,
-		}
+		user = User.objects.get(id=request.data['userId'])
+		
+		return send_notification(
+			user=user,
+			data={
+				'message': 'Bonjour je suis une NOTIF batard'
+			},
+			action={
+				'primary': {
+					'url': 'http://localhost:8000/v1/me/',
+					'label': 'User profile'
+				}
+			},
+			user_from=request.user
+		)
 
-		send_notification(data, userId)
-		return format_response(data='Notification sent')
+
+
 
 class NotificationsViewSet(BaseViewSet):
 
@@ -57,7 +60,7 @@ class NotificationsViewSet(BaseViewSet):
 	serializer_class = NotificationListSerializer
 
 	def get_queryset(self):
-		user_id = self.request.user.id
-		return Notification.objects.filter(user_id=user_id).order_by('-created_at')\
+		user = self.request.user
+		return Notification.objects.filter(user=user).order_by('-created_at')\
 
 	

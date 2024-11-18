@@ -1,4 +1,5 @@
 
+import { Toast } from "../../provider/toast-provider.js";
 
 export function startNotification(){
 
@@ -14,13 +15,11 @@ export function startNotification(){
 	notifSocket.onmessage = function(e){
 		const notification = JSON.parse(e.data)
 
-		switch(notification.type){
-			case 'friendship_request':
-				console.log('Friendship request from: ', notification.data.user1_username)
-				console.log(notification.data)
-				break
-			default:
-				console.log('NOTIFICATION', notification)
+		// Display Toast notification
+		if (notification.data.action !== null){
+			Toast.notificationAction(notification)
+		}else{
+			Toast.info(notification.data.data.message, notification.data.event_type)
 		}
 	}
 
