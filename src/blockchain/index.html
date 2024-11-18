@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Document</title>
-	<!-- Charger ethers.js depuis jsdelivr -->
 	<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"
 		type="application/javascript"></script>
 	<link rel="stylesheet" href="style.css">
@@ -14,9 +13,14 @@
 <body>
 	<div id="button">
 		<button id="connectButton">Connect Wallet</button>
-		<button id="getNumber">get Number</button>
-		<button id="incr">Increment</button>
-		<button id="decr">Decrement</button>
+		<input type="text" id="inputWallet" placeholder="Enter a wallet">
+		<div id="divInfo">
+			<button id="getInfo">Get info game</button>
+		</div>
+		<div class="divWin">
+			<input type="text" id="inputLooser" placeholder="Enter a the wallet looser">
+			<button id="sendLooser">Send Looser</button>
+		</div>
 	</div>
 </body>
 

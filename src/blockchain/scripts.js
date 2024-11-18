@@ -1,6 +1,9 @@
 let provider;
 let signer;
 let contract;
+let addressWallet;
+let addressLooser;
+
 const ABI = `[
 	{
 		"inputs": [
@@ -46,7 +49,7 @@ const ABI = `[
 	}
 ]`;
 
-const contractAddress = '0x5fbdb2315678afecb367f032d93f642f64180aa3'
+const contractAddress = '0x8464135c8F25Da09e49BC8782676a84730C318bC'
 
 const connectWallet = async () => {
 	try {
@@ -66,39 +69,69 @@ const connectWallet = async () => {
 			console.log("Balance:", ethers.utils.formatEther(balance), "ETH");
 			signer = provider.getSigner();
 			contract = new ethers.Contract(contractAddress, ABI, signer);
+			document.getElementById("connectButton").disabled = false;
+			sessionStorage.setItem("isConnected", true);
+			if (sessionStorage.getItem("isConnected")) {
+				const button = document.querySelector("#connectButton");
+				button.innerHTML = "Disconnect";
+				button.setAttribute("id", "Disconnect");
+			}
 		}
 	} catch (error) {
 		console.error("Erreur lors de la connexion au portefeuille:", error);
 	}
 };
 
+if (sessionStorage.getItem("isConnected")) {
+	connectWallet();
+}
 
-
-const reloadContract = async () => {
-	contract = new ethers.Contract(contractAddress, ABI, signer);
+const getGame = async () => {
+	if (addressWallet == null) {
+		alert("Veuillez entrer une adresse de portefeuille");
+		return;
+	}
+	const number = await contract.getGame(addressWallet);
+	console.log(number);
+	if (document.querySelector("#info") == null) {
+		const divInfo = document.createElement("div");
+		divInfo.setAttribute("id", "info");
+		document.querySelector("#divInfo").appendChild(divInfo);
+	}
+	console.log(`Nombre de parties jouées: ${number[0]}<br>Nombre de parties gagnées: ${number[1]}<br>Nombre de parties perdues: ${number[2]}`);
+	document.querySelector("#info").innerHTML = `Nombre de parties jouées: ${number[0]}<br>Nombre de parties gagnées: ${number[1]}<br>Nombre de parties perdues: ${number[2]}`;
 };
 
-const getNumber = async () => {
-	const number = await contract.number();
-	console.log(`Number: ${number}`);
-};
 
-
-const incr = async () => {
+const sendLooser = async () => {
+	if (addressLooser == null) {
+		alert("Veuillez entrer une adresse de portefeuille");
+		return;
+	}
+	console.log(addressLooser);
 	const contractWithWallet = contract.connect(signer);
-	const tx = await contractWithWallet.incre();
+	const tx = await contractWithWallet.win(addressLooser);
 	await tx.wait();
 	console.log(tx);
-	const after = await contract.number()
-    console.log(`after: ${after}`)
 };
 
-const decr = async () => {
-	sessionStorage.setItem("number", Number(sessionStorage.getItem("number")) + 1);
-	console.log(sessionStorage.getItem("number"));
-};
+document.querySelector("#inputWallet").addEventListener("change", (e) => {
+	addressWallet = e.target.value;
+});
+
+document.querySelector("#inputLooser").addEventListener("change", (e) => {
+	addressLooser = e.target.value;
+});
+
+document.querySelector("#connectButton").addEventListener("click", () => {
+	if (sessionStorage.getItem("isConnected")) {
+		sessionStorage.removeItem("isConnected");
+	} else {
+		connectWallet();
+	}
+});
 
 document.getElementById("connectButton").addEventListener("click", connectWallet);
-document.getElementById("getNumber").addEventListener("click", getNumber);
-document.getElementById("incr").addEventListener("click", incr);
-document.getElementById("decr").addEventListener("click", decr);
+// document.getElementById("getNumber").addEventListener("click", getNumber);
+document.getElementById("sendLooser").addEventListener("click", sendLooser);
+document.getElementById("getInfo").addEventListener("click", getGame);
