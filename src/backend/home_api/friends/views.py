@@ -59,6 +59,7 @@ class FriendshipViewSet(BaseViewSet):
 
         send_notification(
           user=user2,
+          event_type='friend_request',
           data={
             'message': f'{user1.username} sent you a friendship request'
           },
@@ -94,24 +95,31 @@ class FriendshipViewSet(BaseViewSet):
         """
         accept a friendship request
         """
+
         friendship = self.get_object()
         if friendship.user2 != request.user:
             return format_response(error='You can not accept this friendship request', status=400)
         
+        #check if the friendship request is still pending
+        if friendship.status != 'pending':
+            return format_response(error='This friendship request is not pending', status=400)
+
         friendship.status = 'accepted'
         friendship.save()
         
         send_notification(
           user=friendship.user1,
+          event_type='friend_request',
           data={
             'message': f'{request.user.username} accepted your friendship request'
           },
         )
 
         send_notification(
+          event_type='friend_request',
           user=friendship.user2,
           data={
-            'message': f'You are now friends with {request.user.username}'
+            'message': f'You are now friends with {friendship.user1.username}'
           },    
         )              
         
@@ -128,6 +136,7 @@ class FriendshipViewSet(BaseViewSet):
         friendship.delete()
 
         send_notification(
+          event_type='friend_request',
           user=friendship.user1,
           data={
             'message': f'{request.user.username} rejected your friendship request'
@@ -135,6 +144,7 @@ class FriendshipViewSet(BaseViewSet):
         )
 
         send_notification(
+          event_type='friend_request',
           user=friendship.user2,
           data={
             'message': f'You rejected the friendship request from {request.user.username}'
@@ -177,6 +187,7 @@ class FriendshipViewSet(BaseViewSet):
 
         other_user = friendship.user2 if friendship.user1 == request.user else friendship.user1
         send_notification(
+            event_type='friend_request',
             user=other_user,
             data={
           'message': f'{request.user.username} deleted the friendship'

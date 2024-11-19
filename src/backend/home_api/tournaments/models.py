@@ -26,7 +26,7 @@ class Tournament(models.Model):
     # Config
     duration = models.IntegerField(default=300, blank=True, null=True) # in seconds
     max_players_game = models.IntegerField(default=2)
-    number_players = models.IntegerField(default=0)
+    number_players = models.IntegerField(default=4)
     max_score = models.IntegerField(default=None, blank=True, null=True) # max score to win the match
 
     connected_players = models.IntegerField(default=0)

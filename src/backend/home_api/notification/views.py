@@ -15,6 +15,8 @@ from home_api.utils import (
 	BaseViewSet,
 )
 
+from rest_framework.decorators import action
+
 from rest_framework.permissions import IsAuthenticated
 from notification.serializers import NotificationListSerializer
 from notification.models import Notification
@@ -61,6 +63,17 @@ class NotificationsViewSet(BaseViewSet):
 
 	def get_queryset(self):
 		user = self.request.user
-		return Notification.objects.filter(user=user).order_by('-created_at')\
-
+		return Notification.objects.filter(user=user).order_by('-created_at')
+	
+	def destroy(self, request, *args, **kwargs):
+		instance = self.get_object()
+		instance.delete()
+		return format_response(data="Notification deleted successfully", status=200)
+	
+	@action(detail=True, methods=['POST'], url_path='mark-as-read')
+	def mark_as_read(self, request, pk=None):
+		notification = self.get_object()
+		notification.isRead = True
+		notification.save()
+		return format_response(data="Notification marked as read", status=200)
 	

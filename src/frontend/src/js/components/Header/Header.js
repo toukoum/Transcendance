@@ -4,10 +4,12 @@ export class Header extends Component {
 			const user = window.auth;
 			return (/*html*/`
 			<header class="sticky-top d-flex flex-wrap align-items-center justify-content-center justify-content-md-between px-3 py-2 bg-background">
-					<div class="col-md-3 mb-2 mb-md-0">
-							<link-component href="/" class="d-flex align-items-center gap-2">
-									<img src="/public/logo_trans.svg" alt="logo" width="30" height="30">
-							</link-component>
+					
+					<div class="d-flex gap-2 col-md-3 mb-2 mb-md-0">
+							
+							<button class="navbar-toggler" type="button">
+								<i color="#595959" data-lucide="panel-right-open"></i>
+							</button>
 					</div>
 					<ul class="nav col-12 col-md-auto mb-2 justify-content-center align-items-center mb-md-0 gap-4" style="pointer-events: auto;">
 							<li><link-component href="/" class="nav-link px-2">Home</link-component></li>
@@ -21,20 +23,19 @@ export class Header extends Component {
 									<link-component type="button" class="btn btn-primary" href="/auth/signup">Sign-up</link-component>
 							`)}
 					</div>
-					<button class="navbar-toggler" type="button">
-							<span class="navbar-toggler-icon"></span>
-					</button>
+				
 			</header>
 			`);
 		}
 		
 		toggleSidebar() {
 				console.log("DIspatch")
-				this.dispatchEvent(new CustomEvent('toggleSidebar', { bubbles: true, composed: true }));
+				document.dispatchEvent(new Event('toggleSidebar'));
 		}
 	
 	
 		script() {
+			lucide.createIcons();
 			const toggleButton = this.querySelector('.navbar-toggler');
 			if (toggleButton) {
 					toggleButton.addEventListener('click', this.toggleSidebar.bind(this));

@@ -4,7 +4,7 @@ export class MainLayout extends Component {
 	
 	constructor (){
 		super();
-		this.showSidebar = true;  // État pour afficher ou cacher la sidebar
+		this.showSidebar = false;
 	}
 
 	content() {
@@ -20,20 +20,15 @@ export class MainLayout extends Component {
 		`);
 	}
 
-	update() {
-    this.render();  // Assure-toi que cette méthode actualise le DOM
-	}
 
 	script (){
 		document.addEventListener('toggleSidebar', () => {
-			console.log("Event reached document");
+			this.showSidebar = !this.showSidebar;
+			console.log("toggleSidebar", this.showSidebar);
+			this.disconnectedCallback();
+			this.render();
 		});
 	
-		this.addEventListener('toggleSidebar', () => {
-			console.log("SHOW");
-			this.showSidebar = !this.showSidebar;
-			this.update();
-		});
 	}
 }
 

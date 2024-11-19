@@ -1,211 +1,222 @@
 import { Component } from "../utils/Component.js";
 import { api } from "../utils/api/Api.js";
+import { getToastStyle } from "./toast-style.js";
 
 const AUTO_DISMISS = 60000;
 
 export class Toast extends Component {
-	content() {
-		const position = this.getAttribute('position') || 'bottom-end';
+    content() {
+        const position = this.getAttribute('position') || 'bottom-end';
 
-		let positionClass = '';
-		switch (position) {
-			case 'top-start':
-				positionClass = 'top-0 start-0';
-				break;
-			case 'top-end':
-				positionClass = 'top-0 end-0';
-				break;
-			case 'bottom-start':
-				positionClass = 'bottom-0 start-0';
-				break;
-			case 'bottom-end':
-				positionClass = 'bottom-0 end-0';
-				break;
-			default:
-				positionClass = 'bottom-0 end-0';
-		}
+        let positionClass = '';
+        switch (position) {
+            case 'top-start':
+                positionClass = 'top-0 start-0';
+                break;
+            case 'top-end':
+                positionClass = 'top-0 end-0';
+                break;
+            case 'bottom-start':
+                positionClass = 'bottom-0 start-0';
+                break;
+            case 'bottom-end':
+                positionClass = 'bottom-0 end-0';
+                break;
+            default:
+                positionClass = 'bottom-0 end-0';
+        }
 
-		return (/*html*/`
+        return (/*html*/`
             <div class="toast-container position-fixed ${positionClass} p-3" id="toast-container">
             </div>
         `);
-	}
+    }
 
-	script() {
-		const toastContainer = this.querySelector("#toast-container");
+    style() {
+        return getToastStyle();
+    }
 
-		// Listen for success toasts
-		window.addEventListener('toast.success', (event) => {
-			this.showToast(toastContainer, event.detail.message, 'success');
-		});
+    script() {
+        const toastContainer = this.querySelector("#toast-container");
 
-		// Listen for error toasts
-		window.addEventListener('toast.error', (event) => {
-			this.showToast(toastContainer, event.detail.message, 'danger');
-		});
+        window.addEventListener('toast.success', (event) => {
+            this.showToast(toastContainer, {
+                message: event.detail.message,
+                type: 'success',
+            });
+        });
 
-		// Listen for info toasts
-		window.addEventListener('toast.info', (event) => {
-			this.showToast(toastContainer, event.detail.message, 'info', event.detail.title);
-		});
+        window.addEventListener('toast.error', (event) => {
+            this.showToast(toastContainer, {
+                message: event.detail.message,
+                type: 'danger',
+            });
+        });
 
-		// Listen for notification action toasts
-		window.addEventListener('toast.notificationAction', (event) => {
-			this.showToastAction(
-				toastContainer,
-				event.detail.message,
-				event.detail.primary,
-				event.detail.label_primary,
-				event.detail.secondary,
-				event.detail.label_secondary,
-				event.detail.event_type
-			);
-		});
-	}
+        window.addEventListener('toast.info', (event) => {
+            this.showToast(toastContainer, {
+                message: event.detail.message,
+                type: 'info',
+                title: event.detail.title,
+            });
+        });
 
+        window.addEventListener('toast.notificationAction', (event) => {
+            this.showToast(toastContainer, {
+                message: event.detail.message,
+                type: 'notification',
+                title: event.detail.event_type,
+                primaryAction: {
+                    url: event.detail.primary,
+                    label: event.detail.label_primary,
+                },
+                secondaryAction: {
+                    url: event.detail.secondary,
+                    label: event.detail.label_secondary,
+                },
+            });
+        });
+    }
 
-	showToastAction(toastContainer, message, primary, label_primary, secondary, label_secondary, event_type) {
-		const toast = document.createElement('div');
-		toast.classList.add('toast');
-		toast.classList.add('bg-primary-subtle');
-		toast.classList.add('text-white');
-		toast.setAttribute('role', 'alert');
-		toast.setAttribute('aria-live', 'assertive');
-		toast.setAttribute('aria-atomic', 'true');
+    showToast(toastContainer, options) {
+        const {
+            message,
+            type = 'info',
+            title = null,
+            primaryAction = null,
+            secondaryAction = null,
+        } = options;
 
-		// Toast content
-		toast.innerHTML = `
-			<div class="toast-header bg-dark text-white">
-				<strong class="me-auto">${event_type}</strong>
-				<small>Just now</small>
-				<button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
-			</div>
-			<div class="toast-body">
-				<p>${message}</p>
-				<div class="d-flex justify-content-start mt-2 gap-2">
-					<button class="action btn btn-primary btn-sm me-2" data-action="${primary}">${label_primary}</button>
-					<button class="action btn btn-secondary btn-sm" data-action="${secondary}">${label_secondary}</button>
-				</div>
-			</div>
-		`;
+        const toast = document.createElement('div');
+        toast.classList.add('toast', 'custom-toast', `toast-${type}`);
+        toast.setAttribute('role', 'alert');
+        toast.setAttribute('aria-live', 'assertive');
+        toast.setAttribute('aria-atomic', 'true');
 
-		toastContainer.appendChild(toast);
+        // Contenu du toast
+        let toastHeader = '';
+        if (title) {
+            toastHeader = `
+                <div class="toast-header">
+                    <strong class="me-auto">${title}</strong>
+                    <small>Just now</small>
+                    <button type="button" class="btn-close"" aria-label="Close"></button>
+                </div>
+            `;
+        }
 
-		const bootstrapToast = new bootstrap.Toast(toast);
-		bootstrapToast.show();
+        let actions = '';
+        if (primaryAction || secondaryAction) {
+            actions = `
+                <div class="toast-actions mt-2">
+                    ${primaryAction ? `<button class="action btn-primary" data-action="${primaryAction.url}">${primaryAction.label}</button>` : ''}
+                    ${secondaryAction ? `<button class="action btn-secondary" data-action="${secondaryAction.url}">${secondaryAction.label}</button>` : ''}
+                </div>
+            `;
+        }
 
-		// Add click event to the buttons
-		toast.querySelectorAll('.action').forEach((element) => {
-			element.addEventListener('click', (e) => this.makeAction(e, bootstrapToast));
-		});
+        toast.innerHTML = `
+            ${toastHeader}
+            <div class="toast-body">
+                <p>${message}</p>
+                ${actions}
+            </div>
+        `;
 
-		// Clear the toast after X seconds
-		setTimeout(() => {
-			bootstrapToast.hide();
-			toastContainer.removeChild(toast);
-		}, AUTO_DISMISS);
-	}
+        toastContainer.appendChild(toast);
 
-	async makeAction(e, bootstrapToast) {
-		try {
-			const target = e.target;
-			const actionUrl = target.getAttribute('data-action');
-			console.log('Making action:', actionUrl);
+        const bootstrapToast = new bootstrap.Toast(toast);
+        bootstrapToast.show();
 
-			const response = await api.request.post(actionUrl);
-			console.log('Response:', response);
-		} catch (error) {
-			console.error('Error making action:', error);
-		}
-		//bootstrapToast.hide();
-	}
+        // Fonctionnalité du bouton de fermeture
+        const btnClose = toast.querySelector('.btn-close');
+        if (btnClose) {
+            btnClose.addEventListener('click', () => {
+                bootstrapToast.hide();
+                toastContainer.removeChild(toast);
+            });
+        }
 
-	showToast(toastContainer, message, type, title = null) {
-		// Create new toast element
-		const toast = document.createElement('div');
-		toast.classList.add('toast');
-		toast.classList.add(type === 'success' ? 'bg-success' : type === 'danger' ? 'bg-danger' : 'bg-primary');
-		toast.classList.add('text-white');
-		toast.setAttribute('role', 'alert');
-		toast.setAttribute('aria-live', 'assertive');
-		toast.setAttribute('aria-atomic', 'true');
+        // Événements des boutons d'action
+        toast.querySelectorAll('.action').forEach((element) => {
+            element.addEventListener('click', (e) => this.makeAction(e, bootstrapToast, toast));
+        });
 
-		// Toast content
-		toast.innerHTML = `
-			${title ? `
-			<div class="toast-header">
-				<strong class="me-auto">${title}</strong>
-				<button type="button" class="btn-close ms-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-			</div>` : ''}
-			<div class="toast-body">
-				${message}
-			</div>
-		`;
+        // Disparaît automatiquement après X secondes
+        setTimeout(() => {
+            bootstrapToast.hide();
+            toastContainer.removeChild(toast);
+        }, AUTO_DISMISS);
 
-		toastContainer.appendChild(toast);
+        lucide.createIcons();
+    }
 
-		const bootstrapToast = new bootstrap.Toast(toast);
-		bootstrapToast.show();
+    async makeAction(e, bootstrapToast, toast) {
+        try {
+            const target = e.target;
+            const actionUrl = target.getAttribute('data-action');
+            console.log('Making action:', actionUrl);
 
-		// Clear the toast after X seconds
-		setTimeout(() => {
-			bootstrapToast.hide();
-			toastContainer.removeChild(toast);
-		}, AUTO_DISMISS);
-	}
+            const response = await api.request.post(actionUrl);
+            console.log('Response:', response);
+        } catch (error) {
+            console.error('Error making action:', error);
+        }
+        // Optionnellement cacher le toast après l'action
+        // bootstrapToast.hide();
+        // toast.parentNode.removeChild(toast);
+    }
 
-	// Static method to show a success toast
-	static success(message) {
-		window.dispatchEvent(new CustomEvent('toast.success', {
-			detail: { message }
-		}));
-	}
+    // Méthodes statiques pour déclencher les toasts
+    static success(message) {
+        window.dispatchEvent(new CustomEvent('toast.success', {
+            detail: { message }
+        }));
+    }
 
-	// Static method to show an error toast
-	static error(message) {
-		window.dispatchEvent(new CustomEvent('toast.error', {
-			detail: { message }
-		}));
-	}
+    static error(message) {
+        window.dispatchEvent(new CustomEvent('toast.error', {
+            detail: { message }
+        }));
+    }
 
-	// Static method to show an info toast
-	static info(message, title = null) {
-		window.dispatchEvent(new CustomEvent('toast.info', {
-			detail: { 
-				message,
-				title
-			}
-		}));
-	}
+    static info(message, title = null) {
+        window.dispatchEvent(new CustomEvent('toast.info', {
+            detail: { 
+                message,
+                title
+            }
+        }));
+    }
 
-	static notificationAction(notification) {
-		if (!notification?.data?.action?.primary || !notification?.data?.action?.secondary) {
-			console.error('Invalid notification structure:', notification);
-			return;
-		}
+    static notificationAction(notification) {
+        if (!notification?.action?.primary || !notification?.action?.secondary) {
+            console.error('Invalid notification structure:', notification);
+            return;
+        }
 
-		const primary = notification.data.action.primary;
-		const secondary = notification.data.action.secondary;
+        const primary = notification.action.primary;
+        const secondary = notification.action.secondary;
 
-		let event_type = "Notification";
+        let event_type = "Notification";
 
-		if (notification.data.event_type === 'friend_request') {
-			event_type = 'Friend Request';
-		}else if (notification.data.event_type === 'game_request') {
-			event_type = 'Game Request';
-		}
+        if (notification.event_type === 'friend_request') {
+            event_type = 'Friend Request';
+        } else if (notification.event_type === 'game_request') {
+            event_type = 'Game Request';
+        }
 
-		window.dispatchEvent(new CustomEvent('toast.notificationAction', {
-			detail: {
-				message: notification.data.data.message,
-				primary: primary.url,
-				label_primary: primary.label,
-				secondary: secondary.url,
-				label_secondary: secondary.label,
-				event_type: event_type,
-			}
-		}));
-	}
+        window.dispatchEvent(new CustomEvent('toast.notificationAction', {
+            detail: {
+                message: notification.data.message,
+                primary: primary.url,
+                label_primary: primary.label,
+                secondary: secondary.url,
+                label_secondary: secondary.label,
+                event_type: event_type,
+            }
+        }));
+    }
 }
 
 customElements.define("toast-provider", Toast);
