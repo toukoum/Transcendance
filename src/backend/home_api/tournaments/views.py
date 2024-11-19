@@ -13,6 +13,9 @@ from django.dispatch import receiver
 from notification.utils import send_notification
 from django.contrib.auth.models import User
 
+from tournaments.models import Tournament, TournamentParticipant
+
+
 #Créer un tournoi	POST	/tournaments/
 #Lister tous les tournois	GET	/tournaments/
 #Détails d’un tournoi	GET	/tournaments/<id>/
@@ -37,9 +40,17 @@ class TournamentViewSet(BaseViewSet):
         - The user is not already in a tournament
         - The user is not already in a match
         """
+        
+        if (TournamentParticipant.objects.filter(player=request.user).exists()):
+            return format_response(error='User is already in a tournament', status=400)
+        
+        if (Match.objects.filter(winner=request.user).exists()):
+            return format_response(error='User is already in a match', status=400)
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         tournament = serializer.save()
+        
 
         tournament.state = Tournament.State.WAITING
         tournament.connected_players += 1
@@ -132,7 +143,34 @@ class TournamentViewSet(BaseViewSet):
 
         return format_response(data={'message': f'Invitation sent to {player_to_invite.username}'}, status=200)
 
-    @receiver(post_save, sender=Match)
-    def create_next_round(sender, instance, created, **kwargs):
-        print("MATCH SIGNAL!!!");
-        
+    #@receiver(post_save, sender=Match)
+    #def create_next_round(sender, instance, created, **kwargs):
+    #    print("MATCH SIGNAL!!!");
+    
+
+#@receiver(post_save, sender=Match)
+#def create_next_round(sender, instance, created, **kwargs):
+#    tournament = instance.tournament
+#    current_round = instance.round
+
+#    # Vérifier si tous les matchs du tour actuel sont terminés
+#    matches_in_round = Match.objects.filter(tournament=tournament, round=current_round)
+#    if matches_in_round.filter(winner__isnull=True).exists():
+#        # Il y a encore des matchs en cours
+#        return
+
+#    # Tous les matchs du tour sont terminés, créer le prochain tour
+#    next_round = current_round + 1
+
+#    # Récupérer les gagnants du tour actuel
+#    winning_players = matches_in_round.values_list('winner', flat=True)
+
+#    if len(winning_players) < 2:
+#        # Le tournoi est terminé
+#        tournament.state = Tournament.State.FINISHED
+#        tournament.save()
+#        return
+
+    # Créer les matchs pour le prochain tour
+    #tournament.create_matches(winning_players, next_round)
+    

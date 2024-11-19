@@ -3,6 +3,7 @@ import { Me } from "./Me.js";
 import { ApiRequest } from "./ApiRequest.js";
 import { Game } from "./Game.js";
 import { ApiWebSocket } from "./ApiWebSocket.js";
+import { Tournament } from "./Tournament.js";
 
 export class Api {
 	constructor() {
@@ -12,6 +13,7 @@ export class Api {
 		this.websocket = new ApiWebSocket(this,`ws://localhost:8000/ws`);
 		this.me = new Me(this);
 		this.game = new Game(this);
+		this.tournament = new Tournament(this);
 	}
 }
 
