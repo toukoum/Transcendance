@@ -117,7 +117,7 @@ export class Toast extends Component {
 		} catch (error) {
 			console.error('Error making action:', error);
 		}
-		bootstrapToast.hide();
+		//bootstrapToast.hide();
 	}
 
 	showToast(toastContainer, message, type, title = null) {

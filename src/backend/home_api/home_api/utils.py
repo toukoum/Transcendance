@@ -9,13 +9,18 @@ def custom_exception_handler(exc, context):
     - sinon le detail de l'erreur est dans details
     """
     response = exception_handler(exc, context)
-
+    # if response is list message is in details
+    if response is not None and isinstance(response.data, list):
+        message = response.data[0]
+    else:
+        message = response.data.get("detail", None) if response is not None else None
+                                              
     if response is not None:
         print("ERROR: ", response.data)
         response.data = {
             "data": None,
             "error": {
-                "message": response.data.get("detail", "An error occurred"),
+                "message": message,
                 "details": response.data,
                 "status": response.status_code
             }

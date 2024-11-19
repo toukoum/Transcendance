@@ -5,7 +5,7 @@ from asgiref.sync import async_to_sync
 from notification.models import Notification
 from django.contrib.auth.models import User
 
-VALID_EVENT_TYPES = ["information", "game_request", "friend_request"]
+VALID_EVENT_TYPES = ["information", "game_request", "friend_request", "tournament_invite"]
 from home_api.utils import format_response
 
 def send_notification(user, data, event_type="information", user_from=None, action=None):		

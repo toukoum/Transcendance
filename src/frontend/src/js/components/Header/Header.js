@@ -7,7 +7,7 @@ export class Header extends Component {
 		<header class="sticky-top d-flex flex-wrap align-items-center justify-content-center justify-content-md-between px-3 py-2 bg-background">
 			<div class="col-md-3 mb-2 mb-md-0">
 				<link-component href="/" class="d-flex align-items-center gap-2 ">
-				PONG42
+				<img src="/public/logo_trans.svg" alt="logo" width="30" height="30">
 				</link-component>
 			</div>
 

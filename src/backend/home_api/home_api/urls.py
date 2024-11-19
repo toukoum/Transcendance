@@ -24,12 +24,14 @@ from rest_framework.routers import DefaultRouter
 from users.views import UserViewSet
 from friends.views import FriendshipViewSet
 from games.views import MatchViewSet
+from tournaments.views import TournamentViewSet
 
 router = DefaultRouter()
 
 router.register(r'users', UserViewSet, basename='users')
 router.register(r'friends', FriendshipViewSet, basename='friends')
 router.register(r'games', MatchViewSet, basename='games')
+router.register(r'tournaments', TournamentViewSet, basename='tournaments')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -37,6 +39,7 @@ urlpatterns = [
     path('v1/', include('notification.urls')),
     path('v1/', include('users.urls')),
     path('v1/', include('games.urls')),
+		path('v1/', include('tournaments.urls')),
     path('v1/auth/', include('authentification.urls')),
     path('v1/chat/', include('chat.urls')),
 

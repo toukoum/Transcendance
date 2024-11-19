@@ -3,6 +3,8 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 
+from tournaments.models import Tournament
+
 class Match(models.Model):
 	class State(models.TextChoices):
 			CREATED = 'created', 'Match created'
@@ -23,11 +25,22 @@ class Match(models.Model):
 	# Game
 	started_at = models.DateTimeField(blank=True, null=True)
 	finished_at = models.DateTimeField(blank=True, null=True)
+	winner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='won_matches', blank=True, null=True)
 
 	# Config
 	duration = models.IntegerField(default=300, blank=True, null=True) # in seconds
 	max_players = models.IntegerField(default=2)
 	max_score = models.IntegerField(default=None, blank=True, null=True) # max score to win the match
+
+	#Tournament
+	tournament = models.ForeignKey(
+        Tournament,
+        on_delete=models.CASCADE,
+        related_name='matches',
+        null=True, # if match is not part of a tournament
+        blank=True
+    )
+	round = models.IntegerField(default=1)
 
 	def __str__(self):
 			return f'{self.id}'

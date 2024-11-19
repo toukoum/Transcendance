@@ -1,6 +1,7 @@
 import { api } from "../api/Api.js";
 import { startNotification } from "../notification/notification.js";
 // import { Route } from "../Router";
+ import { Toast } from "../../provider/toast-provider.js";
 
 const privateRoutes = [
 	"/user/:username",
@@ -13,8 +14,15 @@ const anonRoutes = [
 ];
 
 export const authMiddleware = async (route, next) => {
-	// MODIF DE RAF
-	startNotification();
+
+	const notif = api.websocket.connect('notification/');
+	notif.on('message', (data) => {
+		if (data.data.action != null){
+			Toast.notificationAction(data)
+		}else{
+			Toast.info(data.data.data.message, data.data.event_type)
+		}
+	});
 
 	console.log("Auth Middleware");
 	
