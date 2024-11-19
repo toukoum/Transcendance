@@ -7,6 +7,7 @@ export class MainLayout extends Component {
 	// 	// this.classList.add("h-100");
 	// 	// this.classList.add("overflow-hidden");
 	// }
+	
 	content() {
 		return (/*html*/`
 		<div class="d-flex flex-column h-100 bg-background-main">

@@ -9,7 +9,16 @@ from datetime import datetime
 
 class GameConsumer(AsyncWebsocketConsumer):
     state_lock = asyncio.Lock()
-    players = {}
+    # players = {}
+
+    game_data = {
+        'ball': {
+            'pos': [50, 50],
+            'vel': [1, 1],
+            'radius': 2,
+        },
+        'players': {}
+    }
 
     async def connect(self):
         self.game_id = self.scope['url_route']['kwargs']['game_id']
@@ -59,6 +68,15 @@ class GameConsumer(AsyncWebsocketConsumer):
             async with self.state_lock:
                 print('=====> Game loop')
                 pass
+
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'game_state',
+                    'state': 'in_progress',
+                    'data': self.game_data
+                }
+            )
             await asyncio.sleep(0.02)
 
 
@@ -66,12 +84,28 @@ class GameConsumer(AsyncWebsocketConsumer):
         """
         Start the game
         """
+        players = await self.get_connected_players_details(match.id)
+        async with self.state_lock:
+            self.game_data['players'] = {}
+            for index, player in enumerate(players):
+                self.game_data['players'][str(player.id)] = {
+                    'pos_y': 50,
+                    'score': 0,
+                    'padding': 5,
+                    'width': 2,
+                    'height': 10,
+                    'vel': 1,
+                    'role': f'player{index + 1}'
+                }
+                
+
         await self.update_match_state(match.id, Match.State.IN_PROGRESS)
         await self.channel_layer.group_send(
             self.room_group_name,
             {
                 'type': 'game_state',
                 'state': 'in_progress',
+                'data': self.game_data
             }
         )
         # await self.channel_layer.group_send(
@@ -115,14 +149,6 @@ class GameConsumer(AsyncWebsocketConsumer):
             'type': 'state',
             'state': state,
             'data': data
-        }))
-    
-    async def game_start(self, event):
-        """
-        
-        """
-        await self.send(text_data=json.dumps({
-            'type': 'start',
         }))
 
     # async def game_pong(self, event):
@@ -178,12 +204,23 @@ class GameConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def get_connected_players(self, game_id):
         """
-        Get connected players
+        Get connected players (asynchronous version)
         """
-        return MatchPlayer.objects.filter(match_id=game_id, state=MatchPlayer.State.CONNECTED).count()
-        # return MatchPlayer.objects.filter(match_id=game_id, state=MatchPlayer.State.CONNECTED).count()
+        return self.get_connected_players_sync(game_id)
     
+    def get_connected_players_sync(self, game_id):
+        """
+        Get connected players (synchronous version)
+        """
+        return list(MatchPlayer.objects.filter(match_id=game_id, state=MatchPlayer.State.CONNECTED).select_related('player_id'))
 
+    @database_sync_to_async
+    def get_connected_players_details(self, game_id):
+        """
+        Get connected players details
+        """
+        return MatchPlayer.objects.filter(match_id=game_id, state=MatchPlayer.State.CONNECTED).values('player_id')
+    
     @database_sync_to_async
     def can_join_match(self, user, game_id):
         """
