@@ -1,5 +1,5 @@
 import Game from "../../index.js";
-import { BaseState } from "./BaseState.js";
+import { InProgressState } from "./InProgressState.js";
 import { WaitingState } from "./WaitingState.js";
 
 export class StateManager {
@@ -11,7 +11,7 @@ export class StateManager {
 		this.state = null;
 		this.states = {
 			waiting: WaitingState,
-			in_progress: BaseState,
+			in_progress: InProgressState,
 		}
 	}
 

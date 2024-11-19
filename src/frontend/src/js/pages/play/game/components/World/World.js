@@ -1,5 +1,5 @@
 import { Plane } from "../../utils/models/Plane.js";
-import { Playfield } from "../PlayField/PlayField.js";
+import { Playfield } from "../Playfield/Playfield.js";
 
 export class World {
 	constructor() {
