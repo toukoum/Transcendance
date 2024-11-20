@@ -9,8 +9,15 @@ import "./auth/index.js"
 import "./user/User.js"
 
 /* ---------------------------------- Play ---------------------------------- */
-import "./play/Play.js"
+import "./play/index.js"
+
+/* ---------------------------------- Raf ---------------------------------- */
+
+import "./raf/raf.js"
+import "./raf/rafplay.js"
+import "./raf/rafNotif.js"
 
 /* -------------------------------- Settings -------------------------------- */
 import "./settings/index.js"
+
 

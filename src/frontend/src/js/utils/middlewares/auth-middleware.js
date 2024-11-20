@@ -1,9 +1,11 @@
 import { api } from "../api/Api.js";
+import { startNotification } from "../notification/notification.js";
 // import { Route } from "../Router";
 
 const privateRoutes = [
 	"/user/:username",
 	"/settings",
+	"/play",
 ];
 
 const anonRoutes = [
@@ -11,6 +13,9 @@ const anonRoutes = [
 ];
 
 export const authMiddleware = async (route, next) => {
+	// MODIF DE RAF
+	startNotification();
+
 	console.log("Auth Middleware");
 	
 	const { data: user } = await api.auth.getUser();
@@ -23,6 +28,7 @@ export const authMiddleware = async (route, next) => {
 	}
 
 	if (!user && privateRoutes.some((r) => route.path.startsWith(r))) {
+		// window.router.redirect(`/auth/login?redirect=${route.path}`); TODO: Implement redirect
 		window.router.redirect("/auth/login");
 		return
 	}

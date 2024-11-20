@@ -4,8 +4,8 @@ export class SettingsLayout extends Component {
 	content() {
 		return (/*html*/`
 			<main-layout>
-				<div class="container bg-background rounded rounded-3 p-4 my-4 d-flex flex-column gap-2">
-					<h1>Settings</h1>
+				<div class="container container-md bg-background rounded rounded-3 p-4 my-4 d-flex flex-column gap-2">
+					<h2>Settings</h2>
 					<settings-nav-component></settings-nav-component>
 					<separator-component></separator-component>
 					${this.childrens()}

@@ -6,6 +6,7 @@ import "./components/index.js";
 import "./layout/index.js";
 import {
 	authMiddleware,
+	gameMiddleware,
 	localeMiddleware
 } from "./utils/middlewares/index.js";
 
@@ -25,10 +26,19 @@ export class App {
 				new Route("/user/:username", "user-page"),
 				// Play
 				new Route("/play", "play-page"),
+				new Route("/play/:id", "play-game-page"),
+
+
+				// raf test
+				new Route("/raf", "raf-test-page"),
+				new Route("/raf/play", "raf-play-page"),
+				new Route("/raf/notif", "raf-notif-page"),
+				
 				// Settings
 				new Route("/settings", "settings-profile-page"),
 				new Route("/settings/profile", "settings-profile-page"),
 				new Route("/settings/security", "settings-security-page"),
+        
 				// 404
 				new Route("", "not-found-page"),
 			],
@@ -36,6 +46,7 @@ export class App {
 			middlewares: [
 				localeMiddleware,
 				authMiddleware,
+				gameMiddleware,
 			],
 		});
 		window.router = this.#router;

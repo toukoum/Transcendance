@@ -28,17 +28,22 @@ WSGI_APPLICATION = 'home_api.wsgi.application'
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY')
-print(SECRET_KEY)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG_DJANGO', default=True)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 INSTALLED_APPS = [
     'daphne',
 
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'dj_rest_auth',
+
+    'trench',
 
     "django.contrib.sites",
     'django.contrib.admin',
@@ -51,21 +56,18 @@ INSTALLED_APPS = [
     'users',
     'friends',
     'chat',
-
+		'notification',
+		'games',
+		
     'rest_framework',
     'rest_framework.authtoken',
 
-    "dj_rest_auth",
-    "dj_rest_auth.registration",
-    'trench',
-
-    "allauth",
-    "allauth.account",
-    "allauth.socialaccount",
 
     'anymail',
 
-    'corsheaders',  
+    'corsheaders',
+
+    'channels',
 
     
 ]
@@ -80,6 +82,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
 
 ROOT_URLCONF = 'home_api.urls'
 
@@ -149,6 +152,28 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
+
+# All Auth ==================================================
+
+
+AUTHENTICATION_BACKENDS = (
+    # 'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+)
+
+ACCOUNT_AUTHENTICATION_METHOD = "username_email"
+ACCOUNT_EMAIL_REQUIRED = True
+
+ACCOUNT_EMAIL_VERIFICATION = "none"
+ACCOUNT_UNIQUE_EMAIL = True
+
+
+# Redirect for email confirmation
+EMAIL_CONFIRM_REDIRECT_BASE_URL = "http://localhost:5500/email/confirm/"
+PASSWORD_RESET_CONFIRM_REDIRECT_BASE_URL = "http://localhost:5500/password-reset/confirm/"
+# ==================================================
+
+
 STATIC_URL = 'static/'
 
 # Default primary key field type
@@ -160,6 +185,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'dj_rest_auth.jwt_auth.JWTCookieAuthentication',
     ],
+		'EXCEPTION_HANDLER': 'home_api.utils.custom_exception_handler',
 }
 
 
@@ -193,21 +219,6 @@ EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
 DEFAULT_FROM_EMAIL = "raphaelgiraud12@gmail.com"
 SERVER_EMAIL = "toukoumcode@gmail.com"
 
-
-
-# All Auth ==================================================
-
-
-# A changer pour que ca marche !
-ACCOUNT_AUTHENTICATION_METHOD = "username_email"
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_USERNAME_REQUIRED = True
-
-ACCOUNT_EMAIL_VERIFICATION = "none"
-
-# Redirect for email confirmation
-EMAIL_CONFIRM_REDIRECT_BASE_URL = "http://localhost:5500/email/confirm/"
-PASSWORD_RESET_CONFIRM_REDIRECT_BASE_URL = "http://localhost:5500/password-reset/confirm/"
 
 
 

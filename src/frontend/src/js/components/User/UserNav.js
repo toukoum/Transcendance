@@ -24,8 +24,14 @@ export class UserNav extends Component {
 		const button = this.querySelector("#logout");
 		if (button) {
 			button.addEventListener("click", async () => {
-				await api.auth.logout();
-				window.location.reload();
+				try {
+
+					const { data, error } = await api.auth.logout();
+					if (error) throw error;
+					window.location.reload();
+				} catch (error) {
+					console.error(error);
+				}
 			});
 		}
 	}
