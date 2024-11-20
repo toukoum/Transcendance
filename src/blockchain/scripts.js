@@ -5,51 +5,67 @@ let addressWallet;
 let addressLooser;
 
 const ABI = `[
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "walletLooser",
-				"type": "address"
-			}
-		],
-		"name": "win",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "wallet",
-				"type": "address"
-			}
-		],
-		"name": "getGame",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	}
-]`;
+		{
+			"type": "function",
+			"name": "createTournament",
+			"inputs": [],
+			"outputs": [],
+			"stateMutability": "nonpayable"
+		},
+		{
+			"type": "function",
+			"name": "getTournaments",
+			"inputs": [],
+			"outputs": [
+				{
+					"name": "",
+					"type": "address[]",
+					"internalType": "contract Tournament[]"
+				}
+			],
+			"stateMutability": "view"
+		},
+		{
+			"type": "function",
+			"name": "tournaments",
+			"inputs": [
+				{
+					"name": "",
+					"type": "uint256",
+					"internalType": "uint256"
+				}
+			],
+			"outputs": [
+				{
+					"name": "",
+					"type": "address",
+					"internalType": "contract Tournament"
+				}
+			],
+			"stateMutability": "view"
+		},
+		{
+			"type": "event",
+			"name": "TournamentCreated",
+			"inputs": [
+				{
+					"name": "creator",
+					"type": "address",
+					"indexed": true,
+					"internalType": "address"
+				},
+				{
+					"name": "tournamentAddress",
+					"type": "address",
+					"indexed": false,
+					"internalType": "address"
+				}
+			],
+			"anonymous": false
+		}
+	]`;
 
-const contractAddress = '0x8464135c8F25Da09e49BC8782676a84730C318bC'
+const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3'
 
 const connectWallet = async () => {
 	try {
@@ -57,25 +73,23 @@ const connectWallet = async () => {
 			alert("MetaMask n'est pas installé !");
 			return;
 		}
-		if (provider == null && signer == null) {
+		if (sessionStorage.getItem("isConnected")) {
+			sessionStorage.removeItem("isConnected");
+			document.getElementById("connectButton").innerHTML = "Connect Wallet";
+		} else {
 			console.log("Connexion au portefeuille en cours...");
 			document.getElementById("connectButton").innerHTML = "Connexion en cours...";
 			document.getElementById("connectButton").disabled = true;
 			const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 			console.log("Connecté avec le compte:", accounts[0]);
-			document.getElementById("connectButton").innerHTML = "Wallet connecté";
+			document.getElementById("connectButton").disabled = false;
+			document.getElementById("connectButton").innerHTML = "Disconnect Wallet";
 			provider = new ethers.providers.Web3Provider(window.ethereum);
 			const balance = await provider.getBalance(accounts[0]);
 			console.log("Balance:", ethers.utils.formatEther(balance), "ETH");
 			signer = provider.getSigner();
 			contract = new ethers.Contract(contractAddress, ABI, signer);
-			document.getElementById("connectButton").disabled = false;
-			sessionStorage.setItem("isConnected", true);
-			if (sessionStorage.getItem("isConnected")) {
-				const button = document.querySelector("#connectButton");
-				button.innerHTML = "Disconnect";
-				button.setAttribute("id", "Disconnect");
-			}
+			sessionStorage.setItem("isConnected", true)
 		}
 	} catch (error) {
 		console.error("Erreur lors de la connexion au portefeuille:", error);
@@ -121,14 +135,6 @@ document.querySelector("#inputWallet").addEventListener("change", (e) => {
 
 document.querySelector("#inputLooser").addEventListener("change", (e) => {
 	addressLooser = e.target.value;
-});
-
-document.querySelector("#connectButton").addEventListener("click", () => {
-	if (sessionStorage.getItem("isConnected")) {
-		sessionStorage.removeItem("isConnected");
-	} else {
-		connectWallet();
-	}
 });
 
 document.getElementById("connectButton").addEventListener("click", connectWallet);
