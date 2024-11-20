@@ -1,5 +1,7 @@
 from django.shortcuts import render
 from django.db.models import Q
+from asgiref.sync import async_to_sync
+
 
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
@@ -16,15 +18,15 @@ from home_api.utils import BaseViewSet
 
 
 class MatchViewSet(BaseViewSet):
-    serializer_class = MatchListSerializer
-    
-    permission_classes = [IsAuthenticated]
-    
-    def get_queryset(self):
-        user_id = self.request.user.id
-        return Match.objects.filter(match_players__player_id=user_id)
-        
-    
+	serializer_class = MatchListSerializer
+	
+	permission_classes = [IsAuthenticated]
+	
+	def get_queryset(self):
+		user_id = self.request.user.id
+		return Match.objects.filter(match_players__player_id=user_id)
+		
+	
   
 
 # class CreateMatchViewSet(viewsets.ModelViewSet):
@@ -70,129 +72,117 @@ class MatchViewSet(BaseViewSet):
 #         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class MatchView(APIView):
-    # """
-    # Get a match by id
-    # """
-    # def get(self, request):
-    #     try:
-    #         match = Match.objects.get(id=request.data.get('id'))
-    #     except Match.DoesNotExist:
-    #         return format_response(error="Match not found", status=404)
-    #         # return Response({"error": "Match not found"}, status=status.HTTP_404_NOT_FOUND)
-        
-    #     serializer = MatchSerializer(match)
-    #     return format_response(data=serializer.data)
-        # return Response(serializer.data)
-    permission_classes = [IsAuthenticated]
+	permission_classes = [IsAuthenticated]
+	"""
+	Create a new match
+	"""
+	def post(self, request):
+		# Check if the user already has an ongoing match
+		if MatchPlayer.objects.filter(
+			Q(player_id=request.user.id) &
+			~Q(match_id__state__in=[Match.State.FINISHED, Match.State.CANCELLED])
+		).exists():
+			return format_response(error="You already have an ongoing match", status=400)
+			# return Response({"error": "You already have an ongoing match"}, status=status.HTTP_400_BAD_REQUEST)
 
-    """
-    Create a new match
-    """
-    def post(self, request):
-        # Restrict to authenticated users
-        # if not request.user.is_authenticated:
-        #     return format_response(error="You must be authenticated to create a match", status=401)
-        
-        # Check if the user already has an ongoing match
-        if MatchPlayer.objects.filter(
-            Q(player_id=request.user.id) &
-            ~Q(match_id__state__in=[Match.State.FINISHED, Match.State.CANCELLED])
-        ).exists():
-            return format_response(error="You already have an ongoing match", status=400)
-            # return Response({"error": "You already have an ongoing match"}, status=status.HTTP_400_BAD_REQUEST)
+		serializer = MatchCreateSerializer(data=request.data)
+		if serializer.is_valid():
+			match = serializer.save() # Create the match
+			match.state = Match.State.WAITING # Set the match state to waiting
+			match.save()
 
-        serializer = MatchCreateSerializer(data=request.data)
-        if serializer.is_valid():
-            match = serializer.save() # Create the match
-            match.state = Match.State.WAITING # Set the match state to waiting
-            match.save()
+			# Add the current player to the match
+			MatchPlayer.objects.create(
+				match_id=match,
+				player_id_id=request.user.id
+			)
 
-            # Add the current player to the match
-            MatchPlayer.objects.create(
-                match_id=match,
-                player_id_id=request.user.id
-            )
-            return format_response(data=MatchSerializer(match).data, status=201)
-            # return Response(MatchSerializer(match).data, status=status.HTTP_201_CREATED)
-        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return format_response(error=serializer.errors, status=400)
-    
+			# # Create Game in consumer
+			# from games.consumers import GAMES
+			# from games.game.index import Game
+			# async_to_sync(GAMES.set)(str(match.id), Game(match))
+
+			return format_response(data=MatchSerializer(match).data, status=201)
+			# return Response(MatchSerializer(match).data, status=status.HTTP_201_CREATED)
+		# return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+		return format_response(error=serializer.errors, status=400)
+	
 class MatchJoinView(APIView):
-    permission_classes = [IsAuthenticated]
+	permission_classes = [IsAuthenticated]
 
-    def post(self, request, game_id):
-        """
-        Join a match
+	def post(self, request, game_id):
+		"""
+		Join a match
 
-        Conditions:
-        - The user is authenticated
-        - The match exists and his state is waiting for players
-        """
-        player_id = request.user.id
-        match_id = game_id
+		Conditions:
+		- The user is authenticated
+		- The match exists and his state is waiting for players
+		"""
+		player_id = request.user.id
+		match_id = game_id
 
-        try:
-            match = Match.objects.get(id=match_id)
-        except Match.DoesNotExist:
-            return format_response(error="Match not found", status=404)
+		try:
+			match = Match.objects.get(id=match_id)
+		except Match.DoesNotExist:
+			return format_response(error="Match not found", status=404)
 
-        if match.state != Match.State.WAITING:
-            return format_response(error="Match is not waiting for players", status=400)
-        
-        try:
-            MatchPlayer.objects.create(
-                match_id=match,
-                player_id_id=player_id
-            )
-        except Exception as e:
-            return format_response(error=str(e), status=400)
+		if match.state != Match.State.WAITING:
+			return format_response(error="Match is not waiting for players", status=400)
+		
+		try:
+			MatchPlayer.objects.create(
+				match_id=match,
+				player_id_id=player_id
+			)
+		except Exception as e:
+			return format_response(error=str(e), status=400)
 
 
-        return format_response(data=MatchSerializer(match).data)
+		return format_response(data=MatchSerializer(match).data)
 
 
 class MatchCheckView(APIView):
-    permission_classes = [IsAuthenticated]
+	permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        """
-        Check if the current player is in a match
-        """
-        player_id = request.user.id
-        match = MatchPlayer.objects.filter(
-            Q(player_id=player_id) &
-            ~Q(match_id__state__in=[Match.State.FINISHED, Match.State.CANCELLED])
-        ).first()
+	def get(self, request):
+		"""
+		Check if the current player is in a match
+		"""
+		player_id = request.user.id
+		match = MatchPlayer.objects.filter(
+			Q(player_id=player_id) &
+			~Q(match_id__state__in=[Match.State.FINISHED, Match.State.CANCELLED])
+		).first()
 
-        if match is None:
-            return format_response(data=None)
-            # return Response({ "data": None, "error": None })
-        
-        # Here match as None isnt an error, it just means the player is not in a match
-        # if match is None:
-        #     return Reponse({ "data": None, "error": "Player is not in a match" })
-    
-        serializer = MatchSerializer(match.match_id)
-        # return Response({ "data": serializer.data, "error": None })
-        return format_response(data=serializer.data)
+		if match is None:
+			return format_response(data=None)
+			# return Response({ "data": None, "error": None })
+		
+		# Here match as None isnt an error, it just means the player is not in a match
+		# if match is None:
+		#     return Reponse({ "data": None, "error": "Player is not in a match" })
+	
+		serializer = MatchSerializer(match.match_id)
+		# return Response({ "data": serializer.data, "error": None })
+		return format_response(data=serializer.data)
 
 
 
 class MatchInfoView(APIView):
-    permission_classes = [IsAuthenticated]
+	permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        """
-        Return the match info for the current player or nothing
-        """
-        player_id = request.user.id
-        match = Match.objects.filter(
-            match_players__player_id=player_id,
-            end_time__isnull=True
-        ).order_by('-start_time').first()
+	def get(self, request):
+		"""
+		Return the match info for the current player or nothing
+		"""
+		player_id = request.user.id
+		match = Match.objects.filter(
+			match_players__player_id=player_id,
+			end_time__isnull=True
+		).order_by('-start_time').first()
 
-        if match is None:
-            return format_response(data=None)
+		if match is None:
+			return format_response(data=None)
 
-        serializer = MatchSerializer(match)
-        return format_response(data=serializer.data)
+		serializer = MatchSerializer(match)
+		return format_response(data=serializer.data)

@@ -1,4 +1,3 @@
-
 import asyncio
 
 class AsyncLockedDict:
@@ -26,3 +25,8 @@ class AsyncLockedDict:
     async def set_field_value(self, key, value, field_name):
         async with self.lock:
             setattr(self.dict[key], field_name, value)
+
+    async def print(self):
+        async with self.lock:
+            for key, value in self.dict.items():
+                print(f'{key}: {value}')
