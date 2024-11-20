@@ -20,4 +20,7 @@ import "./raf/rafNotif.js"
 /* -------------------------------- Settings -------------------------------- */
 import "./settings/index.js"
 
+/* -------------------------------- Tournament -------------------------------- */
+
+import "./tournaments/index.js"
 
