@@ -1,4 +1,5 @@
 import { Component } from "../../utils/Component.js"
+import {contractAddress, ABI} from "../../../constante/constanteBC.js"
 
 export class Loul extends Component {
 	constructor() {
@@ -36,7 +37,7 @@ export class Loul extends Component {
 					const balance = await provider.getBalance(accounts[0]);
 					console.log("Balance:", ethers.utils.formatEther(balance), "ETH");
 					signer = provider.getSigner();
-					// contract = new ethers.Contract(contractAddress, ABI, signer);
+					contract = new ethers.Contract(contractAddress, ABI, signer);
 					sessionStorage.setItem("isConnected", true)
 				}
 			} catch (error) {
