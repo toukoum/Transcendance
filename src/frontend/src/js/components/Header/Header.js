@@ -15,6 +15,7 @@ export class Header extends Component {
 				<li><link-component href="/" class="nav-link px-2">Home</link-component></li>
 				<li><link-component href="/play" class="nav-link px-2 pa-btn">PLAY</link-component></li>
 				<li><link-component href="/leaderboard" class="nav-link px-2">Leaderboard</link-component></li>
+				<li><link-component href="/tournament" class="nav-link px-2">Tournament</link-component></li>
 			</ul>
 
 			<test-notif></test-notif>

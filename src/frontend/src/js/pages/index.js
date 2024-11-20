@@ -17,6 +17,8 @@ import "./raf/raf.js"
 import "./raf/rafplay.js"
 import "./raf/rafNotif.js"
 
+import "./loul/loul-page.js"
+
 /* -------------------------------- Settings -------------------------------- */
 import "./settings/index.js"
 

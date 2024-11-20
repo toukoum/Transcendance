@@ -38,6 +38,12 @@ export class App {
 				new Route("/settings", "settings-profile-page"),
 				new Route("/settings/profile", "settings-profile-page"),
 				new Route("/settings/security", "settings-security-page"),
+
+				// Tournament
+				new Route("/tournament", "tournament-page"),
+
+				// Loul Test
+				new Route("/loul", "loul-page"),
         
 				// 404
 				new Route("", "not-found-page"),
