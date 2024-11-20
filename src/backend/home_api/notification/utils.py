@@ -5,7 +5,7 @@ from asgiref.sync import async_to_sync
 from notification.models import Notification
 from django.contrib.auth.models import User
 
-VALID_EVENT_TYPES = ["information", "game_request", "friend_request"]
+VALID_EVENT_TYPES = ["information", "game_request", "friend_request", "tournament_invite"]
 from home_api.utils import format_response
 
 def send_notification(user, data, event_type="information", user_from=None, action=None):		
@@ -30,22 +30,18 @@ def send_notification(user, data, event_type="information", user_from=None, acti
   )
 
   channel_layer = get_channel_layer()
-  try:
-    async_to_sync(channel_layer.group_send)(
-        group_name,
-        {
-            'type': 'send_notification',
-            'data': {
-                'event_type': event_type,
-                'data': data,
-                'user_from': user_from.id if user_from else None,
-                'action': action
-            }
-        }
+  async_to_sync(channel_layer.group_send)(
+      group_name,
+      {
+          'type': 'send_notification',
+          'data': {
+              'notification_id': notification.id,
+              'event_type': event_type,
+              'data': data,
+              'user_from': user_from.id if user_from else None,
+              'action': action
+          }
+      }
     )
-    notification.isRead = True
-  except Exception as e:
-      print("=====> La notif n'est pas LUUUUUUU")
-      print(e)
   notification.save()
   return format_response(data='Notification sent')

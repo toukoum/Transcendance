@@ -40,10 +40,7 @@ export class App {
 				new Route("/settings/security", "settings-security-page"),
 
 				// Tournament
-				new Route("/tournament", "tournament-page"),
-
-				// Loul Test
-				new Route("/loul", "loul-page"),
+				new Route("/tournaments/lobby", "tournaments-lobby"),
         
 				// 404
 				new Route("", "not-found-page"),

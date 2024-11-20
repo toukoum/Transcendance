@@ -22,4 +22,7 @@ import "./loul/loul-page.js"
 /* -------------------------------- Settings -------------------------------- */
 import "./settings/index.js"
 
+/* -------------------------------- Tournament -------------------------------- */
+
+import "./tournaments/index.js"
 

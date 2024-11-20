@@ -47,6 +47,6 @@ class MatchListSerializer(serializers.ModelSerializer):
     match_players = MatchPlayerSerializer(many=True, read_only=True)
     class Meta:
         model = Match
-        fields = ['id', 'start_time', 'end_time', 'winner_id', 'match_players']
+        fields = '__all__'
 
         

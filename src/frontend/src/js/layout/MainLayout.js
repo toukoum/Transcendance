@@ -1,20 +1,34 @@
 import { Component } from "../utils/Component.js";
 
 export class MainLayout extends Component {
-	// constructor() {
-	// 	super();
-	// 	// this.classList.add("container-fluid", "d-flex", "flex-row", "h-100", "p-0");
-	// 	// this.classList.add("h-100");
-	// 	// this.classList.add("overflow-hidden");
-	// }
+	
+	constructor (){
+		super();
+		this.showSidebar = false;
+	}
+
 	content() {
 		return (/*html*/`
-		<div class="d-flex flex-column h-100 bg-background-main">
-			<header-component></header-component>
-			${this.childrens()}
+		<div class="d-flex h-100 bg-background-main">
+			${this.showSidebar ? '<sidebar-component></sidebar-component>' : ''}
+			<div class="d-flex flex-column h-100 w-100 bg-background-main">
+				<header-component></header-component>
+				${this.childrens()}
+			</div>
 		</div>
 		<toast-provider/>
 		`);
+	}
+
+
+	script (){
+		document.addEventListener('toggleSidebar', () => {
+			this.showSidebar = !this.showSidebar;
+			console.log("toggleSidebar", this.showSidebar);
+			this.disconnectedCallback();
+			this.render();
+		});
+	
 	}
 }
 

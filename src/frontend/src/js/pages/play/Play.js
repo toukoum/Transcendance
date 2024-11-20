@@ -36,6 +36,55 @@ const schemaGame = zod.object({
 	path: ["duration", "maxScore"]
 });
 
+
+
+const schemaTournament = zod
+  .object({
+    durationTournament: zod
+      .number()
+      .min(30, {
+        message: "Duration must be at least 30 seconds",
+      })
+      .max(3600, {
+        message: "Duration must be at most 3600 seconds",
+      })
+      .nullable(),
+    maxScoreTournament: zod
+      .number()
+      .min(1, {
+        message: "Max score must be at least 1",
+      })
+      .max(100, {
+        message: "Max score must be at most 100",
+      })
+      .nullable(),
+    tournamentName: zod
+      .string()
+      .min(3, {
+        message: "Tournament name must be at least 3 characters",
+      })
+      .max(15, {
+        message: "Tournament name must be at most 15 characters",
+      }),
+    pseudoCreatorTournament: zod
+      .string()
+      .min(3, {
+        message: "Pseudo must be at least 3 characters",
+      })
+      .max(15, {
+        message: "Pseudo must be at most 15 characters",
+      }),
+  })
+  .refine(
+    (data) => {
+      return data.durationTournament !== null || data.maxScoreTournament !== null;
+    },
+    {
+      message: "Duration or max score must be set",
+      path: ["durationTournament", "maxScoreTournament"],
+    }
+);
+
 const joinSchema = zod.object({
 	gameId: zod
 		.number()
@@ -57,6 +106,10 @@ export class Play extends Component {
 					<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#joinGameModal">
 						Join Game
 					</button>
+					<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createTournamentModal">
+						Create Tournament
+					</button>
+
 				</div>
 			</div>
 			<!-- MODALS -->
@@ -125,6 +178,126 @@ export class Play extends Component {
 					</form>
 				</div>
 			</div>
+
+
+			<!-- TOURNAMENT -->
+			<div
+				class="modal fade"
+				id="createTournamentModal"
+				tabindex="-1"
+				aria-labelledby="createTournamentModalLabel"
+				aria-hidden="true"
+			>
+				<div class="modal-dialog modal-dialog-centered">
+					<form id="create-tournament-form" class="modal-content">
+						<div class="modal-header">
+							<h1 class="modal-title fs-5" id="createTournamentModalLabel">Create Tournament</h1>
+							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+						</div>
+						<div class="modal-body">
+							<!-- Tournament Name -->
+							<div class="form-group">
+								<label for="tournamentName">Tournament Name</label>
+								<input
+									type="text"
+									id="tournamentName"
+									class="form-control"
+									name="tournamentName"
+									placeholder="Tournament Name"
+								/>
+								<small
+									id="tournamentName-error"
+									class="form-text text-danger"
+									style="display: none;"
+								></small>
+							</div>
+
+							<!-- Duration -->
+							<div class="form-group">
+								<label for="durationTournament">Duration of each game</label>
+								<input
+									type="number"
+									id="durationTournament"
+									class="form-control"
+									name="durationTournament"
+									value="60"
+									placeholder="Duration in seconds"
+								/>
+								<small
+									id="durationTournament-empty"
+									class="form-text text-muted-foreground"
+									style="display: none;"
+									>If no duration is set, the game will be infinite and max score will be
+									required</small
+								>
+								<small
+									id="durationTournament-error"
+									class="form-text text-danger"
+									style="display: none;"
+								></small>
+							</div>
+
+							<!-- Max Score -->
+							<div class="form-group">
+								<label for="maxScoreTournament">Max Score</label>
+								<input
+									type="number"
+									id="maxScoreTournament"
+									class="form-control"
+									name="maxScoreTournament"
+									value=""
+									placeholder="Max Score"
+									readonly
+								/>
+								<small
+									id="maxScoreTournament-error"
+									class="form-text text-danger"
+									style="display: none;"
+								></small>
+							</div>
+
+							<!-- Pseudo Creator -->
+							<div class="form-group">
+								<label for="pseudoCreatorTournament">Pseudo</label>
+								<input
+									type="text"
+									id="pseudoCreatorTournament"
+									class="form-control"
+									name="pseudoCreatorTournament"
+									placeholder="Enter your pseudo"
+								/>
+								<small
+									id="pseudoCreatorTournament-error"
+									class="form-text text-danger"
+									style="display: none;"
+								></small>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+								Close
+							</button>
+							<button-component
+								id="createTournamentButton"
+								type="submit"
+								variant="muted"
+								class="d-flex align-items-center justify-content-center gap-2"
+							>
+								<span
+									id="createTournamentButtonLoading"
+									class="spinner-border spinner-border-sm"
+									role="status"
+									aria-hidden="true"
+									style="display: none;"
+								></span>
+								Create
+							</button-component>
+						</div>
+					</form>
+				</div>
+			</div>
+
+
 		</main-layout>
 		`);
 	}
@@ -252,6 +425,98 @@ export class Play extends Component {
 			}
 		});
 		/* -------------------------------------------------------------------------- */
+
+		/* ------------------------------- CREATE TOURNAMENT ------------------------------ */
+		const formTournament = this.querySelector("#create-tournament-form");
+		const submitButtonTournament = this.querySelector("#createTournamentButton");
+		const loadingIconTournament = this.querySelector("#createTournamentButtonLoading");
+
+		const durationInputTournament = this.querySelector("#durationTournament");
+		const durationEmptyTournament = this.querySelector("#durationTournament-empty");
+
+		// Vérifie si la durée est vide
+		durationInputTournament.addEventListener("input", () => {
+			if (durationInputTournament.value === "") {
+				durationEmptyTournament.style.display = "block";
+			} else {
+				durationEmptyTournament.style.display = "none";
+			}
+		});
+
+		// Soumission du formulaire
+		formTournament.addEventListener("submit", async (e) => {
+			e.preventDefault();
+			try {
+				loadingIconTournament.style.display = "inline-block";
+				submitButtonTournament.disabled = true;
+
+				const formData = new FormData(formTournament);
+				const {
+					durationTournament,
+					maxScoreTournament,
+					tournamentName,
+					pseudoCreatorTournament,
+				} = Object.fromEntries(formData.entries());
+			
+
+				schemaTournament.parse({
+					durationTournament: durationTournament === "" ? null : parseInt(durationTournament),
+					maxScoreTournament: maxScoreTournament === "" ? null : parseInt(maxScoreTournament),
+					tournamentName,
+					pseudoCreatorTournament,
+				});
+
+				// Prépare les données pour l'API
+				const apiData = {
+					duration: durationTournament === "" ? null : parseInt(durationTournament),
+					maxScore: maxScoreTournament === "" ? null : parseInt(maxScoreTournament),
+					name: tournamentName,
+					pseudo: pseudoCreatorTournament,
+				};
+
+				const { data, error } = await api.tournament.create(apiData);
+				if (error) throw error;
+				Toast.success("Tournament created successfully");
+
+			} catch (error) {
+				console.error(error);
+				if (error instanceof ApiRequestError) {
+					Toast.error(error.message);
+				} else if (error instanceof zod.ZodError) {
+					error.errors.forEach((err) => {
+						err.path.forEach((path) => {
+							console.log("path", path);
+							const input = formTournament.querySelector(`[name="${path}"]`);
+							const errorElement = formTournament.querySelector(`#${path}-error`);
+							if (input && errorElement) {
+								input.classList.add("is-invalid");
+								errorElement.innerText = err.message;
+								errorElement.style.display = "block";
+							}
+						});
+					});
+					// reset the input if no error
+					for (const input of formTournament.querySelectorAll("input")) {
+						if (error.errors.every((err) => !err.path.includes(input.name))) {
+							input.classList.remove("is-invalid");
+							const errorElement = formTournament.querySelector(`#${input.name}-error`);
+							if (errorElement) {
+								errorElement.style.display = "none";
+							}
+						}
+					}
+				} else {
+					Toast.error("An error occurred while creating the tournament");
+				}
+			} finally {
+				loadingIconTournament.style.display = "none";
+				submitButtonTournament.disabled = false;
+			}
+		});
+
+		/* -------------------------------------------------------------------------- */
+
+
 	}
 }
 

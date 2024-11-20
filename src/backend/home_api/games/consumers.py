@@ -264,15 +264,15 @@ class GameConsumer(AsyncWebsocketConsumer):
     #         MatchPlayer.objects.filter(match_id=self.game_id, connected=True).count
     #     )()
 
-    #     if player_connected == 2:
-    #         print('=====> Both players connected to game ', self.game_id)
-    #         await self.channel_layer.group_send(
-    #             self.room_group_name,
-    #             {
-    #                 'type': 'game_start',
-    #             }
-    #         )
-    #         asyncio.create_task(self.game_loop())
+        # if player_connected == 2:
+        #     print('=====> Both players connected to game ', self.game_id)
+        #     await self.channel_layer.group_send(
+        #         self.room_group_name,
+        #         {
+        #             'type': 'game_start',
+        #         }
+        #     )
+        #     asyncio.create_task(self.game_loop())
     #     else:
     #         print('=====> Not all players are connected to game', self.game_id)
     #         await self.channel_layer.group_send(
