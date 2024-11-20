@@ -7,6 +7,8 @@ class Match(models.Model):
 	class State(models.TextChoices):
 			CREATED = 'created', 'Match created'
 			WAITING = 'waiting', 'Waiting for players'
+			READY = 'ready', 'Match ready'
+			INITIALIZING = 'initializing', 'Match initializing'
 			IN_PROGRESS = 'in_progress', 'Match in progress'
 			PAUSED = 'paused', 'Match paused'
 			FINISHED = 'finished', 'Match finished'
@@ -50,15 +52,15 @@ class Match(models.Model):
 
 class MatchPlayer(models.Model):
 	class Meta: [
-		models.UniqueConstraint(fields=['match_id', 'player_id'], name='unique_match_player')
+		models.UniqueConstraint(fields=['match', 'user'], name='unique_match_player')
 	]
 	class State(models.TextChoices):
 		CONNECTED = 'connected', 'Player connected' # Player is connected to the match
 		DISCONNECTED = 'disconnected', 'Player disconnected' # Player disconnected during the match (internet issue, etc.)
 		LEFT = 'left', 'Player left' # Player left the match before it finished (rage quit, etc.)
 
-	match_id = models.ForeignKey(Match, on_delete=models.CASCADE, related_name='match_players')
-	player_id = models.ForeignKey(User, on_delete=models.CASCADE)
+	match = models.ForeignKey(Match, on_delete=models.CASCADE, related_name='match_players')
+	user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user')
 	created_at = models.DateTimeField(auto_now_add=True)
 	state = models.CharField(
 			max_length=20,
@@ -70,19 +72,19 @@ class MatchPlayer(models.Model):
 	score = models.IntegerField(default=0)
 
 	def __str__(self):
-			return f'{self.player_id} in match {self.match_id}'
+			return f'{self.user} in match {self.match}'
 	
 	def clean(self):
 		# Check if the player already connected to another match
 		if self.state == MatchPlayer.State.CONNECTED:
 			if MatchPlayer.objects.filter(
-				player_id=self.player_id,
+				user=self.user,
 				state=MatchPlayer.State.CONNECTED
-			).exclude(match_id=self.match_id).exists():
+			).exclude(match=self.match).exists():
 				raise ValidationError('Player already connected to another match')
 
 		# Check if the match is full
-		match = self.match_id
+		match = self.match
 		if match.match_players.count() > match.max_players:
 			raise ValidationError('Match is full')
 		

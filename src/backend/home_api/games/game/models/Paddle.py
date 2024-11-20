@@ -12,3 +12,12 @@ class Paddle:
 		self.width = width
 		self.height = height
 		self.vy = vy
+
+	def to_dict(self):
+		return {
+			'x': self.x,
+			'y': self.y,
+			'width': self.width,
+			'height': self.height,
+			'vy': self.vy
+		}

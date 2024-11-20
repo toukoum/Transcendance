@@ -30,7 +30,7 @@ export class ApiWebSocket {
 			this.emit("open");
 		}
 		this.socket.onmessage = (event) => {
-			// console.log(`WebSocket message`, event.data);
+			console.log(`WebSocket message`, event);
 			this.emit("message", JSON.parse(event.data));
 			// data = JSON.parse(event.data);
 			// console.log('WebSocket message', event);

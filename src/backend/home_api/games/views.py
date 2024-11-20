@@ -24,7 +24,7 @@ class MatchViewSet(BaseViewSet):
 	
 	def get_queryset(self):
 		user_id = self.request.user.id
-		return Match.objects.filter(match_players__player_id=user_id)
+		return Match.objects.filter(match_players__user=user_id)
 		
 	
   
@@ -79,8 +79,8 @@ class MatchView(APIView):
 	def post(self, request):
 		# Check if the user already has an ongoing match
 		if MatchPlayer.objects.filter(
-			Q(player_id=request.user.id) &
-			~Q(match_id__state__in=[Match.State.FINISHED, Match.State.CANCELLED])
+			Q(user=request.user.id) &
+			~Q(match__state__in=[Match.State.FINISHED, Match.State.CANCELLED])
 		).exists():
 			return format_response(error="You already have an ongoing match", status=400)
 			# return Response({"error": "You already have an ongoing match"}, status=status.HTTP_400_BAD_REQUEST)
@@ -93,14 +93,14 @@ class MatchView(APIView):
 
 			# Add the current player to the match
 			MatchPlayer.objects.create(
-				match_id=match,
-				player_id_id=request.user.id
+				match=match,
+				user=request.user
 			)
 
 			# # Create Game in consumer
-			# from games.consumers import GAMES
-			# from games.game.index import Game
-			# async_to_sync(GAMES.set)(str(match.id), Game(match))
+			from games.consumers import GAMES
+			from games.game.index import Game
+			async_to_sync(GAMES.set)(match.id, Game(match))
 
 			return format_response(data=MatchSerializer(match).data, status=201)
 			# return Response(MatchSerializer(match).data, status=status.HTTP_201_CREATED)
@@ -118,11 +118,10 @@ class MatchJoinView(APIView):
 		- The user is authenticated
 		- The match exists and his state is waiting for players
 		"""
-		player_id = request.user.id
-		match_id = game_id
+		match = None
 
 		try:
-			match = Match.objects.get(id=match_id)
+			match = Match.objects.get(id=game_id)
 		except Match.DoesNotExist:
 			return format_response(error="Match not found", status=404)
 
@@ -131,8 +130,8 @@ class MatchJoinView(APIView):
 		
 		try:
 			MatchPlayer.objects.create(
-				match_id=match,
-				player_id_id=player_id
+				match=match,
+				user=request.user
 			)
 		except Exception as e:
 			return format_response(error=str(e), status=400)
@@ -148,13 +147,12 @@ class MatchCheckView(APIView):
 		"""
 		Check if the current player is in a match
 		"""
-		player_id = request.user.id
-		match = MatchPlayer.objects.filter(
-			Q(player_id=player_id) &
-			~Q(match_id__state__in=[Match.State.FINISHED, Match.State.CANCELLED])
+		player = MatchPlayer.objects.filter(
+			Q(user=request.user) &
+			~Q(match__state__in=[Match.State.FINISHED, Match.State.CANCELLED])
 		).first()
 
-		if match is None:
+		if player is None:
 			return format_response(data=None)
 			# return Response({ "data": None, "error": None })
 		
@@ -162,7 +160,7 @@ class MatchCheckView(APIView):
 		# if match is None:
 		#     return Reponse({ "data": None, "error": "Player is not in a match" })
 	
-		serializer = MatchSerializer(match.match_id)
+		serializer = MatchSerializer(player.match)
 		# return Response({ "data": serializer.data, "error": None })
 		return format_response(data=serializer.data)
 
@@ -175,9 +173,8 @@ class MatchInfoView(APIView):
 		"""
 		Return the match info for the current player or nothing
 		"""
-		player_id = request.user.id
 		match = Match.objects.filter(
-			match_players__player_id=player_id,
+			match_players__user=request.user,
 			end_time__isnull=True
 		).order_by('-start_time').first()
 

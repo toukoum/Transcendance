@@ -287,7 +287,7 @@ class GameConsumer(AsyncWebsocketConsumer):
 
     async def handle_ping(self, data):
         """
-        
+        Match.objects.get(id=self.game_id)
         """
         print(f"=====> Received ping from user {self.user}")
         timestamp = data.get('timestamp', self.get_current_timestamp())
