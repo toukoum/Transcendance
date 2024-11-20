@@ -41,6 +41,8 @@ export class App {
 
 				// Tournament
 				new Route("/tournaments/lobby", "tournaments-lobby"),
+
+				new Route("/loul", "loul-page"),
         
 				// 404
 				new Route("", "not-found-page"),
