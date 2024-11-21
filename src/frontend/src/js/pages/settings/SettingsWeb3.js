@@ -25,6 +25,8 @@ export class SettingsWeb3 extends Component {
 	script() {
 		let accounts;
 
+		document.getElementById("savePubKey").disabled = true;
+
 		if (window.auth.profile.publicKey) {
 			document.getElementById("connectButton").disabled = true;
 			document.getElementById("connectButton").innerHTML = "Wallet Connected";
@@ -44,7 +46,7 @@ export class SettingsWeb3 extends Component {
 				if (error) throw error;
 				console.log(data);
 				Toast.success("Profile updated");
-				document.getElementById("savePubKey").disabled = true;
+				document.getElementById("savePubKey").style.display = "none";
 			} catch (error) {
 				Toast.error(error.error);
 			}
