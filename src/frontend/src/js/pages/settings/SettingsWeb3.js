@@ -15,8 +15,7 @@ export class SettingsWeb3 extends Component {
 						<button id="connectButton" variant="muted" class="d-flex align-items-center justify-content-center gap-2">
 							Connect Wallet
 						</button>
-						<button id="savePubKey" variant="muted" class="d-flex align-items-center justify-content-center gap-2">Save</button>
-						<button id="oui"> salut</button>
+						<button id="savePubKey" variant="muted">Save</button>
 					</div>
 				</div>
 			</settings-layout>
@@ -25,20 +24,14 @@ export class SettingsWeb3 extends Component {
 
 	script() {
 		let accounts;
-		document.getElementById("oui").addEventListener("click", () => {
-			if (accounts === undefined) {
-				console.log("undefined");
-			} else {
-				console.log(accounts[0]);
-			}
-		});
+
+		if (window.auth.profile.publicKey) {
+			document.getElementById("connectButton").disabled = true;
+			document.getElementById("connectButton").innerHTML = "Wallet Connected";
+			document.getElementById("savePubKey").style.display = "none";
+		}
 
 		document.getElementById("savePubKey").addEventListener("click", async () => {
-			if (window.auth.profile.publicKey !== "" || accounts === undefined) {
-				document.getElementById("savePubKey").style.disabled = true;
-			} else {
-				document.getElementById("savePubKey").style.disabled = false;
-			}
 			const user = window.auth;
 			console.log("username " + user.username, "public_key " + accounts[0]);
 			try {
@@ -51,6 +44,7 @@ export class SettingsWeb3 extends Component {
 				if (error) throw error;
 				console.log(data);
 				Toast.success("Profile updated");
+				document.getElementById("savePubKey").disabled = true;
 			} catch (error) {
 				Toast.error(error.error);
 			}
@@ -69,6 +63,7 @@ export class SettingsWeb3 extends Component {
 				console.log("Connecté avec le compte:", accounts[0]);
 				document.getElementById("connectButton").innerHTML = "Wallet Connected";
 				Toast.success("Wallet Connected:\n" + accounts[0]);
+				document.getElementById("savePubKey").disabled = false;
 
 			}
 			catch (error) {
