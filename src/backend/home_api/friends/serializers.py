@@ -5,8 +5,14 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 
 class FriendshipSerializer(serializers.ModelSerializer):
+    """
+		To get all the friends of the authenticated user
+		"""
 
-    user1 = serializers.PrimaryKeyRelatedField(required=False, read_only=True)
+    user1 = serializers.SlugRelatedField(
+						queryset=User.objects.all(),
+						slug_field='username'
+					)
     # all users but not the authenticated user
     user2 = serializers.SlugRelatedField(
             queryset=User.objects.all(),
