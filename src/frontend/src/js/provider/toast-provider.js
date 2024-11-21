@@ -74,6 +74,8 @@ export class Toast extends Component {
                     url: event.detail.secondary,
                     label: event.detail.label_secondary,
                 },
+								is_link_primary: event.detail.is_link_primary,
+								is_link_secondary: event.detail.is_link_secondary
             });
         });
     }
@@ -85,6 +87,8 @@ export class Toast extends Component {
             title = null,
             primaryAction = null,
             secondaryAction = null,
+						is_link_primary = false,
+						is_link_secondary = false
         } = options;
 
         const toast = document.createElement('div');
@@ -109,8 +113,19 @@ export class Toast extends Component {
         if (primaryAction || secondaryAction) {
             actions = `
                 <div class="toast-actions mt-2">
-                    ${primaryAction ? `<button class="action btn-primary" data-action="${primaryAction.url}">${primaryAction.label}</button>` : ''}
-                    ${secondaryAction ? `<button class="action btn-secondary" data-action="${secondaryAction.url}">${secondaryAction.label}</button>` : ''}
+                    ${primaryAction ? 
+                        (is_link_primary ? 
+                            `<a class="action btn-primary text-decoration-none text-center" href="${primaryAction.url}">${primaryAction.label}</a>` : 
+                            `<button class="make-action action btn-secondary" data-action="${primaryAction.url}">${primaryAction.label}</button>`
+                        ) : ''
+                    }
+
+                    ${secondaryAction ? 
+                        (is_link_secondary ? 
+                            `<a class="action btn-primary text-decoration-none text-center" href="${secondaryAction.url}">${secondaryAction.label}</a>` : 
+                            `<button class="make-action action btn-secondary" data-action="${secondaryAction.url}">${secondaryAction.label}</button>`
+                        ) : ''
+                    }
                 </div>
             `;
         }
@@ -138,7 +153,7 @@ export class Toast extends Component {
         }
 
         // Événements des boutons d'action
-        toast.querySelectorAll('.action').forEach((element) => {
+        toast.querySelectorAll('.make-action').forEach((element) => {
             element.addEventListener('click', (e) => this.makeAction(e, bootstrapToast, toast));
         });
 
@@ -157,10 +172,12 @@ export class Toast extends Component {
             const actionUrl = target.getAttribute('data-action');
             console.log('Making action:', actionUrl);
 
-            const response = await api.request.post(actionUrl);
-            console.log('Response:', response);
+            const { data, error } = await api.request.post(actionUrl);
+						console.log('Action response:', data);
+						if (error) throw error;
+						Toast.success(data.message);
         } catch (error) {
-            console.error('Error making action:', error);
+            Toast.error(error.message);
         }
         // Optionnellement cacher le toast après l'action
         // bootstrapToast.hide();
@@ -197,6 +214,8 @@ export class Toast extends Component {
 
         const primary = notification.action.primary;
         const secondary = notification.action.secondary;
+				const is_link_primary = primary.is_link || false;
+				const is_link_secondary = secondary.is_link || false;
 
         let event_type = "Notification";
 
@@ -214,6 +233,8 @@ export class Toast extends Component {
                 secondary: secondary.url,
                 label_secondary: secondary.label,
                 event_type: event_type,
+								is_link_primary: is_link_primary,
+								is_link_secondary: is_link_secondary
             }
         }));
     }

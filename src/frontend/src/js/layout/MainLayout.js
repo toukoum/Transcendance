@@ -4,13 +4,14 @@ export class MainLayout extends Component {
 	
 	constructor (){
 		super();
-		this.showSidebar = false;
 	}
 
 	content() {
+		const isLogged = !!window.auth;
+
 		return (/*html*/`
 		<div class="d-flex h-100 bg-background-main">
-			${this.showSidebar ? '<sidebar-component></sidebar-component>' : ''}
+			${isLogged ? '<sidebar-component></sidebar-component>' : ''}
 			<div class="d-flex flex-column h-100 w-100 bg-background-main">
 				<header-component></header-component>
 				${this.childrens()}
@@ -21,15 +22,6 @@ export class MainLayout extends Component {
 	}
 
 
-	script (){
-		document.addEventListener('toggleSidebar', () => {
-			this.showSidebar = !this.showSidebar;
-			console.log("toggleSidebar", this.showSidebar);
-			this.disconnectedCallback();
-			this.render();
-		});
-	
-	}
 }
 
 customElements.define("main-layout", MainLayout);

@@ -4,7 +4,8 @@ import { api } from "../../utils/api/Api.js";
 export class Sidebar extends Component {
     content() {
         return (/*html*/`
-        <div class="sidebar">
+				
+        <div class="sidebar" style="display:none;">
             <div class="sidebar-header">
                 <h2>Notifications</h2>
             </div>
@@ -22,6 +23,9 @@ export class Sidebar extends Component {
         const secondary_action = notif.action?.secondary;
         const isRead = notif.isRead;
 
+				const is_link_primary = notif.action?.primary?.is_link || false;
+				const is_link_secondary = notif.action?.secondary?.is_link || false;
+
         return (/*html*/`
         <div class="notification ${isRead ? 'read' : 'unread'}" data-id="${id}">
 				<div class="notification-header">
@@ -36,8 +40,19 @@ export class Sidebar extends Component {
             </div>
             ${primary_action || secondary_action ? `
             <div class="notification-actions">
-                ${primary_action ? `<button class="action btn-primary" data-action="${primary_action.url}">${primary_action.label}</button>` : ''}
-                ${secondary_action ? `<button class="action btn-secondary" data-action="${secondary_action.url}">${secondary_action.label}</button>` : ''}
+								 ${primary_action ? 
+                        (is_link_primary ? 
+                            `<a class="action btn-primary text-decoration-none text-center" href="${primary_action.url}">${primary_action.label}</a>` : 
+                            `<button class="make-action action btn-secondary" data-action="${primary_action.url}">${primary_action.label}</button>`
+                        ) : ''
+                    }
+
+                    ${secondary_action ? 
+                        (is_link_secondary ? 
+                            `<a class="action btn-primary text-decoration-none text-center" href="${secondary_action.url}">${secondary_action.label}</a>` : 
+                            `<button class="make-action action btn-secondary" data-action="${secondary_action.url}">${secondary_action.label}</button>`
+                        ) : ''
+									}
             </div>
             ` : ''}
             ${!isRead ? `
@@ -52,7 +67,6 @@ export class Sidebar extends Component {
     style() {
         return (/*css*/`
         <style>
-            /* Sidebar Styles */
 						.sidebar {
 								width: min(600px, 100vw);
 								height: 100vh;
@@ -60,7 +74,8 @@ export class Sidebar extends Component {
 								color: #f2f2f7;
 								padding: 24px;
 								box-sizing: border-box;
-								overflow: hidden; /* Assure que le contenu déborde à l'intérieur */
+								overflow: hidden;
+								overflow-y: auto;
 								display: flex;
 								flex-direction: column;
 						}
@@ -77,14 +92,14 @@ export class Sidebar extends Component {
 
 						/* Notification Wrapper */
 						#wrapper-notif {
-								flex: 1; /* Prend tout l'espace disponible */
-								overflow-y: scroll; /* Active le défilement vertical */
-								-ms-overflow-style: none;  /* IE and Edge */
-								scrollbar-width: none;  /* Firefox */
+								flex: 1;
+								overflow-y: scroll;
+								-ms-overflow-style: none;
+								scrollbar-width: none;
 						}
 
-						#wrapper-notif::-webkit-scrollbar {
-								display: none; /* Chrome, Safari, Opera */
+						.sidebar::-webkit-scrollbar {
+								display: none;
 						}
 
 
@@ -251,7 +266,7 @@ export class Sidebar extends Component {
     }
 
     bind_action_buttons() {
-        document.querySelectorAll('.action').forEach((element) => {
+        document.querySelectorAll('.make-action').forEach((element) => {
             element.addEventListener('click', async (e) => {
                 const target = e.target;
                 const actionUrl = target.getAttribute('data-action');
@@ -277,6 +292,15 @@ export class Sidebar extends Component {
     }
 
     script() {
+				const sidebar = document.querySelector('.sidebar');
+				document.addEventListener('toggleSidebar', () => {
+					if (sidebar.style.display === 'none') {
+						sidebar.style.display = 'block';
+					} else {
+						sidebar.style.display = 'none';
+					}
+					console.log("toggleSidebar", this.showSidebar);
+				});
         this.fill_notif().then(() => {
             // Event listener for delete buttons
             document.getElementById("wrapper-notif").addEventListener("click", (e) => {

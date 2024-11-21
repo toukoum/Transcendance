@@ -43,8 +43,10 @@ export class ApiRequest {
 		}
 		const { response, data } = await fn(`${this.api.baseUrl}/${endpoint}`, options);
 		return {
-			data: data.data ? new ApiRequestData(response, data.data) : null,
-			error: data.error ? new ApiRequestError(response, data.error) : null
+			data: data.data,
+			error: data.error
+			//data: data.data ? new ApiRequestData(response, data.data) : null,
+			//error: data.error ? new ApiRequestError(response, data.error) : null
 		}
 		// return {
 		// 	data: response.ok ? new ApiRequestData(response, data) : null,

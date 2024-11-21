@@ -165,7 +165,7 @@ class MatchCheckView(APIView):
         ).first()
 
         if match is None:
-            return format_response(data=None)
+            return format_response(data={'message': 'Player is not in a match'})
             # return Response({ "data": None, "error": None })
         
         # Here match as None isnt an error, it just means the player is not in a match
@@ -192,7 +192,7 @@ class MatchInfoView(APIView):
         ).order_by('-start_time').first()
 
         if match is None:
-            return format_response(data=None)
+            return format_response(data={'message': 'Player is not in a match'})
 
         serializer = MatchSerializer(match)
         return format_response(data=serializer.data)

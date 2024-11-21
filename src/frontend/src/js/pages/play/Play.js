@@ -365,7 +365,7 @@ export class Play extends Component {
 						});
 					});
 				} else {
-					Toast.error("An error occurred while creating the game");
+					Toast.error(error.message);
 				}
 			} finally {
 				loadingIcon.style.display = "none";
@@ -417,7 +417,7 @@ export class Play extends Component {
 						});
 					});
 				} else {
-					Toast.error("An error occurred while joining the game");
+					Toast.error(error.message);
 				}
 			} finally {
 				joinLoadingIcon.style.display = "none";
@@ -477,7 +477,10 @@ export class Play extends Component {
 				const { data, error } = await api.tournament.create(apiData);
 				if (error) throw error;
 				Toast.success("Tournament created successfully");
-
+				const modalElement = this.querySelector("#createTournamentModal");
+				const modalInstance = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+				modalInstance.hide();
+				window.router.push(`/tournaments/lobby/${data.id}`);
 			} catch (error) {
 				console.error(error);
 				if (error instanceof ApiRequestError) {
@@ -506,7 +509,7 @@ export class Play extends Component {
 						}
 					}
 				} else {
-					Toast.error("An error occurred while creating the tournament");
+					Toast.error(error.message);
 				}
 			} finally {
 				loadingIconTournament.style.display = "none";

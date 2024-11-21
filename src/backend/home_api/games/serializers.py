@@ -3,7 +3,17 @@
 from rest_framework import serializers
 from games.models import Match, MatchPlayer
 
+class MatchPlayerSerializer(serializers.ModelSerializer):
+    
+    username = serializers.CharField(source='player_id.username', read_only=True)
+    class Meta:
+        model = MatchPlayer
+        fields = ['id', 'username', 'score', 'match_id', 'player_id']
+        
+
 class MatchSerializer(serializers.ModelSerializer):
+    
+    match_players = MatchPlayerSerializer(many=True, read_only=True)
     class Meta:
         model = Match
         fields = '__all__'
@@ -34,13 +44,6 @@ class MatchCreateSerializer(serializers.ModelSerializer):
         return data
 
 
-class MatchPlayerSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = MatchPlayer
-        fields = '__all__'
-    # class Meta:
-    #     model = MatchPlayer
-    #     fields = ['player_id', 'score', 'connected']
         
 
 class MatchListSerializer(serializers.ModelSerializer):

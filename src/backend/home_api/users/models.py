@@ -12,7 +12,9 @@ class Profile(models.Model):
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True, default="http://localhost:8000/media/avatars/default-avatar.png")
 
     is_2fa_enabled = models.BooleanField(default=False)
-
+    
+    #bc_public_key = models.CharField(max_length=255, blank=True)
+    #is_bc_enabled = models.BooleanField(default=False)
     def __str__(self):
         return self.user.username
     

@@ -274,7 +274,7 @@ class MFADeactivateView(APIView):
         user = request.user
         user.profile.is_2fa_enabled = False
         user.profile.save()
-        return format_response(data={"detail": "2FA disabled"}, status=status.HTTP_200_OK)
+        return format_response(data={"message": "2FA disabled"}, status=status.HTTP_200_OK)
 
 
 class MFAActivateView(APIView):
@@ -287,7 +287,7 @@ class MFAActivateView(APIView):
         user = request.user
         user.profile.is_2fa_enabled = True
         user.profile.save()
-        return format_response(data={"detail": "2FA enabled"}, status=status.HTTP_200_OK)
+        return format_response(data={"message": "2FA enabled"}, status=status.HTTP_200_OK)
 
 class BaseCustomView:
     success_message = "Success"

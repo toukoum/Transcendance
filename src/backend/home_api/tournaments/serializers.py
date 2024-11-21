@@ -3,6 +3,7 @@ from rest_framework import serializers
 
 from home_api.utils import format_response
 from .models import Tournament, TournamentParticipant
+from games.serializers import MatchSerializer
 
 
 class TournamentSerializer(serializers.ModelSerializer):
@@ -43,4 +44,15 @@ class TournamentParticipantSerializer(serializers.ModelSerializer):
     #    if len(value) < 3:
     #        raise serializers.ValidationError('Pseudo must be at least 3 characters long')
     #    return value
+    
+
+class TournamentDetailSerializer(serializers.ModelSerializer):
+    participants = TournamentParticipantSerializer(many=True, read_only=True)
+    matches = MatchSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = Tournament
+        fields = '__all__'
+        read_only_fields = ['created_at', 'updated_at', 'participants']
+
     

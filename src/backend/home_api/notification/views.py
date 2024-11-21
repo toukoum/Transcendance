@@ -68,12 +68,12 @@ class NotificationsViewSet(BaseViewSet):
 	def destroy(self, request, *args, **kwargs):
 		instance = self.get_object()
 		instance.delete()
-		return format_response(data="Notification deleted successfully", status=200)
+		return format_response(data={'message': 'Notification deleted'}, status=204)
 	
 	@action(detail=True, methods=['POST'], url_path='mark-as-read')
 	def mark_as_read(self, request, pk=None):
 		notification = self.get_object()
 		notification.isRead = True
 		notification.save()
-		return format_response(data="Notification marked as read", status=200)
+		return format_response(data={'message': 'Notification marked as read'}, status=200)
 	

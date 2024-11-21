@@ -3,7 +3,7 @@ from home_api.utils import BaseViewSet, BaseReadOnlyViewSet, format_response
 from tournaments.models import Tournament
 
 from rest_framework.permissions import IsAuthenticated
-from tournaments.serializers import TournamentSerializer, TournamentParticipantSerializer
+from tournaments.serializers import TournamentSerializer, TournamentParticipantSerializer, TournamentDetailSerializer
 
 from rest_framework.decorators import action
 from django.db.models.signals import post_save
@@ -41,11 +41,11 @@ class TournamentViewSet(BaseViewSet):
         - The user is not already in a match
         """
         
-        if (TournamentParticipant.objects.filter(player=request.user).exists()):
-            return format_response(error='User is already in a tournament', status=400)
+        #if (TournamentParticipant.objects.filter(player=request.user).exists()):
+        #    return format_response(error='User is already in a tournament', status=400)
         
-        if (Match.objects.filter(winner=request.user).exists()):
-            return format_response(error='User is already in a match', status=400)
+        #if (Match.objects.filter(winner=request.user).exists()):
+        #    return format_response(error='User is already in a match', status=400)
 
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -68,7 +68,7 @@ class TournamentViewSet(BaseViewSet):
         tournament.start_tournament()
         tournament.state = Tournament.State.IN_PROGRESS
         tournament.save()
-        return format_response(data='Tournament started', status=200)
+        return format_response(data={'message': 'Tournament started'}, status=200)
 
     @action (detail=True, methods=['post'], url_path='add-player')
     def addPlayer(self, request, pk=None):
@@ -131,7 +131,8 @@ class TournamentViewSet(BaseViewSet):
             },
             action={
                 'primary': {
-                    'url': f'tournaments/{pk}/add-player/',
+                    'is_link': True,
+                    'url': f'tournaments/join/{pk}',
                     'label': 'Join'
                 },
                 'secondary': {
@@ -139,9 +140,51 @@ class TournamentViewSet(BaseViewSet):
                     'label': 'Reject'
                 }
             },
+            #action={
+            #    'primary': {
+            #        'url': f'tournaments/{pk}/add-player/',
+            #        'label': 'Join'
+            #    },
+            #    'secondary': {
+            #        'url': f'tournaments/{pk}/reject/',
+            #        'label': 'Reject'
+            #    }
+            #},
         )
 
         return format_response(data={'message': f'Invitation sent to {player_to_invite.username}'}, status=200)
+    
+    @action(detail=True, methods=['post'])
+    def reject(self, request, pk=None):
+        send_notification(
+            user=request.user,
+            event_type='tournament_reject',
+            data={
+                'message': 'You have rejected the invitation'
+            }
+        )
+        return format_response(data={'message': 'Invitation rejected'}, status=200)
+                
+
+    #upgrade retrieve method
+    def retrieve(self, request, *args, **kwargs):
+        tournament = self.get_object()
+        serializer = TournamentDetailSerializer(tournament)
+        return format_response(data=serializer.data, status=200)
+
+    def update(self, request, *args, **kwargs):
+        return format_response(error='Method not allowed', status=405)
+    
+    def destroy(self, request, *args, **kwargs):
+        return format_response(error='Method not allowed', status=405)
+
+    @action (detail=True, methods=['get'], url_path='players')
+    def getPlayers(self, request, pk=None):
+        tournament = self.get_object()
+        players = tournament.participants.all()
+        serializer = TournamentParticipantSerializer(players, many=True)
+        return format_response(data=serializer.data, status=200)
+
 
     #@receiver(post_save, sender=Match)
     #def create_next_round(sender, instance, created, **kwargs):
