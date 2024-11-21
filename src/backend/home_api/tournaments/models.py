@@ -30,6 +30,8 @@ class Tournament(models.Model):
     max_score = models.IntegerField(default=None, blank=True, null=True) # max score to win the match
 
     connected_players = models.IntegerField(default=0)
+    
+    winner = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
 
     def clean(self):
       if self.max_players_game < 2:

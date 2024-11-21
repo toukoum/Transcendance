@@ -13,7 +13,9 @@ class Profile(models.Model):
     publicKey = models.CharField(max_length=128, blank=True)
 
     is_2fa_enabled = models.BooleanField(default=False)
-
+    
+    #bc_public_key = models.CharField(max_length=255, blank=True)
+    #is_bc_enabled = models.BooleanField(default=False)
     def __str__(self):
         return self.user.username
     

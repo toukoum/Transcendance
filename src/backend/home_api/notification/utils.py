@@ -44,4 +44,4 @@ def send_notification(user, data, event_type="information", user_from=None, acti
       }
     )
   notification.save()
-  return format_response(data='Notification sent')
+  return format_response(data={'message': 'Notification sent'}, status=201)
