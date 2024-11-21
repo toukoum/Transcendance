@@ -447,17 +447,17 @@ export class Play extends Component {
 		let provider;
 		let signer;
 		let contract;
-		const connectWallet = () => {
+		const connectWallet = async () => {
 			try {
 				if (typeof window.ethereum === 'undefined') {
 					alert("MetaMask n'est pas installé !");
 					return;
 				}
 				console.log("Connexion au portefeuille en cours...");
-				const accounts = window.ethereum.request({ method: 'eth_requestAccounts' });
+				const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 				console.log("Connecté avec le compte:", accounts[0]);
 				provider = new ethers.providers.Web3Provider(window.ethereum);
-				const balance = provider.getBalance(accounts[0]);
+				const balance = await provider.getBalance(accounts[0]);
 				console.log("Balance:", ethers.utils.formatEther(balance), "ETH");
 				signer = provider.getSigner();
 				contract = new ethers.Contract(contractAddressFactory, ABIFactory, signer);
@@ -466,10 +466,14 @@ export class Play extends Component {
 			}
 		};
 
-		const createTournament = () => {
+		if (window.auth.profile.publicKey !== "") {
+			connectWallet();
+		}
+
+		const createTournament = async () => {
 			const contractWithWallet = contract.connect(signer);
-			const tx = contractWithWallet.createTournament();
-			tx.wait();
+			const tx = await contractWithWallet.createTournament();
+			await tx.wait();
 			console.log(tx);
 		}
 
@@ -504,11 +508,9 @@ export class Play extends Component {
 					pseudo: pseudoCreatorTournament,
 				};
 				const { data, error } = await api.tournament.create(apiData);
-				if (error) throw error;
-				console.log("salut");
-				connectWallet();
-				createTournament();
 				console.log(provider, signer, contract);
+				createTournament();
+				if (error) throw error;
 				Toast.success("Tournament created successfully");
 				const modalElement = this.querySelector("#createTournamentModal");
 				const modalInstance = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
