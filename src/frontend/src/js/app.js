@@ -38,6 +38,7 @@ export class App {
 				new Route("/settings", "settings-profile-page"),
 				new Route("/settings/profile", "settings-profile-page"),
 				new Route("/settings/security", "settings-security-page"),
+				new Route("/settings/web3", "settings-web3-page"),
 
 				// Tournament
 				new Route("/tournaments/lobby/:id", "tournaments-lobby"),

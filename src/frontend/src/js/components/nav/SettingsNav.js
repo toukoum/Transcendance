@@ -12,6 +12,11 @@ export class SettingsNav extends Component {
 				label: "Security",
 				href: "/settings/security",
 				isActive: window.location.pathname === "/settings/security"
+			},
+			{
+				label: "Web3",
+				href: "/settings/web3",
+				isActive: window.location.pathname === "/settings/web3"
 			}
 		]
 		return (/*html*/`
