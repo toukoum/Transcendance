@@ -84,6 +84,7 @@ class FriendshipViewSet(BaseViewSet):
         get all friends of the authenticated user
         """
         user = request.user
+        # A REMETTRE
         #friendship = Friendship.objects.filter((Q(user1=user) | Q(user2=user)) & Q(status='accepted'))
         friendship = Friendship.objects.filter((Q(user1=user) | Q(user2=user)))
         serializer = self.get_serializer(friendship, many=True)
