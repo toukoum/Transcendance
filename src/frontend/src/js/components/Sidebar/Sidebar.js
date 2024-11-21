@@ -8,6 +8,9 @@ export class Sidebar extends Component {
         <div class="sidebar" style="display:none;">
             <div class="sidebar-header">
                 <h2>Notifications</h2>
+								<button class="close-btn" aria-label="Fermer la barre latérale">
+									<i data-lucide="x"></i>
+								</button>
             </div>
             <div id="wrapper-notif"></div>
         </div>
@@ -79,9 +82,28 @@ export class Sidebar extends Component {
 								display: flex;
 								flex-direction: column;
 						}
+						
+						.close-btn {
+							background: none;
+							border: none;
+							color: #f2f2f7;
+							cursor: pointer;
+							font-size: 24px;
+							padding: 0;
+							display: flex;
+							align-items: center;
+						}
+
+						.close-btn i {
+							width: 24px;
+							height: 24px;
+						}
 
 						.sidebar-header {
-								margin-bottom: 24px;
+							display: flex;
+							justify-content: space-between;
+							align-items: center;
+							margin-bottom: 24px;
 						}
 
 						.sidebar-header h2 {
@@ -301,6 +323,14 @@ export class Sidebar extends Component {
 					}
 					console.log("toggleSidebar", this.showSidebar);
 				});
+
+				const closeBtn = document.querySelector('.close-btn');
+
+				closeBtn.addEventListener('click', () => {
+					sidebar.style.display = 'none';
+				});
+
+
         this.fill_notif().then(() => {
             // Event listener for delete buttons
             document.getElementById("wrapper-notif").addEventListener("click", (e) => {
@@ -316,9 +346,12 @@ export class Sidebar extends Component {
             });
 
             this.bind_action_buttons();
-            lucide.createIcons();
-        });
-    }
+						lucide.createIcons();
+				});
+
+
+				lucide.createIcons();
+				}
 }
 
 customElements.define("sidebar-component", Sidebar);
