@@ -1,6 +1,7 @@
 import { Component } from "../../utils/Component.js";
 import { api } from "../../utils/api/Api.js";
 import { Toast } from "../../provider/toast-provider.js";
+import { contractAddressTournament, contractAddressFactory, ABITournament, ABIFactory } from "../../../constante/constanteBC.js"
 
 import zod from 'https://cdn.jsdelivr.net/npm/zod@3.23.8/+esm'
 import { ApiRequestError } from "../../utils/api/parser/ApiRequestError.js";
@@ -39,51 +40,51 @@ const schemaGame = zod.object({
 
 
 const schemaTournament = zod
-  .object({
-    durationTournament: zod
-      .number()
-      .min(30, {
-        message: "Duration must be at least 30 seconds",
-      })
-      .max(3600, {
-        message: "Duration must be at most 3600 seconds",
-      })
-      .nullable(),
-    maxScoreTournament: zod
-      .number()
-      .min(1, {
-        message: "Max score must be at least 1",
-      })
-      .max(100, {
-        message: "Max score must be at most 100",
-      })
-      .nullable(),
-    tournamentName: zod
-      .string()
-      .min(3, {
-        message: "Tournament name must be at least 3 characters",
-      })
-      .max(15, {
-        message: "Tournament name must be at most 15 characters",
-      }),
-    pseudoCreatorTournament: zod
-      .string()
-      .min(3, {
-        message: "Pseudo must be at least 3 characters",
-      })
-      .max(15, {
-        message: "Pseudo must be at most 15 characters",
-      }),
-  })
-  .refine(
-    (data) => {
-      return data.durationTournament !== null || data.maxScoreTournament !== null;
-    },
-    {
-      message: "Duration or max score must be set",
-      path: ["durationTournament", "maxScoreTournament"],
-    }
-);
+	.object({
+		durationTournament: zod
+			.number()
+			.min(30, {
+				message: "Duration must be at least 30 seconds",
+			})
+			.max(3600, {
+				message: "Duration must be at most 3600 seconds",
+			})
+			.nullable(),
+		maxScoreTournament: zod
+			.number()
+			.min(1, {
+				message: "Max score must be at least 1",
+			})
+			.max(100, {
+				message: "Max score must be at most 100",
+			})
+			.nullable(),
+		tournamentName: zod
+			.string()
+			.min(3, {
+				message: "Tournament name must be at least 3 characters",
+			})
+			.max(15, {
+				message: "Tournament name must be at most 15 characters",
+			}),
+		pseudoCreatorTournament: zod
+			.string()
+			.min(3, {
+				message: "Pseudo must be at least 3 characters",
+			})
+			.max(15, {
+				message: "Pseudo must be at most 15 characters",
+			}),
+	})
+	.refine(
+		(data) => {
+			return data.durationTournament !== null || data.maxScoreTournament !== null;
+		},
+		{
+			message: "Duration or max score must be set",
+			path: ["durationTournament", "maxScoreTournament"],
+		}
+	);
 
 const joinSchema = zod.object({
 	gameId: zod
@@ -292,14 +293,14 @@ export class Play extends Component {
 								></span>
 								Create
 							</button-component>
-						</div>
-					</form>
-				</div>
-			</div>
-
-
-		</main-layout>
-		`);
+							</div>
+							</form>
+							</div>
+							</div>
+							
+							
+							</main-layout>
+							`);
 	}
 
 	script() {
@@ -443,6 +444,35 @@ export class Play extends Component {
 			}
 		});
 
+		let provider;
+		let signer;
+		let contract;
+		const connectWallet = () => {
+			try {
+				if (typeof window.ethereum === 'undefined') {
+					alert("MetaMask n'est pas installé !");
+					return;
+				}
+				console.log("Connexion au portefeuille en cours...");
+				const accounts = window.ethereum.request({ method: 'eth_requestAccounts' });
+				console.log("Connecté avec le compte:", accounts[0]);
+				provider = new ethers.providers.Web3Provider(window.ethereum);
+				const balance = provider.getBalance(accounts[0]);
+				console.log("Balance:", ethers.utils.formatEther(balance), "ETH");
+				signer = provider.getSigner();
+				contract = new ethers.Contract(contractAddressFactory, ABIFactory, signer);
+			} catch (error) {
+				console.error("Erreur lors de la connexion au portefeuille:", error);
+			}
+		};
+
+		const createTournament = () => {
+			const contractWithWallet = contract.connect(signer);
+			const tx = contractWithWallet.createTournament();
+			tx.wait();
+			console.log(tx);
+		}
+
 		// Soumission du formulaire
 		formTournament.addEventListener("submit", async (e) => {
 			e.preventDefault();
@@ -457,7 +487,7 @@ export class Play extends Component {
 					tournamentName,
 					pseudoCreatorTournament,
 				} = Object.fromEntries(formData.entries());
-			
+
 
 				schemaTournament.parse({
 					durationTournament: durationTournament === "" ? null : parseInt(durationTournament),
@@ -473,9 +503,12 @@ export class Play extends Component {
 					name: tournamentName,
 					pseudo: pseudoCreatorTournament,
 				};
-
 				const { data, error } = await api.tournament.create(apiData);
 				if (error) throw error;
+				console.log("salut");
+				connectWallet();
+				createTournament();
+				console.log(provider, signer, contract);
 				Toast.success("Tournament created successfully");
 				const modalElement = this.querySelector("#createTournamentModal");
 				const modalInstance = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
