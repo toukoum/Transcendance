@@ -1,6 +1,7 @@
 import { Component } from "../../utils/Component.js"
-import {contractAddress, ABI} from "../../../constante/constanteBC.js"
-
+import {contractAddressTournament, contractAddressFactory, ABITournament, ABIFactory} from "../../../constante/constanteBC.js"
+import { api } from "../../utils/api/Api.js"
+import { Toast } from "../../provider/toast-provider.js"
 export class Loul extends Component {
 	constructor() {
 		super("main-layout");
@@ -9,12 +10,39 @@ export class Loul extends Component {
 	content() {
 		return (/*html*/`
 			<button id="connectButton">Connect Wallet</button>
+			<button id="createTournamentButton">Create Tournament</button>
+			<button id="getTournamentsButton">Get Tournaments</button>
+			<button id="updateBtn">Update Profile</button>
 		`);
 	}
+
+	async updatePC(){
+		console.log("update");
+		try{
+			const { data, error } = await api.request.patch("me/", {
+				"username": "Juiceee",
+				"first_name": "Louis",
+			});
+			if (error) throw error;
+			console.log(data);
+			Toast.success("Profile updated");
+		} catch (error) {
+			Toast.error(error.error);
+		}
+	}
+
+
 	script() {
 		let provider;
 		let signer;
+		let accounts;
 		let contract;
+
+		const updateBtn = document.getElementById("updateBtn");
+		updateBtn.addEventListener("click", this.updatePC);
+
+
+
 
 		const connectWallet = async () => {
 			try {
@@ -29,7 +57,7 @@ export class Loul extends Component {
 					console.log("Connexion au portefeuille en cours...");
 					document.getElementById("connectButton").innerHTML = "Connexion en cours...";
 					document.getElementById("connectButton").disabled = true;
-					const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+					accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 					console.log("Connecté avec le compte:", accounts[0]);
 					document.getElementById("connectButton").disabled = false;
 					document.getElementById("connectButton").innerHTML = "Disconnect Wallet";
@@ -37,7 +65,7 @@ export class Loul extends Component {
 					const balance = await provider.getBalance(accounts[0]);
 					console.log("Balance:", ethers.utils.formatEther(balance), "ETH");
 					signer = provider.getSigner();
-					contract = new ethers.Contract(contractAddress, ABI, signer);
+					contract = new ethers.Contract(contractAddressFactory, ABIFactory, signer);
 					sessionStorage.setItem("isConnected", true)
 				}
 			} catch (error) {
@@ -45,7 +73,22 @@ export class Loul extends Component {
 			}
 		};
 
+		const createTournament = async () => {
+			const contractWithWallet = contract.connect(signer);
+			const tx = await contractWithWallet.createTournament();
+			await tx.wait();
+			console.log(tx);
+		}
+
+		const getTournaments = async () => {
+			const oui = await contract.getTournaments();
+			console.log(oui);
+		}
+
+
 		document.getElementById("connectButton").addEventListener("click", connectWallet);
+		document.getElementById("createTournamentButton").addEventListener("click", createTournament);
+		document.getElementById("getTournamentsButton").addEventListener("click", getTournaments);
 	}
 }
 
