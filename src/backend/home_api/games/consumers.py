@@ -65,7 +65,7 @@ class GameConsumer(AsyncWebsocketConsumer):
 				'timestamp': data['timestamp']
 			}))
 			return
-
+		
 		game = await GAMES.get(self.game_id)
 		if game is not None:
 			await game.handle_message(self.user, data)

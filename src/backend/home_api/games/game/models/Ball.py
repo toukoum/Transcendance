@@ -3,12 +3,13 @@ from games.game.constants import FIELD_HEIGHT, FIELD_WIDTH, BALL_RADIUS, BALL_SP
 
 class Ball:
 	def __init__(self):
-		self.x = FIELD_WIDTH / 2
-		self.y = FIELD_HEIGHT / 2
+		self.x = 0
+		self.y = 0
 		self.radius = BALL_RADIUS
 		self.speed = BALL_SPEED
-		self.vx = random.choice([-1, 1])
-		self.vy = random.choice([-1, 1])
+		self.vx = random.choice([-1, 1]) # at start the ball can go either left or right
+		# self.vy = random.choice([-1, 1]) 
+		self.vy = 0 # at start the ball go straight
 
 		# Backup previous side
 		self.previous_side = self.vx
@@ -40,8 +41,8 @@ class Ball:
 		return self.x >= 0 and self.x <= field_width and self.y >= 0 and self.y <= field_height
 	
 	def reset(self):
-		self.x = FIELD_WIDTH / 2
-		self.y = FIELD_HEIGHT / 2
+		self.x = 0
+		self.y = 0
 		self.vx = self.prevoius_side * -1
 		self.vy = random.choice([-1, 1])
 		# each reset should have a different side

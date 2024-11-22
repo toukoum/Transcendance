@@ -14,7 +14,7 @@ from django.db.models import Q
 from games.game.models.Player import Player
 from games.game.models.Ball import Ball
 from games.game.models.Paddle import Paddle
-from games.game.constants import FIELD_WIDTH, FIELD_HEIGHT, PADDLE_Y, PADDLE_HEIGHT, PADDLE_WIDTH, PADDLE_SPEED
+from games.game.constants import FIELD_WIDTH, FIELD_HEIGHT, PADDLE_HEIGHT, PADDLE_WIDTH, PADDLE_SPEED
 
 logger = logging.getLogger('django')
 
@@ -52,8 +52,14 @@ class Game:
 		self.player_1 = self.players[0]
 		self.player_2 = self.players[1]
 
-		self.player_1.paddle = Paddle(0, PADDLE_Y, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_SPEED)
-		self.player_2.paddle = Paddle(FIELD_WIDTH - PADDLE_WIDTH, PADDLE_Y, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_SPEED)
+		# ball is in the middle of the field in x: 0, y: 0
+		# so the center of the field is x: 0, y: 0
+		# so e have to make the paddle just outside the field (one gonna be -x and the other +x)
+		self.player_1.paddle = Paddle((-FIELD_WIDTH / 2) - (PADDLE_WIDTH / 2), 0, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_SPEED)
+		self.player_2.paddle = Paddle((FIELD_WIDTH / 2) + (PADDLE_WIDTH / 2), 0, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_SPEED)
+
+ 		# self.player_1.paddle = Paddle(0, PADDLE_Y, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_SPEED)
+		# self.player_2.paddle = Paddle(FIELD_WIDTH - PADDLE_WIDTH, PADDLE_Y, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_SPEED)
 
 
 		await self.send_state()
@@ -262,9 +268,67 @@ class Game:
 		return None
 	
 
+	# ---------------------------------- PADDLE ---------------------------------- #
+
+	async def move_paddle(self, user: User, data):
+		"""
+		Move the paddle
+		"""
+		print(f"Move paddle {data}")
+
+		paddle = self.get_paddle(user)
+		if paddle is None:
+			print("Paddle not found")
+			return
+		
+		direction = data.get('direction')
+		if direction is None:
+			print("Paddle direction not found")
+			return
+
+		# Expected direction : {
+		# up: bool,
+		# down: bool
+		# left: bool, #useless
+		# right: bool #useless
+		# }
+
+		if direction.get('up'):
+			paddle.y += paddle.vy
+		elif direction.get('down'):
+			paddle.y -= paddle.vy
+
+
+		# if direction == 'up':
+		# 	paddle.y += paddle.vy
+		# elif direction == 'down':
+		# 	paddle.y -= paddle.vy
+
+	
+
+	
+	def get_paddle(self, user: User):
+		for player in self.players:
+			if player.player.user.id == user.id:
+				return player.paddle
+		return None
+	
+
 	# ---------------------------------------------------------------------------- #
 	#                                   MESSAGES                                   #
 	# ---------------------------------------------------------------------------- #
+
+	async def handle_message(self, user: User, data):
+		"""
+		Handle the message from the player
+		"""
+		logger.info(f'Message from user {user.id} in game {self.match.id}')
+
+		type = data.get('type')
+		if type == 'paddle.move':
+			await self.move_paddle(user, data)
+		
+
 
 	async def send_state(self, data = {}):
 		"""

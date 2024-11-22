@@ -4,11 +4,10 @@ export class Field {
 		this.height = height;
 
 		this.mesh = new THREE.Mesh(
-			new window.THREE.PlaneGeometry(width, height),
+			new window.THREE.BoxGeometry(width, 1, height),
 			new window.THREE.MeshBasicMaterial( {color: 0x0077ff, side: THREE.DoubleSide })
 		);
-		// Make the field horizontal
-		this.mesh.rotation.x = -Math.PI / 2;
+		this.mesh.position.set(0, -(this.mesh.geometry.parameters.height / 2), 0);
 	}
 
 	updateFromServer(data) {

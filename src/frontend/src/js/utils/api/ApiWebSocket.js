@@ -64,6 +64,7 @@ export class ApiWebSocket {
 		if (!this.isConnected) {
 			throw new Error("WebSocket is not connected");
 		}
+		console.warn(`WebSocket send`, data);
 		this.socket.send(JSON.stringify(data));
 	}
 

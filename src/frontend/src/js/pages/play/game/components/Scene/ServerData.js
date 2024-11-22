@@ -81,5 +81,45 @@ export class ServerData {
 
 	update(data) {
 		console.log(`[Game: ServerData] Updating server data`, data);
+
+		this.data = this.validateData(data);
+
+		if (this.data.ball) {
+			this.ball = {
+				x: this.data.ball.x,
+				y: this.data.ball.y,
+				radius: this.data.ball.radius,
+				vx: this.data.ball.vx,
+				vy: this.data.ball.vy,
+			};
+		}
+
+		if (this.data.player_1) {
+			this.player_1 = {
+				'user_id': this.data.player_1.user_id,
+				'state': this.data.player_1.state,
+				'score': this.data.player_1.score,
+				'paddle': this.data.player_1.paddle ? {
+					x: this.data.player_1.paddle.x,
+					y: this.data.player_1.paddle.y,
+					width: this.data.player_1.paddle.width,
+					height: this.data.player_1.paddle.height,
+				} : null
+			};
+		}
+
+		if (this.data.player_2) {
+			this.player_2 = {
+				'user_id': this.data.player_2.user_id,
+				'state': this.data.player_2.state,
+				'score': this.data.player_2.score,
+				'paddle': this.data.player_2.paddle ? {
+					x: this.data.player_2.paddle.x,
+					y: this.data.player_2.paddle.y,
+					width: this.data.player_2.paddle.width,
+					height: this.data.player_2.paddle.height,
+				} : null
+			};
+		}
 	}
 }

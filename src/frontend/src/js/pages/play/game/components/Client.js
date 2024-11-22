@@ -45,4 +45,12 @@ export class Client {
 				break;
 		}
 	}
+
+	// sendMovement(keys) {
+	// 	console.log("[Game Client] Sending movement", keys);
+	// 	this.ws.send({
+	// 		type: "player.move",
+	// 		keys: keys,
+	// 	});
+	// }
 }

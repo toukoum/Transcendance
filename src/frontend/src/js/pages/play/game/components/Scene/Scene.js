@@ -42,21 +42,13 @@ export class Scene {
 		const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
 		directionalLight.position.set(5, 10, 2);
 		this.scene.add(directionalLight);
-		// const pointLight = new THREE.PointLight(0xff0000, 1, 10);
-		// pointLight.position.set(ball.position.x, ball.position.y, ball.position.z);
-		// this.scene.add(pointLight);
+		/* -------------------------------------------------------------------------- */
 
-		// this.serverData = new ServerData();
+		const gridHelper = new THREE.GridHelper(100, 100);
+		this.scene.add(gridHelper);
+
+		// Server
 		this.serverData = undefined;
-		this.isInit = false;
-
-		
-		// this.word = new World();
-		// this.word.addTo(this.scene);
-
-		// this.field = new Plane(1200, 900, 0x007700, new THREE.Vector3(0, 0, 0));
-		// this.scene.add(this.field.mesh);
-
 		// Elements
 		this.field = undefined;
 		this.ball = undefined;
@@ -132,6 +124,7 @@ export class Scene {
 		console.log("[Game Scene] Syncing with server data", this.serverData);
 
 		if (this.serverData.field) {
+			console.log("[Game Scene] Field data", this.serverData.field);
 			if (this.field) {
 				this.field.updateFromServer(this.serverData.field);
 			} else {
@@ -142,6 +135,7 @@ export class Scene {
 		}
 
 		if (this.serverData.ball) {
+			console.log("[Game Scene] Ball data", this.serverData.ball);
 			if (this.ball) {
 				this.ball.updateFromServer(this.serverData.ball);
 			} else {
@@ -150,23 +144,23 @@ export class Scene {
 			}
 		}
 
-		// if (this.serverData.player_1) {
-		// 	if (this.player_1) {
-		// 		this.player_1.updateFromServer(this.serverData.player_1);
-		// 	} else {
-		// 		this.player_1 = new Player(this.serverData.player_1);
-		// 		this.scene.add(this.player_1.mesh);
-		// 	}
-		// }
+		if (this.serverData.player_1) {
+			if (this.player_1) {
+				this.player_1.updateFromServer(this.serverData.player_1);
+			} else {
+				this.player_1 = new Player(this.serverData.player_1);
+				this.scene.add(this.player_1.paddle);
+			}
+		}
 
-		// if (this.serverData.player_2) {
-		// 	if (this.player_2) {
-		// 		this.player_2.updateFromServer(this.serverData.player_2);
-		// 	} else {
-		// 		this.player_2 = new Player(this.serverData.player_2);
-		// 		this.scene.add(this.player_2.mesh);
-		// 	}
-		// }
+		if (this.serverData.player_2) {
+			if (this.player_2) {
+				this.player_2.updateFromServer(this.serverData.player_2);
+			} else {
+				this.player_2 = new Player(this.serverData.player_2);
+				this.scene.add(this.player_2.paddle);
+			}
+		}
 	}
 
 	/* ---------------------------------- Utils --------------------------------- */
@@ -179,5 +173,10 @@ export class Scene {
 		}
 
 		this.syncWithServer();
+
+		console.log("[Game Scene] Server data handled", this.player_1, this.player_2);
+		if (!this.game.controller.player && this.player_1 && this.player_2) {
+			this.game.controller.assignPlayer();
+		}
 	}
 }
