@@ -510,15 +510,16 @@ export class Play extends Component {
 				});
 
 				// Prépare les données pour l'API
+				console.log(provider, signer, contract);
+				await createTournament();
 				const apiData = {
 					duration: durationTournament === "" ? null : parseInt(durationTournament),
 					maxScore: maxScoreTournament === "" ? null : parseInt(maxScoreTournament),
 					name: tournamentName,
 					pseudo: pseudoCreatorTournament,
+					address_tournament: addressTournament,
 				};
 				const { data, error } = await api.tournament.create(apiData);
-				console.log(provider, signer, contract);
-				await createTournament();
 				if (error) throw error;
 				Toast.success("Tournament created successfully with the address: " + addressTournament);
 				const modalElement = this.querySelector("#createTournamentModal");

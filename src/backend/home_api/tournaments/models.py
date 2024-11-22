@@ -28,9 +28,8 @@ class Tournament(models.Model):
     max_players_game = models.IntegerField(default=2)
     number_players = models.IntegerField(default=4)
     max_score = models.IntegerField(default=None, blank=True, null=True) # max score to win the match
-
     connected_players = models.IntegerField(default=0)
-    
+    address_tournament = models.CharField(max_length=255, blank=False, null=True)
     winner = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
 
     def clean(self):
