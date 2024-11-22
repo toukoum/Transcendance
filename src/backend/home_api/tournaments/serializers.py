@@ -19,7 +19,7 @@ class TournamentSerializer(serializers.ModelSerializer):
         tournament = super().create(validated_data)
         
         # check if the pseudo is already taken
-        if pseudo is not None and TournamentParticipant.objects.filter(pseudo=pseudo).exists():
+        if pseudo is not None and TournamentParticipant.objects.filter(tournament=tournament, pseudo=pseudo).exists():
             raise serializers.ValidationError({'pseudo': 'Pseudo already taken'})
 
         user = self.context['request'].user

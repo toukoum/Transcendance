@@ -52,14 +52,6 @@ export class Auth {
 	}
 
 	/**
-	 * @brief Login with OAuth
-	 * @param {String} provider - The provider
-	 */
-	async loginWithOAuth(provider) {
-		return await this.api.request.get(`login/${provider}/`);
-	}
-
-	/**
 	 * @brief Logout the user
 	 */
 	async logout() {
@@ -96,14 +88,16 @@ export class Auth {
 		username,
 		firstName,
 		lastName,
-		bio
+		bio,
+		location
 	}) {
 		return await this.api.request.patch("me/", {
 			username,
 			first_name: firstName,
 			last_name: lastName,
 			profile: {
-				bio
+				bio: bio,
+				location: location
 			}
 		});
 	}

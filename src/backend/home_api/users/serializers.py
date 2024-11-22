@@ -127,7 +127,8 @@ class ProfileAvatarSerializer(serializers.ModelSerializer):
         model = Profile
         fields = ['avatar']
 
-    def save(self, **kwargs):
-        instance = super().save(**kwargs)
+    def update(self, instance, validated_data):
+        print("Validated data", validated_data)
+        instance.avatar = validated_data.get('avatar', instance.avatar)
         instance.save()
         return instance

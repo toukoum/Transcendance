@@ -8,7 +8,7 @@ export class UserNav extends Component {
 		return (/*html*/`
 		<div class="dropdown">
 			<a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-				<img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">
+				<img src="${user.profile.avatar}" alt="mdo" width="32" height="32" class="rounded-circle">
 			</a>
 			<ul class="dropdown-menu text-small" aria-labelledby="dropdownUser1">
 				<li><link-component class="dropdown-item" href="/user/${user.username}">Profile</link-component></li>

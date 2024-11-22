@@ -101,6 +101,7 @@ class UploadAvatar(APIView):
     
     def post(self, request):
         user_profile = request.user.profile
+        print("============> DATA REQUEST", request.data)
         serializer = ProfileAvatarSerializer(user_profile, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()

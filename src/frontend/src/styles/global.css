@@ -41,7 +41,10 @@ body {
 	width: 100vw;
   color: #fff;
   background-color: black;
+	overflow-x: hidden;
 }
+
+
 
 /* -------------------------------------------------------------------------- */
 /*                             OVERRIDE BOOTSTRAP                             */
