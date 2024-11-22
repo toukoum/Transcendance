@@ -22,6 +22,7 @@ export class App {
 				// Auth
 				new Route("/auth/login", "auth-login-page"),
 				new Route("/auth/signup", "auth-signup-page"),
+				new Route("/auth/login/42", "auth-login-42-page"),
 				// User
 				new Route("/user/:username", "user-page"),
 				// Play
