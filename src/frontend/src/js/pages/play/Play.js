@@ -509,7 +509,7 @@ export class Play extends Component {
 				};
 				const { data, error } = await api.tournament.create(apiData);
 				console.log(provider, signer, contract);
-				createTournament();
+				await createTournament();
 				if (error) throw error;
 				Toast.success("Tournament created successfully");
 				const modalElement = this.querySelector("#createTournamentModal");
