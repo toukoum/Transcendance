@@ -470,11 +470,18 @@ export class Play extends Component {
 			connectWallet();
 		}
 
+		let addressTournament;
+
 		const createTournament = async () => {
 			const contractWithWallet = contract.connect(signer);
 			const tx = await contractWithWallet.createTournament();
 			await tx.wait();
 			console.log(tx);
+			contract.on('TournamentCreated', (creator, tournamentAddress, event) => {
+				console.log(`Tournament created by: ${creator}`);
+				console.log(`Tournament address: ${tournamentAddress}`);
+				addressTournament = tournamentAddress;
+			});
 		}
 
 		// Soumission du formulaire
@@ -511,7 +518,7 @@ export class Play extends Component {
 				console.log(provider, signer, contract);
 				await createTournament();
 				if (error) throw error;
-				Toast.success("Tournament created successfully");
+				Toast.success("Tournament created successfully with the address: " + addressTournament);
 				const modalElement = this.querySelector("#createTournamentModal");
 				const modalInstance = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
 				modalInstance.hide();
