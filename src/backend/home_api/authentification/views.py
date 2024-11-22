@@ -108,7 +108,7 @@ def oauth_callback(request):
     response = requests.post(token_url, data=data)
 
     if response.status_code != 200:
-        return Response({"detail": "Invalid code"}, status=status.HTTP_400_BAD_REQUEST)
+        return format_response(error="Error retrieving access token", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     token_info = response.json()
     access_token = token_info.get('access_token')
@@ -116,7 +116,7 @@ def oauth_callback(request):
 
     response_42 = get_data_user_42(request)
     if response_42.status_code != 200:
-        return Response({"detail": "Error retrieving user profile"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return format_response(error="Error retrieving user data", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     user_data = response_42.json()
 

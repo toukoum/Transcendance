@@ -33,19 +33,41 @@ export class SettingsSecurity extends Component {
 			<settings-layout>
 				<div class="d-flex flex-column gap-3">
 					<div class="d-flex flex-column gap-1">
+			
 						<h3>Two-Factor Authentication</h3>
-						<form id="twofa-form" class="d-flex flex-column gap-1">
-							<div class="form-check form-switch">
-								<input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" name="enabled" ${user.is_2fa_enabled ? "checked" : ""}>
-								<label class="form-check-label" for="flexSwitchCheckDefault">Enable Two-Factor Authentication (2FA)</label>
+						<p> Is 2Fa Configure ? <span class="is-2fa-configure"></span> </p>
+
+
+						<div class="bg-dark p-3 rounded align-items-center toggle-2fa-wrapper">
+							<div class="form-check form-switch text-light me-3">
+								<input class="form-check-input" type="checkbox" id="toggle-2fa" style="cursor: pointer;">
+								<label class="form-check-label" for="toggle-2fa">Two-Factor Authentication</label>
 							</div>
-							<button-component id="submit-twofa" type="submit" variant="muted" class="d-flex align-items-center justify-content-center gap-2">
-								<span id="loading-twofa"  class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
-								Save
+							<div id="loading-2fa" class="spinner-border spinner-border-sm text-light ms-auto" role="status" aria-hidden="true" style="display: none;"></div>
+						</div>	
+
+						<div class="configure-2fa-wrapper" style="display: none;">
+							<button-component id="otp-send" class="w-100">
+								Configure by email
+								<span id="loading-otp-send"  class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
 							</button-component>
-						</form>
+							<form id="otp-form" class="d-flex gap-2 p-3 align-items-center">
+								<div class="form-group w-100">
+									<label for="otp">Enter Code</label>
+									<input type="text" id="otp" class="form-control" name="otp" placeholder="Enter Code">
+									<small id="otp-error" class="form-text text-danger" style="display: none;"></small>
+								</div>
+								<button-component id="otp-submit" type="submit" variant="muted" class="d-flex justify-content-center gap-2 align-items-end">
+									Verify
+									<span id="loading-otp-submit"  class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+								</button-component>
+							</form>
+						</div>
 					</div>
-					<!-- <separator-component></separator-component> -->
+
+
+
+					<separator-component></separator-component>
 					<div class="d-flex flex-column gap-1">
 						<h3>Change Password</h3>
 						<form id="password-form" class="d-flex flex-column gap-1">
@@ -75,67 +97,120 @@ export class SettingsSecurity extends Component {
 		`);
 	}
 
-	script() {
-		const twofaForm = this.querySelector("#twofa-form");
-		const submitTwofa = this.querySelector("#submit-twofa");
-		const loadingTwofa = this.querySelector("#loading-twofa");
-		const passwordForm = this.querySelector("#password-form");
-		const submitPassword = this.querySelector("#submit-password");
-		const loadingPassword = this.querySelector("#loading-password");
+	async setup2fa(){
+		const toggle2FA = this.querySelector("#toggle-2fa");
+		let is2FAEnabled = false;
+    try {
+      const { data, error } = await api.request.get("me");
+      if (error) throw error;
+      is2FAEnabled = data.profile.is_2fa_enabled;
+      toggle2FA.checked = is2FAEnabled;
+    } catch (error) {
+      console.error(error);
+      Toast.error("An error occurred");
+    }
+	}
 
-		twofaForm.addEventListener("submit", async (e) => {
-			e.preventDefault();
+	async is2faConfigure(){
+		const response = await api.request.get("auth/2fa/mfa/user-active-methods/");
+		if (response.error) return false;
+		console.log("is2faConfigure", response.data.length);	
+		return response.data.length > 0;
+	}
+
+	async configure2fa(){
+		const otpSend = this.querySelector("#otp-send");
+		const otpForm = this.querySelector("#otp-form");
+
+		otpSend.addEventListener("click", async (e) => {
 			try {
-				loadingTwofa.style.display = "inline-block";
-				submitTwofa.disabled = true;
-
-				const formData = new FormData(twofaForm);
-				const { enabled } = Object.fromEntries(formData.entries());
-				twoFactorSchema.parse({
-					enabled: enabled === "on"
-				});
-				console.log("twofaForm parsed");
-
-				// const { data, error } = await api.me.updateTwoFactor({
-				// 	enabled
-				// });
-
-				// if (error) throw error;
-
-				Toast.success("Two-Factor Authentication updated successfully");
+				this.querySelector("#loading-otp-send").style.display = "inline-block";
+				const response = await api.request.post("auth/2fa/email/activate/");
+				console.log(response);
+				Toast.success(response.data.details);
 			} catch (error) {
-				if (error instanceof ApiRequestError) {
-					console.error(error.message);
-					Toast.error(error.message);
-				} else if (error instanceof zod.ZodError) {
-					error.errors.forEach(err => {
-						error.errors.forEach(err => {
-							const input = twofaForm.querySelector(`[name="${err.path[0]}"]`);
-							const errorElement = twofaForm.querySelector(`#${err.path[0]}-error`);
-							if (input && errorElement) {
-								input.classList.add("is-invalid");
-								errorElement.innerText = err.message;
-								errorElement.style.display = "block";
-							}
-						});
-						// const input = twofaForm.querySelector(`[name="${err.path[0]}"]`);
-						// const errorElement = twofaForm.querySelector(`#${err.path[0]}-error`);
-						// if (input && errorElement) {
-						// 	input.classList.add("is-invalid");
-						// 	errorElement.innerText = err.message;
-						// 	errorElement.style.display = "block";
-						// }
-					});
-				} else {
-					// console.error(`An error occurred: ${error}`);
-					Toast.error("An error occurred");
-				}
+				console.error(error);
+				Toast.error("An error occurred");
 			} finally {
-				loadingTwofa.style.display = "none";
-				submitTwofa.disabled = false;
+				this.querySelector("#loading-otp-send").style.display = "none";
 			}
 		});
 
+		otpForm.addEventListener("submit", async (e) => {
+			e.preventDefault();
+			try {
+				this.querySelector("#loading-otp-submit").style.display = "inline-block";
+				const response = await api.request.post("auth/2fa/email/activate/confirm/", {
+					code: otpForm.querySelector("#otp").value
+				});
+				console.log(response);
+				otpForm.querySelector("#otp").value = "";
+				const { data, error } = await api.request.post("auth/2fa/activate/");
+				console.log("DATA data", data);
+				if (error) throw error;
+				Toast.success(data.message);
+				Toast.success("2FA activated successfully");
+			} catch (error) {
+				console.error(error);
+				Toast.error("An error occurred while activating 2FA");
+			} finally{
+				this.querySelector("#loading-otp-submit").style.display = "none";
+			}
+		});
+	}
+
+	async toggle2fa(){
+		const toggle2FA = this.querySelector("#toggle-2fa");
+    const loading2FA = this.querySelector("#loading-2fa");
+
+    toggle2FA.addEventListener("change", async () => {
+      try {
+        loading2FA.style.display = "inline-block";
+        let data, error;
+        if (toggle2FA.checked) {
+          ({ data, error } = await api.request.post("auth/2fa/activate/"));
+        } else {
+          ({ data, error } = await api.request.post("auth/2fa/deactivate/"));
+        }
+        if (error) throw error;
+        Toast.success(data.message);
+      } catch (error) {
+        console.error(error);
+        Toast.error("Une erreur s'est produite");
+        toggle2FA.checked = !toggle2FA.checked;
+      } finally {
+        loading2FA.style.display = "none";
+      }
+    });
+	}
+
+	async script() {
+		
+		this.setup2fa();
+		const is2faConfigured = await this.is2faConfigure();
+		console.log("is2faConfigured", is2faConfigured);
+		
+		this.querySelector(".is-2fa-configure").innerText = is2faConfigured ? "Yes" : "No";
+		
+		if (is2faConfigured) {
+			this.querySelector(".toggle-2fa-wrapper").style.display = "block";
+			this.querySelector(".configure-2fa-wrapper").style.display = "none";
+		} else {
+			this.querySelector(".toggle-2fa-wrapper").style.display = "none";
+			this.querySelector(".configure-2fa-wrapper").style.display = "block";
+		}
+		
+		this.configure2fa();
+		this.toggle2fa();
+		
+		
+		const passwordForm = this.querySelector("#password-form");
+		const submitPassword = this.querySelector("#submit-password");
+		const loadingPassword = this.querySelector("#loading-password");
+		
+		
+		
+		
 		passwordForm.addEventListener("submit", async (e) => {
 			e.preventDefault();
 			try {
@@ -188,61 +263,6 @@ export class SettingsSecurity extends Component {
 			}
 		});
 
-
-		// form.addEventListener("submit", async (e) => {
-		// 	e.preventDefault();
-		// 	try {
-		// 		loadingIcon.style.display = "inline-block";
-		// 		submitButton.disabled = true;
-				
-		// 		const formData = new FormData(form);
-		// 		const {
-		// 			username,
-		// 			firstName,
-		// 			lastName,
-		// 			bio
-		// 		} = Object.fromEntries(formData.entries());
-
-		// 		schemaProfile.parse({
-		// 			username,
-		// 			firstName,
-		// 			lastName,
-		// 			bio
-		// 		});
-
-		// 		const { data, error } = await api.me.update({
-		// 			username,
-		// 			firstName,
-		// 			lastName,
-		// 			bio
-		// 		})
-		// 		if (error) throw error;
-		// 		window.auth = data;
-
-		// 		Toast.success("Profile updated successfully");
-		// 	} catch (error) {
-		// 		if (error instanceof ApiRequestError) {
-		// 			console.error(error.message);
-		// 			Toast.error(error.message);
-		// 		} else if (error instanceof zod.ZodError) {
-		// 			error.errors.forEach(err => {
-		// 				const input = form.querySelector(`[name="${err.path[0]}"]`);
-		// 				const errorElement = form.querySelector(`#${err.path[0]}-error`);
-		// 				if (input && errorElement) {
-		// 					input.classList.add("is-invalid");
-		// 					errorElement.innerText = err.message;
-		// 					errorElement.style.display = "block";
-		// 				}
-		// 			});
-		// 		} else {
-		// 			// console.error(`An error occurred: ${error}`);
-		// 			Toast.error("An error occurred");
-		// 		}
-		// 	} finally {
-		// 		loadingIcon.style.display = "none";
-		// 		submitButton.disabled = false;
-		// 	}
-		// });
 	}
 }
 
