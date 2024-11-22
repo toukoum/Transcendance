@@ -477,11 +477,13 @@ export class Play extends Component {
 			const tx = await contractWithWallet.createTournament();
 			await tx.wait();
 			console.log(tx);
-			contract.on('TournamentCreated', (creator, tournamentAddress, event) => {
-				console.log(`Tournament created by: ${creator}`);
-				console.log(`Tournament address: ${tournamentAddress}`);
-				addressTournament = tournamentAddress;
-			});
+			const block = await provider.getBlockNumber()
+			const transferEvents = await contract.queryFilter('TournamentCreated', block - 1, block)
+			if (transferEvents.length == 2)
+				addressTournament = transferEvents[1].args.tournamentAddress;
+			else
+				addressTournament = transferEvents[0].args.tournamentAddress;
+			console.log("Tournament created with the address:", addressTournament);
 		}
 
 		// Soumission du formulaire
