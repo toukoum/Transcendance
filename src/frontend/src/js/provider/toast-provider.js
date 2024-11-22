@@ -1,6 +1,8 @@
 import { Component } from "../utils/Component.js";
+import { api } from "../utils/api/Api.js";
+import { getToastStyle } from "./toast-style.js";
 
-const AUTO_DISMISS = 6000;
+const AUTO_DISMISS = 60000;
 
 export class Toast extends Component {
     content() {
@@ -23,41 +25,116 @@ export class Toast extends Component {
             default:
                 positionClass = 'bottom-0 end-0';
         }
-        
+
         return (/*html*/`
             <div class="toast-container position-fixed ${positionClass} p-3" id="toast-container">
             </div>
         `);
     }
 
+    style() {
+        return getToastStyle();
+    }
+
     script() {
         const toastContainer = this.querySelector("#toast-container");
 
-        // Listen for success toasts
         window.addEventListener('toast.success', (event) => {
-            this.showToast(toastContainer, event.detail.message, 'success');
+            this.showToast(toastContainer, {
+                message: event.detail.message,
+                type: 'success',
+            });
         });
 
-        // Listen for error toasts
         window.addEventListener('toast.error', (event) => {
-            this.showToast(toastContainer, event.detail.message, 'danger');
+            this.showToast(toastContainer, {
+                message: event.detail.message,
+                type: 'danger',
+            });
+        });
+
+        window.addEventListener('toast.info', (event) => {
+            this.showToast(toastContainer, {
+                message: event.detail.message,
+                type: 'info',
+                title: event.detail.title,
+            });
+        });
+
+        window.addEventListener('toast.notificationAction', (event) => {
+            this.showToast(toastContainer, {
+                message: event.detail.message,
+                type: 'notification',
+                title: event.detail.event_type,
+                primaryAction: {
+                    url: event.detail.primary,
+                    label: event.detail.label_primary,
+                },
+                secondaryAction: {
+                    url: event.detail.secondary,
+                    label: event.detail.label_secondary,
+                },
+								is_link_primary: event.detail.is_link_primary,
+								is_link_secondary: event.detail.is_link_secondary
+            });
         });
     }
 
-    showToast(toastContainer, message, type) {
-        // Create new toast element
+    showToast(toastContainer, options) {
+        const {
+            message,
+            type = 'info',
+            title = null,
+            primaryAction = null,
+            secondaryAction = null,
+						is_link_primary = false,
+						is_link_secondary = false
+        } = options;
+
         const toast = document.createElement('div');
-        toast.classList.add('toast');
-        toast.classList.add(type === 'success' ? 'bg-success' : type === 'danger' ? 'bg-danger' : 'bg-info');
-        toast.classList.add('text-white');
+        toast.classList.add('toast', 'custom-toast', `toast-${type}`);
         toast.setAttribute('role', 'alert');
         toast.setAttribute('aria-live', 'assertive');
         toast.setAttribute('aria-atomic', 'true');
 
-        // Toast content
+        // Contenu du toast
+        let toastHeader = '';
+        if (title) {
+            toastHeader = `
+                <div class="toast-header">
+                    <strong class="me-auto">${title}</strong>
+                    <small>Just now</small>
+                    <button type="button" class="btn-close"" aria-label="Close"></button>
+                </div>
+            `;
+        }
+
+        let actions = '';
+        if (primaryAction || secondaryAction) {
+            actions = `
+                <div class="toast-actions mt-2">
+                    ${primaryAction ? 
+                        (is_link_primary ? 
+                            `<a class="action btn-primary text-decoration-none text-center" href="${primaryAction.url}">${primaryAction.label}</a>` : 
+                            `<button class="make-action action btn-secondary" data-action="${primaryAction.url}">${primaryAction.label}</button>`
+                        ) : ''
+                    }
+
+                    ${secondaryAction ? 
+                        (is_link_secondary ? 
+                            `<a class="action btn-primary text-decoration-none text-center" href="${secondaryAction.url}">${secondaryAction.label}</a>` : 
+                            `<button class="make-action action btn-secondary" data-action="${secondaryAction.url}">${secondaryAction.label}</button>`
+                        ) : ''
+                    }
+                </div>
+            `;
+        }
+
         toast.innerHTML = `
+            ${toastHeader}
             <div class="toast-body">
-                ${message}
+                <p>${message}</p>
+                ${actions}
             </div>
         `;
 
@@ -65,32 +142,100 @@ export class Toast extends Component {
 
         const bootstrapToast = new bootstrap.Toast(toast);
         bootstrapToast.show();
-        
-        // Clear the toast after X seconds
+
+        // Fonctionnalité du bouton de fermeture
+        const btnClose = toast.querySelector('.btn-close');
+        if (btnClose) {
+            btnClose.addEventListener('click', () => {
+                bootstrapToast.hide();
+                toastContainer.removeChild(toast);
+            });
+        }
+
+        // Événements des boutons d'action
+        toast.querySelectorAll('.make-action').forEach((element) => {
+            element.addEventListener('click', (e) => this.makeAction(e, bootstrapToast, toast));
+        });
+
+        // Disparaît automatiquement après X secondes
         setTimeout(() => {
             bootstrapToast.hide();
             toastContainer.removeChild(toast);
         }, AUTO_DISMISS);
+
+        lucide.createIcons();
     }
 
-    // Static method to show a success toast
+    async makeAction(e, bootstrapToast, toast) {
+        try {
+            const target = e.target;
+            const actionUrl = target.getAttribute('data-action');
+            console.log('Making action:', actionUrl);
+
+            const { data, error } = await api.request.post(actionUrl);
+						console.log('Action response:', data);
+						if (error) throw error;
+						Toast.success(data.message);
+        } catch (error) {
+            Toast.error(error.message);
+        }
+        // Optionnellement cacher le toast après l'action
+        // bootstrapToast.hide();
+        // toast.parentNode.removeChild(toast);
+    }
+
+    // Méthodes statiques pour déclencher les toasts
     static success(message) {
         window.dispatchEvent(new CustomEvent('toast.success', {
             detail: { message }
         }));
     }
 
-    // Static method to show an error toast
     static error(message) {
         window.dispatchEvent(new CustomEvent('toast.error', {
             detail: { message }
         }));
     }
 
-    // Static method to show an info toast
-    static info(message) {
+    static info(message, title = null) {
         window.dispatchEvent(new CustomEvent('toast.info', {
-            detail: { message }
+            detail: { 
+                message,
+                title
+            }
+        }));
+    }
+
+    static notificationAction(notification) {
+        if (!notification?.action?.primary || !notification?.action?.secondary) {
+            console.error('Invalid notification structure:', notification);
+            return;
+        }
+
+        const primary = notification.action.primary;
+        const secondary = notification.action.secondary;
+				const is_link_primary = primary.is_link || false;
+				const is_link_secondary = secondary.is_link || false;
+
+        let event_type = "Notification";
+
+        if (notification.event_type === 'friend_request') {
+            event_type = 'Friend Request';
+        } else if (notification.event_type === 'game_request') {
+            event_type = 'Game Request';
+        }
+
+        window.dispatchEvent(new CustomEvent('toast.notificationAction', {
+            detail: {
+                message: notification.data.message,
+                primary: primary.url,
+                label_primary: primary.label,
+                secondary: secondary.url,
+                label_secondary: secondary.label,
+                event_type: event_type,
+								is_link_primary: is_link_primary,
+								is_link_secondary: is_link_secondary
+            }
         }));
     }
 }

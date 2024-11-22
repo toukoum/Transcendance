@@ -235,7 +235,6 @@ class LoginViewCustom(LoginView):
         view.action = 'retrieve'
         
         # Simuler un appel à 'retrieve' en appelant la méthode directement
-        # response = format_response(view.retrieve(request).data)
         response = view.retrieve(request)
 
         set_jwt_cookies(response, access_token, refresh_token)
@@ -260,9 +259,9 @@ class MFAValidationViewCustom(APIView):
                 code=serializer.validated_data["code"],
                 ephemeral_token=serializer.validated_data["ephemeral_token"],
             )
-            return format_response(data=sent_custom_JWT(request, user))
+            return sent_custom_JWT(request, user)
         except MFAValidationError as cause:
-            return format_response(error=cause, status_code=HTTP_401_UNAUTHORIZED)
+            return format_response(error=str(cause), status=HTTP_401_UNAUTHORIZED)
 
 
 class MFADeactivateView(APIView):
@@ -275,7 +274,7 @@ class MFADeactivateView(APIView):
         user = request.user
         user.profile.is_2fa_enabled = False
         user.profile.save()
-        return format_response(data={"detail": "2FA disabled"}, status=status.HTTP_200_OK)
+        return format_response(data={"message": "2FA disabled"}, status=status.HTTP_200_OK)
 
 
 class MFAActivateView(APIView):
@@ -288,7 +287,7 @@ class MFAActivateView(APIView):
         user = request.user
         user.profile.is_2fa_enabled = True
         user.profile.save()
-        return format_response(data={"detail": "2FA enabled"}, status=status.HTTP_200_OK)
+        return format_response(data={"message": "2FA enabled"}, status=status.HTTP_200_OK)
 
 class BaseCustomView:
     success_message = "Success"
@@ -314,10 +313,10 @@ class BaseCustomView:
                 }
             }, status=response.status_code)
 
-# class LogoutViewCustom(BaseCustomView, LogoutView):
-#     success_message = "Successfully logged out"
-#     failure_message = "Failed to log out"
-#     success_status = status.HTTP_200_OK
+
+
+from dj_rest_auth.jwt_auth import unset_jwt_cookies
+
 class LogoutViewCustom(LogoutView):
     def post(self, request, *args, **kwargs):
         response = super().post(request, *args, **kwargs)
@@ -339,6 +338,8 @@ class LogoutViewCustom(LogoutView):
             }, status=response.status_code)
             unset_jwt_cookies(response)
             return response
+        
+
 
 class RegisterViewCustom(BaseCustomView, RegisterView):
     success_message = "Successfully registered"

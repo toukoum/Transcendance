@@ -8,7 +8,10 @@ class FriendshipSerializer(serializers.ModelSerializer):
 
     user1 = serializers.PrimaryKeyRelatedField(required=False, read_only=True)
     # all users but not the authenticated user
-    user2 = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    user2 = serializers.SlugRelatedField(
+            queryset=User.objects.all(),
+            slug_field='username'
+        )
 
     status = serializers.CharField(read_only=True)
     class Meta:

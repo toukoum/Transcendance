@@ -7,5 +7,50 @@ class Ball:
 		self.y = FIELD_HEIGHT / 2
 		self.radius = BALL_RADIUS
 		self.speed = BALL_SPEED
-		self.vx = 1
+		self.vx = random.choice([-1, 1])
 		self.vy = random.choice([-1, 1])
+
+		# Backup previous side
+		self.previous_side = self.vx
+
+
+	# ---------------------------------- Collide --------------------------------- #
+
+	def collide_paddle(self, paddle):
+		if self.x + self.radius >= paddle.x and self.x - self.radius <= paddle.x + paddle.width:
+			if self.y + self.radius >= paddle.y and self.y - self.radius <= paddle.y + paddle.height:
+				self.vx = -self.vx
+				self.vy = paddle.vy
+
+	# ---------------------------------- Bounce ---------------------------------- #
+
+	def bounce_x(self):
+		self.vx = -self.vx
+
+	def bounce_y(self):
+		self.vy = -self.vy
+	
+	# ---------------------------------------------------------------------------- #
+
+	def move(self):
+		self.x += self.vx * self.speed
+		self.y += self.vy * self.speed
+
+	def in_field(self, field_width, field_height):
+		return self.x >= 0 and self.x <= field_width and self.y >= 0 and self.y <= field_height
+	
+	def reset(self):
+		self.x = FIELD_WIDTH / 2
+		self.y = FIELD_HEIGHT / 2
+		self.vx = self.prevoius_side * -1
+		self.vy = random.choice([-1, 1])
+		# each reset should have a different side
+
+	def to_dict(self):
+		return {
+			'x': self.x,
+			'y': self.y,
+			'radius': self.radius,
+			'vx': self.vx,
+			'vy': self.vy,
+		}

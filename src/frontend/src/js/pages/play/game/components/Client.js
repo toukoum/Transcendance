@@ -26,19 +26,18 @@ export class Client {
 			console.error("[Game Client] WebSocket error", error);
 		});
 		this.ws.on("message", (data) => {
+			console.log("[Game Client] Received message", data);
 			this.handleMessage(data);
 		});
 	}
 
 	handleMessage(message) {
-		// console.log("[Game Client] Handling message", message);
-		switch (message.type) {
-			case "state":
-				console.log(`[Game Client] Game is in state ${message.state}`);
-				this.game.stateManager.handleEvent(message.state, message.data);
+		const type = message.type ? message.type.split(".")[0].trim() : null;
+		switch (type) {
+			case "game":
+				this.game.stateManager.handleEvent(message);
 				break;
 			case "pong":
-				// console.log("[Game Client] Received pong message");
 				this.game.pingManager.handlePong(message.timestamp);
 				break;
 			default:

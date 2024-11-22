@@ -22,16 +22,21 @@ export class Game extends Component {
 		const settings = {
 			gameId: gameId,
 			camera: {
-				x: 0,
-				y: 10,
-				z: 10
+				position: {
+					x: 0,
+					y: 10,
+					z: 10
+				},
+				angle: 70
 			},
 			container: "game",
 			player_id: window.auth.id
 		}
 
-		const gameThree = new GameTHREE(settings);
-		gameThree.start();
+		window.game = new GameTHREE(settings);
+		window.game.start();
+		// const gameThree = new GameTHREE(settings);
+		// gameThree.start();
 	}
 }
 

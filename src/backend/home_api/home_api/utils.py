@@ -2,20 +2,33 @@ from rest_framework.views import exception_handler
 from rest_framework.response import Response
 from rest_framework import status, viewsets
 
-def custom_exception_handler(exc, context):
-    """
-    For django rest framework exceptions
-    - Normalement c'est la clé detail qui contient le message d'erreur
-    - sinon le detail de l'erreur est dans details
-    """
-    response = exception_handler(exc, context)
 
+def custom_exception_handler(exc, context):
+    response = exception_handler(exc, context)
     if response is not None:
-        print("ERROR: ", response.data)
+        print("ERROR d'un serializer: ", response.data)
+        message = None
+        if isinstance(response.data, dict):
+            if 'detail' in response.data:
+                message = response.data['detail']
+            else:
+                errors = []
+                for field, messages in response.data.items():
+                    if isinstance(messages, list):
+                        for msg in messages:
+                            errors.append(f"{field}: {msg}")
+                    else:
+                        errors.append(f"{field}: {messages}")
+                message = '; '.join(errors)
+        elif isinstance(response.data, list):
+            message = response.data[0]
+        else:
+            message = str(response.data)
+        
         response.data = {
             "data": None,
             "error": {
-                "message": response.data.get("detail", "An error occurred"),
+                "message": message,
                 "details": response.data,
                 "status": response.status_code
             }
@@ -28,7 +41,6 @@ def format_response(data=None, error=None, status=200, response=None):
     """
     For the manual creation of responses
     """
-    print("salut a tous")
     if error:
       error = {
         "message": error,

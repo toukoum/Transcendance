@@ -58,13 +58,12 @@ INSTALLED_APPS = [
     'chat',
 		'notification',
 		'games',
+		'tournaments',
 		
     'rest_framework',
     'rest_framework.authtoken',
 
-
     'anymail',
-
     'corsheaders',
 
     'channels',

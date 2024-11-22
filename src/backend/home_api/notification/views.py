@@ -9,39 +9,71 @@ from rest_framework.decorators import api_view
 
 from notification.utils import send_notification
 
-from home_api.utils import format_response
+from home_api.utils import (
+	format_response,
+	BaseReadOnlyViewSet,
+	BaseViewSet,
+)
 
+from rest_framework.decorators import action
+
+from rest_framework.permissions import IsAuthenticated
+from notification.serializers import NotificationListSerializer
+from notification.models import Notification
+
+from django.contrib.auth.models import User
 
 @api_view(['POST'])
 def testNotif(request):
 		
-		channel_layer = get_channel_layer()
-		userId = request.user.id
-		group_name = f'user_{userId}'
-		async_to_sync(channel_layer.group_send)(
-			group_name,
-			{
-				'type': 'send_notification',
-				'data': {
-					'type': 'TEST',
-					'message': 'Salutttttt bg, je suis une notification',
-				}
-			}
+		return send_notification(
+			user=request.user,
+			data={
+				'message': 'Bonjour je suis une NOTIF batard'
+			},
 		)
-
-		return format_response(data='Notification sent')
 
 
 
 @api_view(['POST'])
 def testNotifUser(request):
-		userId = request.data['userId']
-		userIdRequest = request.user.id
-		print(userIdRequest)
-		data = {
-			'message': 'Bonjour je suis une NOTIF batard',
-			'userFrom': userIdRequest,
-		}
+		user = User.objects.get(id=request.data['userId'])
+		
+		return send_notification(
+			user=user,
+			data={
+				'message': 'Bonjour je suis une NOTIF batard'
+			},
+			action={
+				'primary': {
+					'url': 'http://localhost:8000/v1/me/',
+					'label': 'User profile'
+				}
+			},
+			user_from=request.user
+		)
 
-		send_notification(data, userId)
-		return format_response(data='Notification sent')
+
+
+
+class NotificationsViewSet(BaseViewSet):
+
+	permission_classes = [IsAuthenticated]
+	serializer_class = NotificationListSerializer
+
+	def get_queryset(self):
+		user = self.request.user
+		return Notification.objects.filter(user=user).order_by('-created_at')
+	
+	def destroy(self, request, *args, **kwargs):
+		instance = self.get_object()
+		instance.delete()
+		return format_response(data={'message': 'Notification deleted'}, status=204)
+	
+	@action(detail=True, methods=['POST'], url_path='mark-as-read')
+	def mark_as_read(self, request, pk=None):
+		notification = self.get_object()
+		notification.isRead = True
+		notification.save()
+		return format_response(data={'message': 'Notification marked as read'}, status=200)
+	

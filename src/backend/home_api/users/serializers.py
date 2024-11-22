@@ -4,8 +4,6 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 from users.models import Profile
 from rest_framework_simplejwt.tokens import AccessToken
-from games.models import Match
-from games.serializers import MatchListSerializer
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -89,7 +87,8 @@ class UserDetailSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'email', 'first_name', 'last_name', 'is_active', 'matches']
         
     def get_matches(self, obj):
-        print("OBJ: ", obj)
+        from games.models import Match
+        from games.serializers import MatchListSerializer
         matches = Match.objects.filter(match_players__player_id=obj.id)
         return MatchListSerializer(matches, many=True).data
 

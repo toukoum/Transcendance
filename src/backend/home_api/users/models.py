@@ -10,9 +10,12 @@ class Profile(models.Model):
     location = models.CharField(max_length=30, blank=True)
     birth_date = models.DateField(null=True, blank=True)
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True, default="http://localhost:8000/media/avatars/default-avatar.png")
+    publicKey = models.CharField(max_length=128, blank=True)
 
     is_2fa_enabled = models.BooleanField(default=False)
-
+    
+    #bc_public_key = models.CharField(max_length=255, blank=True)
+    #is_bc_enabled = models.BooleanField(default=False)
     def __str__(self):
         return self.user.username
     

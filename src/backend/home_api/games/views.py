@@ -85,8 +85,10 @@ class MatchView(APIView):
 			return format_response(error="You already have an ongoing match", status=400)
 			# return Response({"error": "You already have an ongoing match"}, status=status.HTTP_400_BAD_REQUEST)
 
+		print('request.data', request.data)
 		serializer = MatchCreateSerializer(data=request.data)
 		if serializer.is_valid():
+			print('serializer.validated_data', serializer.validated_data)
 			match = serializer.save() # Create the match
 			match.state = Match.State.WAITING # Set the match state to waiting
 			match.save()
