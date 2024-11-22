@@ -49,13 +49,13 @@ export class Controller {
 		// 	console.log('Key down', this.keys);
 		// 	this.sendMovement();
 		// }
-		if (event.key == 'ArrowUp') {
+		if (event.key == 'ArrowUp' || event.key == 'w') {
 			this.direction.up = true;
-		} else if (event.key == 'ArrowDown') {
+		} else if (event.key == 'ArrowDown' || event.key == 's') {
 			this.direction.down = true;
-		} else if (event.key == 'ArrowLeft') {
+		} else if (event.key == 'ArrowLeft' || event.key == 'a') {
 			this.direction.left = true;
-		} else if (event.key == 'ArrowRight') {
+		} else if (event.key == 'ArrowRight' || event.key == 'd') {
 			this.direction.right = true;
 		}
 		this.sendMovement();
@@ -66,13 +66,13 @@ export class Controller {
 		// 	this.keys[event.key] = false;
 		// 	this.sendMovement();
 		// }
-		if (event.key == 'ArrowUp') {
+		if (event.key == 'ArrowUp' || event.key == 'w') {
 			this.direction.up = false;
-		} else if (event.key == 'ArrowDown') {
+		} else if (event.key == 'ArrowDown' || event.key == 's') {
 			this.direction.down = false;
-		} else if (event.key == 'ArrowLeft') {
+		} else if (event.key == 'ArrowLeft' || event.key == 'a') {
 			this.direction.left = false;
-		} else if (event.key == 'ArrowRight') {
+		} else if (event.key == 'ArrowRight' || event.key == 'd') {
 			this.direction.right = false;
 		}
 		this.sendMovement();

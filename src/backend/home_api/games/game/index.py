@@ -144,6 +144,8 @@ class Game:
 		while self.ball.in_field(FIELD_WIDTH, FIELD_HEIGHT):
 			if self.is_game_over():
 				return None
+			
+
 
 			# Move the ball
 			# self.ball.move()
@@ -152,10 +154,13 @@ class Game:
 			# if self.ball.collide_paddle(self.player_1.paddle):
 			# 	self.ball.bounce_x()
 
+			print(f"Paddle 1: {self.player_1.paddle.to_dict()}")
+			print(f"Paddle 2: {self.player_2.paddle.to_dict()}")
+
 			# await self.send_progress()
 			await self.send_state()
-			# await asyncio.sleep(0.01)
-			await asyncio.sleep(5)
+			await asyncio.sleep(0.01)
+			# await asyncio.sleep(5)
 
 		# Check the winner
 
@@ -294,8 +299,10 @@ class Game:
 		# }
 
 		if direction.get('up'):
+			print(f"=====> Move paddle up")
 			paddle.y += paddle.vy
 		elif direction.get('down'):
+			print(f"=====> Move paddle down")
 			paddle.y -= paddle.vy
 
 

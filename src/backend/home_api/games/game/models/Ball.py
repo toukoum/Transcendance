@@ -43,7 +43,7 @@ class Ball:
 	def reset(self):
 		self.x = 0
 		self.y = 0
-		self.vx = self.prevoius_side * -1
+		self.vx = -self.previous_side
 		self.vy = random.choice([-1, 1])
 		# each reset should have a different side
 
