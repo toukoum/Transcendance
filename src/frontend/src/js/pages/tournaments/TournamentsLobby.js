@@ -3,10 +3,10 @@ import { api } from "../../utils/api/Api.js";
 import { Toast } from "../../provider/toast-provider.js";
 
 export class TournamentsLobby extends Component {
-  content() {
-    const tournamentId = parseInt(this.getAttribute("id"));
+	content() {
+		const tournamentId = parseInt(this.getAttribute("id"));
 
-    return /*html*/ `
+		return /*html*/ `
       <main-layout>
 				<div class="wrapper-all">
 					<h1 class="text-center">Tournament Lobby</h1>
@@ -36,9 +36,9 @@ export class TournamentsLobby extends Component {
 				</div>
       </main-layout>
     `;
-  }
+	}
 
-  style() {
+	style() {
 		return /*css*/ `
 			<style>
 
@@ -231,135 +231,139 @@ export class TournamentsLobby extends Component {
         }
 			</style>
 		`;
-  }
+	}
 
-  getComponentUserInvit(player) {
-    const playerComponent = document.createElement("div");
-    playerComponent.classList.add("player");
-    playerComponent.dataset.id = player.id;
-    playerComponent.innerHTML = `
+	getComponentUserInvit(player) {
+		const playerComponent = document.createElement("div");
+		playerComponent.classList.add("player");
+		playerComponent.dataset.id = player.id;
+		playerComponent.innerHTML = `
       <p>${player.username}</p>
       <button class="btn btn-primary send-invit-button" data-username="${player.username}">Invite</button>
     `;
-    return playerComponent;
-  }
+		return playerComponent;
+	}
 
-  getComponentUser(player) {
-    const playerComponent = document.createElement("div");
-    playerComponent.classList.add("player");
-    playerComponent.dataset.id = player.id;
-    playerComponent.innerHTML = `<p>${player.pseudo}</p>`;
-    return playerComponent;
-  }
+	getComponentUser(player) {
+		const playerComponent = document.createElement("div");
+		playerComponent.classList.add("player");
+		playerComponent.dataset.id = player.id;
+		playerComponent.innerHTML = `<p>${player.pseudo}</p>`;
+		return playerComponent;
+	}
 
-  async fillPlayersInvite(tournamentId) {
-    const { data, error } = await api.request.get(`users/`);
-    if (error) {
-      Toast.error("No players found");
-      return;
-    }
-    const listPlayers = document.querySelector(".list-users");
-    listPlayers.innerHTML = "";
-    data.forEach((player) => {
-      listPlayers.appendChild(this.getComponentUserInvit(player));
-    });
-    this.sendInvitationButton(tournamentId);
-  }
+	async fillPlayersInvite(tournamentId) {
+		const { data, error } = await api.request.get(`users/`);
+		if (error) {
+			Toast.error("No players found");
+			return;
+		}
+		const listPlayers = document.querySelector(".list-users");
+		listPlayers.innerHTML = "";
+		data.forEach((player) => {
+			listPlayers.appendChild(this.getComponentUserInvit(player));
+		});
+		this.sendInvitationButton(tournamentId);
+	}
 
-  sendInvitation(tournamentId) {
-    const formId = document.getElementById("invite-player");
-    formId.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      try {
-        const username = document.getElementById("username").value;
-        const { data, error } = await api.request.post(
-          `tournaments/${tournamentId}/invite-player/`,
-          { player: username }
-        );
-        if (error) throw error;
-        Toast.success("Invitation sent");
-      } catch (error) {
-        Toast.error(error.message);
-      }
-    });
-  }
+	sendInvitation(tournamentId) {
+		const formId = document.getElementById("invite-player");
+		formId.addEventListener("submit", async (e) => {
+			e.preventDefault();
+			try {
+				const username = document.getElementById("username").value;
+				const { data, error } = await api.request.post(
+					`tournaments/${tournamentId}/invite-player/`,
+					{ player: username }
+				);
+				if (error) throw error;
+				Toast.success("Invitation sent");
+			} catch (error) {
+				Toast.error(error.message);
+			}
+		});
+	}
 
-  sendInvitationButton(tournamentId) {
-    const listUsers = document.querySelector(".list-users");
-    if (!listUsers) return;
+	sendInvitationButton(tournamentId) {
+		const listUsers = document.querySelector(".list-users");
+		if (!listUsers) return;
 
-    listUsers.addEventListener("click", async (e) => {
-      const button = e.target.closest(".send-invit-button");
-      if (!button) return;
-      try {
-        const username = button.getAttribute("data-username");
-        const { data, error } = await api.request.post(
-          `tournaments/${tournamentId}/invite-player/`,
-          { player: username }
-        );
-        if (error) throw error;
-        Toast.success("Invitation sent");
-      } catch (error) {
-        Toast.error(error.message);
-      }
-    });
-  }
+		listUsers.addEventListener("click", async (e) => {
+			const button = e.target.closest(".send-invit-button");
+			if (!button) return;
+			try {
+				const username = button.getAttribute("data-username");
+				const { data, error } = await api.request.post(
+					`tournaments/${tournamentId}/invite-player/`,
+					{ player: username }
+				);
+				if (error) throw error;
+				Toast.success("Invitation sent");
+			} catch (error) {
+				Toast.error(error.message);
+			}
+		});
+	}
 
-  async fillPlayersConnected(tournamentId, status) {
-    const connectedPlayers = document.querySelector(".connected-players");
-    const existingPlayerIds = new Set();
+	async fillPlayersConnected(tournamentId, status) {
+		const connectedPlayers = document.querySelector(".connected-players");
+		const existingPlayerIds = new Set();
 
 		if (!connectedPlayers) return;
 
-    Array.from(connectedPlayers.children).forEach((player) => {
-      existingPlayerIds.add(parseInt(player.dataset.id));
-    });
+		Array.from(connectedPlayers.children).forEach((player) => {
+			existingPlayerIds.add(parseInt(player.dataset.id));
+		});
 
-    if (existingPlayerIds.size === 4) {
-      status.isReady = true;
-    }
+		if (existingPlayerIds.size === 4) {
+			status.isReady = true;
+		}
 
 		status.numberPlayers = existingPlayerIds.size;
 
-    try {
-      const { data, error } = await api.request.get(
-        `tournaments/${tournamentId}/players/`
-      );
-      if (error) throw error;
+		try {
+			const { data, error } = await api.request.get(
+				`tournaments/${tournamentId}/players/`
+			);
+			if (error) throw error;
+			
+			data.forEach((player) => {
+				if (!existingPlayerIds.has(player.id)) {
+					if (player.id == window.auth.id) {
+						console.log("salut");
+					}
+					console.log(window.auth.id, player.id);
+					connectedPlayers.appendChild(
+						this.getComponentUser(player)
+					);
+				}
+			});
+		} catch (error) {
+			Toast.error(error.message);
+		}
+	}
 
-      data.forEach((player) => {
-        if (!existingPlayerIds.has(player.id)) {
-          connectedPlayers.appendChild(
-            this.getComponentUser(player)
-          );
-        }
-      });
-    } catch (error) {
-      Toast.error(error.message);
-    }
-  }
-
-  async pollPlayersConnected(tournamentId) {
-    const status = { isReady: false, numberPlayers: 0 };
-    const waitingText = document.querySelector(".waiting-text");
-    waitingText.style.display = "block";
+	async pollPlayersConnected(tournamentId) {
+		const status = { isReady: false, numberPlayers: 0 };
+		const waitingText = document.querySelector(".waiting-text");
+		waitingText.style.display = "block";
 		const numbersPlayersConnected = document.getElementById("numbers-players-connected");
 
-    while (!status.isReady) {
-      await this.fillPlayersConnected(tournamentId, status);
+		while (!status.isReady) {
+			await this.fillPlayersConnected(tournamentId, status);
 			numbersPlayersConnected.innerText = `(${status.numberPlayers}/4)`;
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-    }
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+		}
 
-    waitingText.style.display = "none";
-    const startButton = document.querySelector(".start-btn");
-    startButton.removeAttribute("disabled");
-  }
+		waitingText.style.display = "none";
+		const startButton = document.querySelector(".start-btn");
+		startButton.removeAttribute("disabled");
+	}
 
-  startTournament(tournamentId) {
-    const startButton = document.querySelector(".start-btn");
-    startButton.addEventListener("click", async () => {
-      if (startButton.hasAttribute("disabled")) return;
+	startTournament(tournamentId) {
+		const startButton = document.querySelector(".start-btn");
+		startButton.addEventListener("click", async () => {
+			if (startButton.hasAttribute("disabled")) return;
 
 			try {
 				const { data, error } = await api.request.post(`tournaments/${tournamentId}/start/`);
@@ -370,17 +374,17 @@ export class TournamentsLobby extends Component {
 				Toast.error(error.message);
 			}
 
-    });
-  }
+		});
+	}
 
-  script() {
-    const tournamentId = parseInt(this.getAttribute("id"));
+	script() {
+		const tournamentId = parseInt(this.getAttribute("id"));
 
-    this.sendInvitation(tournamentId);
-    this.fillPlayersInvite(tournamentId);
-    this.pollPlayersConnected(tournamentId);
-    this.startTournament(tournamentId);
-  }
+		this.sendInvitation(tournamentId);
+		this.fillPlayersInvite(tournamentId);
+		this.pollPlayersConnected(tournamentId);
+		this.startTournament(tournamentId);
+	}
 }
 
 customElements.define("tournaments-lobby", TournamentsLobby);
