@@ -239,6 +239,8 @@ REDIRECT_URI = os.environ.get('REDIRECT_URI', default='')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+DEFAULT_AVATAR = os.environ.get('DEFAULT_AVATAR')	
+
 
 # TRENCH ==================================================
 
