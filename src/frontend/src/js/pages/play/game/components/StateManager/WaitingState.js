@@ -1,13 +1,13 @@
-import { BaseState } from "./BaseState.js";
+import { BaseState } from "./State.js";
 
 export class WaitingState extends BaseState {
 	enter() {
-		console.log("[WaitingState] Entering 'waiting' state");
-		this.game.ui.setScreen("waiting", this.data);
+		// this.game.ui.setScreen("waiting", this.data);
+		this.game.ui.activateComponent("waiting", this.data);
 	}
 
 	exit() {
-		console.log("[WaitingState] Exiting 'waiting' state");
-		this.game.ui.deleteScreen();
+		// this.game.ui.deleteScreen();
+		this.game.ui.desactivateScreen();
 	}
 }

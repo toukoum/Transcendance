@@ -1,13 +1,11 @@
 import { Component } from "../../utils/Component.js";
 import GameTHREE from "./game/index.js";
 
-import { api } from "../../utils/api/Api.js";
-
 export class Game extends Component {
 	content() {
 		return (/*html*/`
 		<main-layout>
-			<div id="game" class="h-100 position-relative">
+			<div id="game" class="h-100 position-relative d-flex justify-content-center align-items-center">
 			</div>
 		</main-layout>
 		`);
@@ -35,8 +33,6 @@ export class Game extends Component {
 
 		window.game = new GameTHREE(settings);
 		window.game.start();
-		// const gameThree = new GameTHREE(settings);
-		// gameThree.start();
 	}
 }
 

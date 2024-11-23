@@ -1,6 +1,7 @@
 export class Player {
 	constructor(data) {
-		this.user_id = data.user_id;
+		// this.user_id = data.user_id;
+		this.user = data.user;
 
 		this.paddleHeight = 1;
 		this.paddle = new window.THREE.Mesh(

@@ -24,7 +24,7 @@ export class ApiWebSocket {
 			this.emit("open");
 		}
 		this.socket.onmessage = (event) => {
-			console.log(`WebSocket message`, event.data);
+			// console.log(`WebSocket message`, event.data);
 			this.emit("message", JSON.parse(event.data));
 		}
 		this.socket.onclose = () => {
@@ -64,7 +64,6 @@ export class ApiWebSocket {
 		if (!this.isConnected) {
 			throw new Error("WebSocket is not connected");
 		}
-		console.warn(`WebSocket send`, data);
 		this.socket.send(JSON.stringify(data));
 	}
 

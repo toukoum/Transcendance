@@ -10,9 +10,10 @@ export class Client {
 			throw new Error("[Game Client] Game ID is required");
 		}
 		this.game = game;
-		this.ws = api.game.connect(gameId);
+		// this.ws = api.game.connect(gameId);
+		this.ws = null;
 
-		this.initListeners();
+		// this.initListeners();
 	}
 
 	initListeners() {
@@ -26,7 +27,7 @@ export class Client {
 			console.error("[Game Client] WebSocket error", error);
 		});
 		this.ws.on("message", (data) => {
-			console.log("[Game Client] Received message", data);
+			// console.log("[Game Client] Received message", data);
 			this.handleMessage(data);
 		});
 	}
@@ -35,7 +36,8 @@ export class Client {
 		const type = message.type ? message.type.split(".")[0].trim() : null;
 		switch (type) {
 			case "game":
-				this.game.stateManager.handleEvent(message);
+				window.game.stateManager.handleEvent(message);
+				// this.game.stateManager.handleEvent(message);
 				break;
 			case "pong":
 				this.game.pingManager.handlePong(message.timestamp);
@@ -44,6 +46,11 @@ export class Client {
 				console.log("[Game Client] Unknown message type", message.type);
 				break;
 		}
+	}
+
+	connect() {
+		this.ws = api.game.connect(this.game.settings.gameId);
+		this.initListeners();
 	}
 
 	// sendMovement(keys) {

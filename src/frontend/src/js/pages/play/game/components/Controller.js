@@ -8,12 +8,6 @@ export class Controller {
 
 		this.game = game;
 
-		// this.keys = {
-		// 	ArrowUp: false,
-		// 	ArrowDown: false,
-		// 	ArrowLeft: false,
-		// 	ArrowRight: false,
-		// };
 		this.direction = {
 			up: false,
 			down: false,
@@ -35,20 +29,15 @@ export class Controller {
 		if (!window.auth) {
 			return console.warn('No auth');
 		}
-
-		if (window.auth.id == this.game.scene.player_1.user_id) {
+		
+		if (window.auth.id == this.game.scene.player_1.user.id) {
 			this.player = this.game.scene.player_1;
-		} else if (window.auth.id == this.game.scene.player_2.user_id) {
+		} else if (window.auth.id == this.game.scene.player_2.user.id) {
 			this.player = this.game.scene.player_2;
 		}
 	}
 
 	onKeyDown(event) {
-		// if (event.key in this.keys) {
-		// 	this.keys[event.key] = true;
-		// 	console.log('Key down', this.keys);
-		// 	this.sendMovement();
-		// }
 		if (event.key == 'ArrowUp' || event.key == 'w') {
 			this.direction.up = true;
 		} else if (event.key == 'ArrowDown' || event.key == 's') {
@@ -62,10 +51,6 @@ export class Controller {
 	}
 
 	onKeyUp(event) {
-		// if (event.key in this.keys) {
-		// 	this.keys[event.key] = false;
-		// 	this.sendMovement();
-		// }
 		if (event.key == 'ArrowUp' || event.key == 'w') {
 			this.direction.up = false;
 		} else if (event.key == 'ArrowDown' || event.key == 's') {
@@ -80,14 +65,10 @@ export class Controller {
 
 	sendMovement() {
 		if (this.player) {
-			// this.game.client.sendMovement(this.keys);
 			this.game.client.ws.send({
 				type: 'paddle.move',
 				direction: this.direction,
 			});
 		}
-		// if (this.player) {
-		// 	this.game.client.sendMovement(this.keys);
-		// }
 	}
 }

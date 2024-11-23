@@ -52,15 +52,8 @@ class Game:
 		self.player_1 = self.players[0]
 		self.player_2 = self.players[1]
 
-		# ball is in the middle of the field in x: 0, y: 0
-		# so the center of the field is x: 0, y: 0
-		# so e have to make the paddle just outside the field (one gonna be -x and the other +x)
 		self.player_1.paddle = Paddle((-FIELD_WIDTH / 2) - (PADDLE_WIDTH / 2), 0, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_SPEED)
 		self.player_2.paddle = Paddle((FIELD_WIDTH / 2) + (PADDLE_WIDTH / 2), 0, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_SPEED)
-
- 		# self.player_1.paddle = Paddle(0, PADDLE_Y, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_SPEED)
-		# self.player_2.paddle = Paddle(FIELD_WIDTH - PADDLE_WIDTH, PADDLE_Y, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_SPEED)
-
 
 		await self.send_state()
 	
@@ -79,27 +72,30 @@ class Game:
 			self.ball.reset()
 			self.player_1.paddle.reset()
 			self.player_2.paddle.reset()
+			# await self.send_state()
 
-			await self.countdown(3)
+			# await self.countdown(3)
 
-			round_start = datetime.now()
+			# round_start = datetime.now()
 			round_winner = await self.play_round()
 			if round_winner is None: # Game over (in loop of play_round)
 				break
-			round_end = datetime.now()
-			self.elapsed_time += (round_end - round_start).seconds
+			# round_end = datetime.now()
+			# self.elapsed_time += (round_end - round_start).seconds
 
 			round_winner.score_point()
 			await self.send_round_winner(round_winner)
 
-			await asyncio.sleep(2)
+			await asyncio.sleep(0.5) # micro delay to start the next round
+		
+		self.winner = self.player_1 if self.player_1.player.score > self.player_2.player.score else self.player_2
 
 		# End the game
 		await self.end()
 
 	async def end(self):
 		logger.info(f'Game ended for match {self.match.id}')
-		self.match.winner = self.player_1.player if self.player_1.player.score > self.player_2.player.score else self.player_2.player
+		self.match.winner = self.winner.player
 		self.match.finished_at = datetime.now()
 		await self.update_state(Match.State.FINISHED)
 
@@ -116,7 +112,9 @@ class Game:
 		# 	}
 		# )
 
-		await self.send_state()
+		await self.send_state({
+			'winner': self.winner.to_dict()
+		})
 
 		# Remove the game from the GAMES
 		from games.consumers import GAMES
@@ -141,30 +139,54 @@ class Game:
 		"""
 		logger.info(f'Playing round for match {self.match.id}')
 
-		while self.ball.in_field(FIELD_WIDTH, FIELD_HEIGHT):
+		countdown_time = 3
+		countdown_end = datetime.now().timestamp() + countdown_time
+
+		round_start = datetime.now()
+		winner = None
+		while winner is None:
+			is_countdown = datetime.now().timestamp() < countdown_end
+
+			self.elapsed_time += (datetime.now() - round_start).total_seconds()
+			round_start = datetime.now()
 			if self.is_game_over():
 				return None
 			
 
-
 			# Move the ball
-			# self.ball.move()
+			if not is_countdown:
+				self.ball.move()
 
-			# # Check collision with paddles
-			# if self.ball.collide_paddle(self.player_1.paddle):
-			# 	self.ball.bounce_x()
+			# Allow the paddles to move even during the countdown
+			self.player_1.paddle.move()
+			self.player_2.paddle.move()
 
-			print(f"Paddle 1: {self.player_1.paddle.to_dict()}")
-			print(f"Paddle 2: {self.player_2.paddle.to_dict()}")
+			if not is_countdown:
+				self.ball.check_collision_with_wall()
+				self.ball.check_collision_with_paddle(self.player_1.paddle)
+				self.ball.check_collision_with_paddle(self.player_2.paddle)
 
-			# await self.send_progress()
-			await self.send_state()
+				# Check if the ball is out of the field
+				if self.ball.is_out_of_field(FIELD_WIDTH, FIELD_HEIGHT):
+					print("Ball is out of the field")
+					if self.ball.x < 0:
+						winner = self.player_2
+					else:
+						winner = self.player_1
+			
+			if not is_countdown:
+				await self.send_state()
+			else:
+				await self.send_state({
+					'countdown': countdown_time - int(datetime.now().timestamp() - countdown_end)
+				})
+			# await self.send_state()
 			await asyncio.sleep(0.01)
-			# await asyncio.sleep(5)
 
 		# Check the winner
 
-		return random.choice([self.player_1, self.player_2])
+		return winner
+		# return random.choice([self.player_1, self.player_2])
 
 	# -------------------------------- Games Utils ------------------------------- #
 
@@ -263,6 +285,7 @@ class Game:
 	async def handle_player_disconnect(self, user: User):
 		logger.info(f'User {user.id} removed from game {self.match.id}')
 		await self.update_player_state(user, MatchPlayer.State.DISCONNECTED)
+		await self.send_state()
 
 
 	async def update_player_state(self, user: User, state: MatchPlayer.State) -> Player:
@@ -291,29 +314,9 @@ class Game:
 			print("Paddle direction not found")
 			return
 
-		# Expected direction : {
-		# up: bool,
-		# down: bool
-		# left: bool, #useless
-		# right: bool #useless
-		# }
+		paddle.move_up(direction.get('up') if 'up' in direction else False)
+		paddle.move_down(direction.get('down') if 'down' in direction else False)
 
-		if direction.get('up'):
-			print(f"=====> Move paddle up")
-			paddle.y += paddle.vy
-		elif direction.get('down'):
-			print(f"=====> Move paddle down")
-			paddle.y -= paddle.vy
-
-
-		# if direction == 'up':
-		# 	paddle.y += paddle.vy
-		# elif direction == 'down':
-		# 	paddle.y -= paddle.vy
-
-	
-
-	
 	def get_paddle(self, user: User):
 		for player in self.players:
 			if player.player.user.id == user.id:
@@ -343,6 +346,8 @@ class Game:
 		"""
 		if (self.match.state == Match.State.WAITING):
 			return await self.send_waiting_state(data)
+		if (self.match.state == Match.State.FINISHED):
+			return await self.send_finished_state(data)
 		await self.channel_layer.group_send(
 			self.group_name,
 			{
@@ -363,6 +368,23 @@ class Game:
 			{
 				'type': 'game.state',
 				'message': 'Waiting for players',
+				'data': {
+					'players': [player.to_dict() for player in self.players],
+				},
+				'dataMatch': self.to_dict(),
+				'state': self.match.state
+			}
+		)
+	
+	async def send_finished_state(self, data):
+		"""
+		Send the game state to the group
+		"""
+		await self.channel_layer.group_send(
+			self.group_name,
+			{
+				'type': 'game.state',
+				'message': 'Game finished',
 				'data': data,
 				'dataMatch': self.to_dict(),
 				'state': self.match.state
@@ -435,14 +457,15 @@ class Game:
 				'max_players': self.match.max_players,
 				'max_score': self.match.max_score,
 			},
-			'players': [player.to_dict() for player in self.players],
+			# 'players': [player.to_dict() for player in self.players],
 			'player_1': self.player_1.to_dict() if self.player_1 else None,
 			'player_2': self.player_2.to_dict() if self.player_2 else None,
 			'ball': self.ball.to_dict() if self.ball else None,
 			'field': {
 				'width': FIELD_WIDTH,
 				'height': FIELD_HEIGHT
-			}
+			},
+			'elapsed_time': self.elapsed_time
 		}
 
 	# --------------------------------- Database --------------------------------- #
@@ -459,7 +482,7 @@ class Game:
 	
 	@database_sync_to_async
 	def get_player(self, user_id):
-		return MatchPlayer.objects.select_related('user').get(
+		return MatchPlayer.objects.select_related('user', 'user__profile').get(
 			match=self.match,
 			user=user_id,
 		)

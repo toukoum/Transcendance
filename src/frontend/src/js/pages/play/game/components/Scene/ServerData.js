@@ -1,43 +1,26 @@
 import zod from 'https://cdn.jsdelivr.net/npm/zod@3.23.8/+esm'
 
 export class ServerData {
-	constructor(data) {
-		this.data = this.validateData(data);
-	
-		this.ball = this.data.ball ?{
-			x: this.data.ball.x,
-			y: this.data.ball.y,
-			radius: this.data.ball.radius,
-			vx: this.data.ball.vx,
-			vy: this.data.ball.vy,
-		} : null;
-		this.player_1 = this.data.player_1 ? {
-			'user_id': this.data.player_1.user_id,
-			'state': this.data.player_1.state,
-			'score': this.data.player_1.score,
-			'paddle': this.data.player_1.paddle ? {
-				x: this.data.player_1.paddle.x,
-				y: this.data.player_1.paddle.y,
-				width: this.data.player_1.paddle.width,
-				height: this.data.player_1.paddle.height,
-			} : null
-		} : null;
-		this.player_2 = this.data.player_2 ? {
-			'user_id': this.data.player_2.user_id,
-			'state': this.data.player_2.state,
-			'score': this.data.player_2.score,
-			'paddle': this.data.player_2.paddle ? {
-				x: this.data.player_2.paddle.x,
-				y: this.data.player_2.paddle.y,
-				width: this.data.player_2.paddle.width,
-				height: this.data.player_2.paddle.height,
-			} : null
-		} : null;
-		this.field = {
-			width: this.data.field.width,
-			height: this.data.field.height,
-		}
+	constructor() {
+		this.ball = null;
+		this.player_1 = null;
+		this.player_2 = null;
+		this.field = null;
+		this.subscribers = [];
 	}
+
+	static userSchema = zod.object({
+		'id': zod.number(),
+		'username': zod.string(),
+		'avatar': zod.string(),
+	});
+
+	static paddleSchema = zod.object({
+		'x': zod.number(),
+		'y': zod.number(),
+		'width': zod.number(),
+		'height': zod.number(),
+	}).nullable();
 
 	static schema = zod.object({
 		ball: zod.object({
@@ -48,26 +31,16 @@ export class ServerData {
 			vy: zod.number(),
 		}).nullable(),
 		player_1: zod.object({
-			'user_id': zod.number(),
+			'user': ServerData.userSchema,
 			'state': zod.string(),
 			'score': zod.number(),
-			'paddle': zod.object({
-				x: zod.number(),
-				y: zod.number(),
-				width: zod.number(),
-				height: zod.number(),
-			}).nullable(),
+			'paddle': ServerData.paddleSchema,
 		}).nullable(),
 		player_2: zod.object({
-			'user_id': zod.number(),
+			'user': ServerData.userSchema,
 			'state': zod.string(),
 			'score': zod.number(),
-			'paddle': zod.object({
-				x: zod.number(),
-				y: zod.number(),
-				width: zod.number(),
-				height: zod.number(),
-			}).nullable(),
+			'paddle': ServerData.paddleSchema,
 		}).nullable(),
 		field: zod.object({
 			width: zod.number(),
@@ -80,46 +53,82 @@ export class ServerData {
 	}
 
 	update(data) {
-		console.log(`[Game: ServerData] Updating server data`, data);
+		this.validateData(data);
 
-		this.data = this.validateData(data);
+		if (data.field) {
+			this.field = {
+				width: data.field.width,
+				height: data.field.height,
+			};
+		}
 
-		if (this.data.ball) {
+		if (data.ball) {
 			this.ball = {
-				x: this.data.ball.x,
-				y: this.data.ball.y,
-				radius: this.data.ball.radius,
-				vx: this.data.ball.vx,
-				vy: this.data.ball.vy,
+				x: data.ball.x,
+				y: data.ball.y,
+				radius: data.ball.radius,
+				vx: data.ball.vx,
+				vy: data.ball.vy,
 			};
 		}
 
-		if (this.data.player_1) {
+		if (data.player_1) {
 			this.player_1 = {
-				'user_id': this.data.player_1.user_id,
-				'state': this.data.player_1.state,
-				'score': this.data.player_1.score,
-				'paddle': this.data.player_1.paddle ? {
-					x: this.data.player_1.paddle.x,
-					y: this.data.player_1.paddle.y,
-					width: this.data.player_1.paddle.width,
-					height: this.data.player_1.paddle.height,
+				'user': data.player_1.user,
+				'state': data.player_1.state,
+				'score': data.player_1.score,
+				'paddle': data.player_1.paddle ? {
+					x: data.player_1.paddle.x,
+					y: data.player_1.paddle.y,
+					width: data.player_1.paddle.width,
+					height: data.player_1.paddle.height,
 				} : null
 			};
 		}
 
-		if (this.data.player_2) {
+		if (data.player_2) {
 			this.player_2 = {
-				'user_id': this.data.player_2.user_id,
-				'state': this.data.player_2.state,
-				'score': this.data.player_2.score,
-				'paddle': this.data.player_2.paddle ? {
-					x: this.data.player_2.paddle.x,
-					y: this.data.player_2.paddle.y,
-					width: this.data.player_2.paddle.width,
-					height: this.data.player_2.paddle.height,
+				'user': data.player_2.user,
+				'state': data.player_2.state,
+				'score': data.player_2.score,
+				'paddle': data.player_2.paddle ? {
+					x: data.player_2.paddle.x,
+					y: data.player_2.paddle.y,
+					width: data.player_2.paddle.width,
+					height: data.player_2.paddle.height,
 				} : null
 			};
+		}
+
+		if (window.game.scene) {
+			window.game.scene.syncWithServer();
+
+			if (window.game.controller) {
+				if (!window.game.controller.player && this.player_1 && this.player_2) {
+					window.game.controller.assignPlayer();
+				}
+			}
+		}
+
+		this.notify();
+	}
+
+
+	/* -------------------------------- Subscribe ------------------------------- */
+
+	subscribe(callback) {
+		if (typeof callback === "function") {
+			this.subscribers.push(callback);
+		}
+	}
+
+	unsubscribe(callback) {
+		this.subscribers = this.subscribers.filter(subscriber => subscriber !== callback);
+	}
+
+	notify() {
+		for (const callback of this.subscribers) {
+			callback(this);
 		}
 	}
 }

@@ -15,7 +15,7 @@ export class Field {
 			this.width = data.width;
 			this.height = data.height;
 
-			this.mesh.geometry = new window.THREE.PlaneGeometry(width, height);
+			this.mesh.geometry = new window.THREE.BoxGeometry(data.width, 1, data.height);
 		}
 	}
 }

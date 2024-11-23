@@ -1,7 +1,8 @@
 from games.game.models.Ball import Ball
+from games.game.constants import FIELD_HEIGHT
 
 class Paddle:
-	def __init__(self, x, y, width, height, vy):
+	def __init__(self, x, y, width, height, speed):
 		"""
 		:param x: int (x position)
 		:param y: int (y position)
@@ -13,22 +14,44 @@ class Paddle:
 		self.default_y = y
 		self.default_width = width
 		self.default_height = height
-		self.default_vy = vy
+		self.default_speed = speed
+		self.default_vy = 0
 
 		self.x = self.default_x
 		self.y = self.default_y
 		self.width = self.default_width
 		self.height = self.default_height
+		self.speed = self.default_speed
 		self.vy = self.default_vy
 
-	def collide(self, ball: Ball):
+	def move(self):
 		"""
-		:param ball: Ball
+		Update the paddle's position based on its velocity (`vy`).
+		Ensure it does not go out of bounds.
 		"""
-		if ball.x + ball.radius >= self.x and ball.x - ball.radius <= self.x + self.width:
-			if ball.y + ball.radius >= self.y and ball.y - ball.radius <= self.y + self.height:
-				ball.vx = -ball.vx
-				ball.vy = self.vy
+		new_y = self.y + self.vy
+		# Check top boundary
+		if new_y - self.height / 2 < -FIELD_HEIGHT / 2:
+			self.y = -FIELD_HEIGHT / 2 + self.height / 2
+		# Check bottom boundary
+		elif new_y + self.height / 2 > FIELD_HEIGHT / 2:
+			self.y = FIELD_HEIGHT / 2 - self.height / 2
+		else:
+			self.y = new_y
+
+	def move_up(self, is_pressed):
+		if is_pressed:
+			self.vy = -self.speed
+		else:
+			self.vy = 0 if self.vy < 0 else self.vy # prevent erase down movement
+		
+	def move_down(self, is_pressed):
+		if is_pressed:
+			self.vy = self.speed
+		else:
+			self.vy = 0 if self.vy > 0 else self.vy # prevent erase up movement
+
+		
 
 	def to_dict(self):
 		return {

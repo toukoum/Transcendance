@@ -43,7 +43,12 @@ class Player:
     
     def to_dict(self):
         return {
-            'user_id': self.player.user.id,
+            'user': {
+                'id': self.player.user.id,
+                'username': self.player.user.username,
+                'email': self.player.user.email,
+                'avatar': f'http://localhost:8000{self.player.user.profile.avatar.url}' if self.player.user.profile.avatar else None
+            },
             'state': self.player.state,
             'score': self.player.score,
             'paddle': self.paddle.to_dict() if self.paddle else None
