@@ -107,7 +107,7 @@ export class Play extends Component {
 					<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#joinGameModal">
 						Join Game
 					</button>
-					<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createTournamentModal">
+					<button type="button" id="create" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createTournamentModal">
 						Create Tournament
 					</button>
 
@@ -469,6 +469,10 @@ export class Play extends Component {
 		if (window.auth.profile.publicKey !== "") {
 			connectWallet();
 		}
+
+		document.querySelector("#create").addEventListener("mouseover", async () => {
+			Toast.error("You must be connected to create a tournament");
+		});
 
 		let addressTournament;
 
