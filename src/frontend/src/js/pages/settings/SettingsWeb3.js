@@ -27,7 +27,7 @@ export class SettingsWeb3 extends Component {
 
 		document.getElementById("savePubKey").disabled = true;
 
-		if (window.auth.profile.publicKey) {
+		if (window.auth.profile.publicKey !== "") {
 			document.getElementById("connectButton").disabled = true;
 			document.getElementById("connectButton").innerHTML = "Wallet Connected";
 			document.getElementById("savePubKey").style.display = "none";
