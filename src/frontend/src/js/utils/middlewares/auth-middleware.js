@@ -4,9 +4,10 @@ import { startNotification } from "../notification/notification.js";
  import { Toast } from "../../provider/toast-provider.js";
 
 const privateRoutes = [
-	"/user/:username",
 	"/settings",
 	"/play",
+	"/tournament",
+	"/friends",
 ];
 
 const anonRoutes = [

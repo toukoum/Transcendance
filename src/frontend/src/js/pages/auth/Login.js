@@ -29,7 +29,7 @@ export class Login extends Component {
 					</div>
 				</div>
 				
-				<div class="container  container-sm bg-background rounded rounded-3 p-4 my-4 d-flex flex-column gap-2">
+				<div class="container  wrapper-all container-sm rounded rounded-3 p-4 my-4 d-flex flex-column gap-2">
 					<h2 class="text-center">Login</h2>
 	 				<p class="text-center">Please enter your credentials to login</p>
 					<separator-component></separator-component>
@@ -62,11 +62,21 @@ export class Login extends Component {
 		 				</div>
 		 			</div>
 		 			<!-- Signup -->
-		 			 <div class="d-flex justify-content-center">
-		 				Don't have an account?<a href="/auth/signup" class="text-decoration-none">Signup</a>
+					<div class="d-flex justify-content-center">
+		 				Don't have an account? <a href="/auth/signup" class="text-decoration-none"> Signup</a>
 		 			</div>
 				</div>
 			</main-layout>
+		`);
+	}
+
+	style() {
+		return (/*css*/`
+		<style>
+			.wrapper-all {
+				background-color: #1c1c1e;
+		}
+		</style>
 		`);
 	}
 

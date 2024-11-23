@@ -30,8 +30,8 @@ export class Header extends Component {
 					<test-notif></test-notif>
 					<div class="col-md-3 justify-content-end d-flex gap-2">
 							${user ? (/*html*/`<usernav-component></usernav-component>`) : (/*html*/`
-									<link-component type="button" class="btn btn-outline-primary me-2" href="/auth/login">Login</link-component>
-									<link-component type="button" class="btn btn-primary" href="/auth/signup">Sign-up</link-component>
+									<link-component type="button" class="login-btn me-2" href="/auth/login">Login</link-component>
+									<link-component type="button" class="signup-btn" href="/auth/signup">Sign-up</link-component>
 							`)}
 					</div>
 				
@@ -44,6 +44,21 @@ export class Header extends Component {
 
 				
 				<style>
+
+					.login-btn a{
+						color: #fff;
+						border-radius: 20px;
+						text-decoration: none;
+						padding: 1rem 1.5rem;
+					}
+
+					.signup-btn a{
+						color: #fff;
+						background-color: #0A84FF;
+						border-radius: 20px;
+						text-decoration: none;
+						padding: 1rem 1.5rem;
+					}
 
 
 					.navbar-brand img {

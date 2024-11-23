@@ -112,6 +112,17 @@ export class SettingsProfile extends Component {
 		`);
 	}
 
+
+	style () {	
+		return (/*css*/`
+		<style>
+			.profile-avatar {
+				object-fit: cover;
+			}
+		</style>
+		`);
+	}
+
 	script() {
 		const form = this.querySelector("#profile-form");
 		const submitButton = this.querySelector("#submit-button");
