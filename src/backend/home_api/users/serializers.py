@@ -111,9 +111,10 @@ class UserDetailSerializer(serializers.ModelSerializer):
         Public route to get user info and matches
     """
     matches = serializers.SerializerMethodField()
+    profile = ProfileSerializer()
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'is_active', 'matches']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'is_active', 'matches', 'profile', 'date_joined', 'last_login', 'is_active']
         
     def get_matches(self, obj):
         from games.models import Match

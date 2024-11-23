@@ -20,14 +20,15 @@ export class Friends extends Component {
             </form>
           </section>
 
+					<hr class="separator my-2" />
 
           <!-- Friends Section -->
-          <section class="friends-section mb-5">
+          <section class="friends-section">
             <h2 class="section-title">Your Friends</h2>
             <div class="friends-list row gy-4"></div>
           </section>
 
-          <hr class="separator my-5" />
+          <hr class="separator my-2" />
 
           <!-- Friend Requests Section -->
           <section class="friend-requests-section mb-5">
@@ -48,8 +49,14 @@ export class Friends extends Component {
 
         .friends-page {
           color: #fff;
-          background-color: black;
+          
         }
+
+				section {
+				background-color: #1c1c1e;
+					border-radius: 12px;
+					padding: 1.5rem;
+			}
 
         .section-title {
           font-size: 1.75rem;
