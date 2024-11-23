@@ -12,14 +12,15 @@ export class Signup extends Component {
 		return (/*html*/`
 		<div
 		class="h-100 d-flex p-2 justify-content-center align-items-center"
-		style="background-image: url(${images.auth.login.background[0].src});background-size: cover; background-position: center;"
 		>
-			<div class="w-25 bg-primary rounded-2 p-3 d-flex flex-column gap-3">
+			<div class="w-50 wrapper-all rounded-2 p-4 mt-4 d-flex flex-column gap-3">
 				<div>
 					<h3 class="text-center">Signup</h3>
 					<!-- Descriptions -->
 					<p class="text-center">Please enter your credentials to signup</p>
 				</div>
+
+				<separator-component></separator-component>
 				<div>
 					<form id="signup-form" class="d-flex flex-column gap-1">
 						<div class="form-group">
@@ -43,12 +44,45 @@ export class Signup extends Component {
 						</div>
 					</form>
 				</div>
+				<!-- OR -->
+				<div class="d-flex justify-content-center align-items-center gap-2">
+						<div class="border-bottom w-25"></div>
+						<div>OR</div>
+						<div class="border-bottom w-25"></div>
+					</div>
+					<!-- Social Media Login -->
+		 			<div class="container">
+		 				<div class="row">
+		 						<button class="btn btn-secondary w-100 login-42">
+		 							Sign up with
+									<img src="../../../../public/logo42.png" alt="42 logo" style="width: 20px;">
+		 						</button>
+		 				</div>
+		 			</div>
 				<!-- Login -->
 				<div class="d-flex justify-content-center">
-					Already have an account? <a href="/auth/login" class="text-decoration-none">Login</a>
+					Already have an account? <a href="/auth/login" class="text-decoration-none"> Login</a>
 				</div>
 			</div>
 		</div>
+		`);
+	}
+
+	style() {
+		return (/*css*/`
+		<style>
+			.wrapper-all {
+				background-color: #1c1c1e;
+				border-radius: 10px;
+			}
+			.wrapper-all form {
+				color: #fff;
+			}
+			.wrapper-all input {
+				background-color: #333;
+				color: #fff;
+			}
+		</style>
 		`);
 	}
 
@@ -85,6 +119,22 @@ export class Signup extends Component {
 				}
 			}
 		});
+
+
+		const handleLoginOAuth = async () => {
+			try {
+				window.location.href = "http://localhost:8000/v1/auth/42/authorize/";
+				if (error) throw error;
+			} catch (error) {
+				if (error instanceof ApiRequestError) {
+					console.error(error.message);
+				} else {
+					console.error("An error occurred");
+				}
+			}
+		}
+
+		this.querySelector(".login-42").addEventListener("click", () => handleLoginOAuth());
 	}
 }
 

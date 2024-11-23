@@ -29,6 +29,8 @@ export class App {
 				new Route("/play", "play-page"),
 				new Route("/play/:id", "play-game-page"),
 
+				// Friends
+				new Route("/friends", "friends-page"),
 
 				// raf test
 				new Route("/raf", "raf-test-page"),

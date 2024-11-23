@@ -26,3 +26,5 @@ import "./settings/index.js"
 
 import "./tournaments/index.js"
 
+/* -------------------------------- Friends -------------------------------- */
+import "./friends/friends.js"
