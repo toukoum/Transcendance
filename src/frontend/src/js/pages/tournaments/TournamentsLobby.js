@@ -1,6 +1,7 @@
 import { Component } from "../../utils/Component.js";
 import { api } from "../../utils/api/Api.js";
 import { Toast } from "../../provider/toast-provider.js";
+import { ABITournament } from "../../../constante/constanteBC.js";
 
 export class TournamentsLobby extends Component {
 	content() {
@@ -25,7 +26,10 @@ export class TournamentsLobby extends Component {
 							</form>
 						</div>
 						<div class="right-part">
-							<h2>Players in Tournament</h2>
+							<div id="titleRegister">
+								<h2>Players in Tournament</h2>
+								<button class="btn btn-primary" id="btnRegister">Register</button>
+							</div>
 							<div class="connected-players"></div>
 							<div class="bottom-right">
 								<div class="waiting-text">Waiting for other players<span class="dot1">.</span><span class="dot2">.</span><span class="dot3">.</span> <span id="numbers-players-connected"></span></div>
@@ -41,6 +45,12 @@ export class TournamentsLobby extends Component {
 	style() {
 		return /*css*/ `
 			<style>
+
+				.titleRegister {
+					display: flex;
+					justify-content: space-between;
+					align-items: center;
+				}
 
 				.wrapper-all {
 					overflow-x: hidden;
@@ -233,6 +243,8 @@ export class TournamentsLobby extends Component {
 		`;
 	}
 
+
+
 	getComponentUserInvit(player) {
 		const playerComponent = document.createElement("div");
 		playerComponent.classList.add("player");
@@ -309,13 +321,32 @@ export class TournamentsLobby extends Component {
 		const connectedPlayers = document.querySelector(".connected-players");
 		const existingPlayerIds = new Set();
 
+		const provider = new ethers.providers.Web3Provider(window.ethereum);
+		const signer = provider.getSigner();
+
 		if (!connectedPlayers) return;
 
 		Array.from(connectedPlayers.children).forEach((player) => {
 			existingPlayerIds.add(parseInt(player.dataset.id));
 		});
 
-		if (existingPlayerIds.size === 4) {
+		let contract;
+		try {
+			const { data, error } = await api.request.get(
+				`tournaments/${tournamentId}/`
+			);
+			console.log(data);
+			contract = new ethers.Contract(data.address_tournament, ABITournament, signer);
+			console.log(contract);
+		} catch (error) {
+			console.error(error);
+		}
+
+		const nbPlayerRegistered = await contract.getPlayers();
+
+		console.log(nbPlayerRegistered.length);
+		
+		if (existingPlayerIds.size === 4 && nbPlayerRegistered.length === 4) {
 			status.isReady = true;
 		}
 
@@ -326,13 +357,9 @@ export class TournamentsLobby extends Component {
 				`tournaments/${tournamentId}/players/`
 			);
 			if (error) throw error;
-			
+
 			data.forEach((player) => {
 				if (!existingPlayerIds.has(player.id)) {
-					if (player.id == window.auth.id) {
-						console.log("salut");
-					}
-					console.log(window.auth.id, player.id);
 					connectedPlayers.appendChild(
 						this.getComponentUser(player)
 					);
@@ -378,6 +405,61 @@ export class TournamentsLobby extends Component {
 	}
 
 	script() {
+
+		let provider;
+		let signer;
+		let contract;
+		const tounamentId = parseInt(this.getAttribute("id"));
+		const buttonRegister = document.getElementById("btnRegister");
+
+		const getValues = async () => {
+			try {
+				const { data, error } = await api.request.get(
+					`tournaments/${tounamentId}/`
+				);
+				console.log(data);
+				contract = new ethers.Contract(data.address_tournament, ABITournament, signer);
+				console.log(contract);
+			} catch (error) {
+				console.error(error);
+			}
+		};
+
+		const connectWallet = async () => {
+			try {
+				if (typeof window.ethereum === 'undefined') {
+					alert("MetaMask n'est pas installé !");
+					return;
+				}
+				console.log("Connexion au portefeuille en cours...");
+				const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+				console.log("Connecté avec le compte:", accounts[0]);
+				provider = new ethers.providers.Web3Provider(window.ethereum);
+				const balance = await provider.getBalance(accounts[0]);
+				console.log("Balance:", ethers.utils.formatEther(balance), "ETH");
+				signer = provider.getSigner();
+				getValues();
+			} catch (error) {
+				console.error("Erreur lors de la connexion au portefeuille:", error);
+			}
+		};
+
+		if (window.auth.profile.publicKey !== "") {
+			connectWallet();
+		}
+
+		buttonRegister.addEventListener("click", async () => {
+			try {
+				const contractWithWallet = contract.connect(signer);
+				const tx = await contractWithWallet.register();
+				await tx.wait();
+				console.log(tx);
+			}
+			catch (error) {
+				Toast.error("Revert: Player already registered");
+			}
+		});
+
 		const tournamentId = parseInt(this.getAttribute("id"));
 
 		this.sendInvitation(tournamentId);
