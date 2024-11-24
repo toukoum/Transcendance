@@ -16,8 +16,6 @@ const anonRoutes = [
 ];
 
 export const authMiddleware = async (route, next) => {
-
-	// const notif = api.websocket.connect('notification/');
 	if (!window.notif) {
 		window.notif = new ApiWebSocket('notification/');
 	}
