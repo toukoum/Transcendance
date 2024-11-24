@@ -47,7 +47,6 @@ export class RafNotifPage extends Component {
 			formId.addEventListener("submit", async (e) => {
 				e.preventDefault();
 				const userId = formId.querySelector("#user-id").value;
-				console.log("on envoit une notif au user name: ", userId);
 				const response = await fetch("http://localhost:8000/v1/friends/", {
 					method: "POST",
 					headers: {
@@ -62,7 +61,6 @@ export class RafNotifPage extends Component {
 
 				if (response.ok) {
 					const responseData = await response.json();
-					console.log("Success:", responseData);
 				} else {
 					const errorData = await response.json(); // Si ton backend retourne du JSON
 					console.log("Error:", errorData);

@@ -396,15 +396,9 @@ class Game:
 
 	# --------------------------------- Database --------------------------------- #
 
-
-	@database_sync_to_async
-	def get_players(self):
-		return MatchPlayer.objects.filter(match_id=self.match.id).values_list('player_id', flat=True)
-	
 	@database_sync_to_async
 	def get_match(self):
 		return Match.objects.get(id=self.match.id)
-	
 	
 	@database_sync_to_async
 	def get_player(self, user_id):
@@ -412,13 +406,6 @@ class Game:
 			match=self.match,
 			user=user_id,
 		)
-	
-	@database_sync_to_async
-	def is_player_in_game(self, player_id):
-		return MatchPlayer.objects.filter(
-			Q(match_id=self.match.id) &
-			Q(player_id=player_id)
-		).exists()
 	
 	@database_sync_to_async
 	def sync_to(self):

@@ -305,12 +305,12 @@ export class Play extends Component {
 
 	script() {
 		/* ------------------------------- CREATE GAME ------------------------------ */
-		const form = this.querySelector("#create-game-form");
-		const submitButton = this.querySelector("#createGameButton");
-		const loadingIcon = this.querySelector("#createGameButtonLoading");
+		const form = document.querySelector("#create-game-form");
+		const submitButton = document.querySelector("#createGameButton");
+		const loadingIcon = document.querySelector("#createGameButtonLoading");
 
-		const durationInput = this.querySelector("#duration");
-		const durationEmpty = this.querySelector("#duration-empty");
+		const durationInput = document.querySelector("#duration");
+		const durationEmpty = document.querySelector("#duration-empty");
 		// Check if duration is empty
 		durationInput.addEventListener("input", () => {
 			if (durationInput.value === "") {
@@ -377,9 +377,9 @@ export class Play extends Component {
 		/* -------------------------------------------------------------------------- */
 
 		/* -------------------------------- JOIN GAME ------------------------------- */
-		const joinForm = this.querySelector("#join-game-form");
-		const joinSubmitButton = this.querySelector("#joinGameButton");
-		const joinLoadingIcon = this.querySelector("#joinGameButtonLoading");
+		const joinForm = document.querySelector("#join-game-form");
+		const joinSubmitButton = document.querySelector("#joinGameButton");
+		const joinLoadingIcon = document.querySelector("#joinGameButtonLoading");
 
 		// Submit form
 		joinForm.addEventListener("submit", async (e) => {
@@ -428,12 +428,12 @@ export class Play extends Component {
 		/* -------------------------------------------------------------------------- */
 
 		/* ------------------------------- CREATE TOURNAMENT ------------------------------ */
-		const formTournament = this.querySelector("#create-tournament-form");
-		const submitButtonTournament = this.querySelector("#createTournamentButton");
-		const loadingIconTournament = this.querySelector("#createTournamentButtonLoading");
+		const formTournament = document.querySelector("#create-tournament-form");
+		const submitButtonTournament = document.querySelector("#createTournamentButton");
+		const loadingIconTournament = document.querySelector("#createTournamentButtonLoading");
 
-		const durationInputTournament = this.querySelector("#durationTournament");
-		const durationEmptyTournament = this.querySelector("#durationTournament-empty");
+		const durationInputTournament = document.querySelector("#durationTournament");
+		const durationEmptyTournament = document.querySelector("#durationTournament-empty");
 
 		// Vérifie si la durée est vide
 		durationInputTournament.addEventListener("input", () => {
@@ -522,7 +522,7 @@ export class Play extends Component {
 				const { data, error } = await api.tournament.create(apiData);
 				if (error) throw error;
 				Toast.success("Tournament created successfully with the address: " + addressTournament);
-				const modalElement = this.querySelector("#createTournamentModal");
+				const modalElement = document.querySelector("#createTournamentModal");
 				const modalInstance = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
 				modalInstance.hide();
 				window.router.push(`/tournaments/lobby/${data.id}`);

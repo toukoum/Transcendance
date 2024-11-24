@@ -18,8 +18,11 @@ const anonRoutes = [
 export const authMiddleware = async (route, next) => {
 
 	// const notif = api.websocket.connect('notification/');
-	const notif = new ApiWebSocket('notification/');
-	notif.on('message', (data) => {
+	if (!window.notif) {
+		window.notif = new ApiWebSocket('notification/');
+	}
+	window.notif.on('message', (data) => {
+		console.log("===========>> Notification", data);
 		if (data.action != null){
 			Toast.notificationAction(data)
 		}else{

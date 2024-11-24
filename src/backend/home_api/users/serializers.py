@@ -9,7 +9,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     avatar = serializers.ImageField(read_only=True)
     class Meta:
         model = Profile
-        fields = ['bio', 'location', 'avatar', 'is_2fa_enabled', 'publicKey']
+        fields = ['bio', 'location', 'avatar', 'is_2fa_enabled', 'publicKey', 'is_online']
 
 class UserSelfSerializer(serializers.ModelSerializer):
     """
@@ -119,7 +119,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
     def get_matches(self, obj):
         from games.models import Match
         from games.serializers import MatchListSerializer
-        matches = Match.objects.filter(match_players__player_id=obj.id)
+        matches = Match.objects.filter(match_players__user=obj.id)
         return MatchListSerializer(matches, many=True).data
 
 

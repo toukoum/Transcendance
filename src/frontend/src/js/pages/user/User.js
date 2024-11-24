@@ -11,13 +11,13 @@ export class User extends Component {
     return /*html*/ `
       <div class="user-page container py-5">
         <!-- User Information Section -->
-        <div class="user-info-section mb-5">
+        <div class="user-info-section mb-5" id="my-user-info-section">
         </div>
         
         <!-- Recent Matches Section -->
         <div class="recent-games-section">
           <h2 class="section-title">Recent Matches</h2>
-          <div class="matches-list row gy-4"></div>
+          <div class="matches-list row gy-4" id="matchesList">
         </div>
       </div>
     `;
@@ -163,6 +163,14 @@ export class User extends Component {
         .text-muted {
           color: var(--color-muted) !important;
         }
+
+				.badge-success{
+					background-color: var(--color-success);
+				}
+
+				.badge-secondary{
+					background-color: var(--color-secondary);
+				}
       </style>
     `;
   }
@@ -170,7 +178,6 @@ export class User extends Component {
   // ======= Utility Functions =========
   getFriendName(matchPlayers) {
     const username = window.auth.username;
-    // Find the opponent's username
     const opponent = matchPlayers.find(player => player.username !== username);
     return opponent ? opponent.username : "Unknown";
   }
@@ -193,12 +200,12 @@ export class User extends Component {
       const { data, error } = await api.request.get(`users/${username}/`);
       if (error) throw error;
 
-      // Populate user info
-      const userInfoSection = this.querySelector(".user-info-section");
+      const userInfoSection = document.getElementById("my-user-info-section");
       userInfoSection.innerHTML = `
         <div class="user-avatar">
           <img src="${data.profile.avatar}" alt="${data.username}'s Avatar">
         </div>
+				${data.profile.is_online ? '<span class="badge badge-success">Online</span>' : '<span class="badge badge-secondary">Offline</span>'}
         <div class="user-username">${data.username}</div>
         <div class="user-fullname">${this.capitalize(data.first_name)} ${this.capitalize(data.last_name)}</div>
         <div class="user-bio">${data.profile.bio || ''}</div>
@@ -206,7 +213,7 @@ export class User extends Component {
       `;
 
       // Populate recent matches
-      const matchesList = this.querySelector(".matches-list");
+      const matchesList = document.getElementById("matchesList");
       matchesList.innerHTML = ""; // Clear existing matches
 
       if (data.matches && data.matches.length > 0) {
