@@ -9,7 +9,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     avatar = serializers.ImageField(read_only=True)
     class Meta:
         model = Profile
-        fields = ['bio', 'location', 'avatar', 'is_2fa_enabled', 'publicKey']
+        fields = ['bio', 'location', 'avatar', 'is_2fa_enabled', 'publicKey', 'is_online']
 
 class UserSelfSerializer(serializers.ModelSerializer):
     """

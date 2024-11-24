@@ -98,7 +98,7 @@ export class SettingsSecurity extends Component {
 	}
 
 	async setup2fa(){
-		const toggle2FA = this.querySelector("#toggle-2fa");
+		const toggle2FA = document.querySelector("#toggle-2fa");
 		let is2FAEnabled = false;
     try {
       const { data, error } = await api.request.get("me");
@@ -114,39 +114,35 @@ export class SettingsSecurity extends Component {
 	async is2faConfigure(){
 		const response = await api.request.get("auth/2fa/mfa/user-active-methods/");
 		if (response.error) return false;
-		console.log("is2faConfigure", response.data.length);	
 		return response.data.length > 0;
 	}
 
 	async configure2fa(){
-		const otpSend = this.querySelector("#otp-send");
-		const otpForm = this.querySelector("#otp-form");
+		const otpSend = document.querySelector("#otp-send");
+		const otpForm = document.querySelector("#otp-form");
 
 		otpSend.addEventListener("click", async (e) => {
 			try {
-				this.querySelector("#loading-otp-send").style.display = "inline-block";
+				document.querySelector("#loading-otp-send").style.display = "inline-block";
 				const response = await api.request.post("auth/2fa/email/activate/");
-				console.log(response);
 				Toast.success(response.data.details);
 			} catch (error) {
 				console.error(error);
 				Toast.error("An error occurred");
 			} finally {
-				this.querySelector("#loading-otp-send").style.display = "none";
+				document.querySelector("#loading-otp-send").style.display = "none";
 			}
 		});
 
 		otpForm.addEventListener("submit", async (e) => {
 			e.preventDefault();
 			try {
-				this.querySelector("#loading-otp-submit").style.display = "inline-block";
+				document.querySelector("#loading-otp-submit").style.display = "inline-block";
 				const response = await api.request.post("auth/2fa/email/activate/confirm/", {
 					code: otpForm.querySelector("#otp").value
 				});
-				console.log(response);
 				otpForm.querySelector("#otp").value = "";
 				const { data, error } = await api.request.post("auth/2fa/activate/");
-				console.log("DATA data", data);
 				if (error) throw error;
 				Toast.success(data.message);
 				Toast.success("2FA activated successfully");
@@ -154,14 +150,14 @@ export class SettingsSecurity extends Component {
 				console.error(error);
 				Toast.error("An error occurred while activating 2FA");
 			} finally{
-				this.querySelector("#loading-otp-submit").style.display = "none";
+				document.querySelector("#loading-otp-submit").style.display = "none";
 			}
 		});
 	}
 
 	async toggle2fa(){
-		const toggle2FA = this.querySelector("#toggle-2fa");
-    const loading2FA = this.querySelector("#loading-2fa");
+		const toggle2FA = document.querySelector("#toggle-2fa");
+    const loading2FA = document.querySelector("#loading-2fa");
 
     toggle2FA.addEventListener("change", async () => {
       try {
@@ -188,25 +184,24 @@ export class SettingsSecurity extends Component {
 		
 		this.setup2fa();
 		const is2faConfigured = await this.is2faConfigure();
-		console.log("is2faConfigured", is2faConfigured);
 		
-		this.querySelector(".is-2fa-configure").innerText = is2faConfigured ? "Yes" : "No";
+		document.querySelector(".is-2fa-configure").innerText = is2faConfigured ? "Yes" : "No";
 		
 		if (is2faConfigured) {
-			this.querySelector(".toggle-2fa-wrapper").style.display = "block";
-			this.querySelector(".configure-2fa-wrapper").style.display = "none";
+			document.querySelector(".toggle-2fa-wrapper").style.display = "block";
+			document.querySelector(".configure-2fa-wrapper").style.display = "none";
 		} else {
-			this.querySelector(".toggle-2fa-wrapper").style.display = "none";
-			this.querySelector(".configure-2fa-wrapper").style.display = "block";
+			document.querySelector(".toggle-2fa-wrapper").style.display = "none";
+			document.querySelector(".configure-2fa-wrapper").style.display = "block";
 		}
 		
 		this.configure2fa();
 		this.toggle2fa();
 		
 		
-		const passwordForm = this.querySelector("#password-form");
-		const submitPassword = this.querySelector("#submit-password");
-		const loadingPassword = this.querySelector("#loading-password");
+		const passwordForm = document.querySelector("#password-form");
+		const submitPassword = document.querySelector("#submit-password");
+		const loadingPassword = document.querySelector("#loading-password");
 		
 		
 		

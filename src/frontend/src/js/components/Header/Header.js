@@ -21,17 +21,25 @@ export class Header extends Component {
 					<ul class="nav col-12 col-md-auto mb-2 justify-content-center align-items-center mb-md-0 gap-4" style="pointer-events: auto;">
 							<li><link-component href="/" class="nav-link px-2">Home</link-component></li>
 							<li><link-component href="/play" class="nav-link btn-play d-flex align-items-center gap-2">
-									PLAY
+									Play
 									<i data-lucide="play" class="icon-play" style="width: 16px; height: 16px;"></i>
 							</link-component></li>
 							<li><link-component href="/friends" class="nav-link px-2">Friends</link-component></li>
 
 					</ul>
-					<test-notif></test-notif>
+					
 					<div class="col-md-3 justify-content-end d-flex gap-2">
+							${user ? `
+							<form class="form-inline my-2 my-lg-0 search-form d-flex gap-2">
+								<input class="form-control mr-sm-2" type="search" placeholder="Username" aria-label="Search">
+								<button class="btn btn-outline-primary my-2 my-sm-0" type="submit">Search</button>
+							</form>
+							` : ""
+							}
+
 							${user ? (/*html*/`<usernav-component></usernav-component>`) : (/*html*/`
-									<link-component type="button" class="login-btn me-2" href="/auth/login">Login</link-component>
-									<link-component type="button" class="signup-btn" href="/auth/signup">Sign-up</link-component>
+									<link-component type="button" class="btn btn-outline-primary me-2" href="/auth/login">Login</link-component>
+									<link-component type="button" class="btn btn-primary" href="/auth/signup">Sign-up</link-component>
 							`)}
 					</div>
 				
@@ -45,22 +53,6 @@ export class Header extends Component {
 				
 				<style>
 
-					.login-btn a{
-						color: #fff;
-						border-radius: 20px;
-						text-decoration: none;
-						padding: 1rem 1.5rem;
-					}
-
-					.signup-btn a{
-						color: #fff;
-						background-color: #0A84FF;
-						border-radius: 20px;
-						text-decoration: none;
-						padding: 1rem 1.5rem;
-					}
-
-
 					.navbar-brand img {
 							filter: brightness(0) invert(1); /* Ensures the logo is visible on dark background */
 					}
@@ -68,11 +60,12 @@ export class Header extends Component {
 						border-bottom: 1px solid #1c1c1e;
 					}
 
-					.btn-play a{
+					.btn-play{
 						color: #fff;
-						border: 1px solid #0A84FF;
-						border-radius: 20px;
-						padding: 1rem 3rem;
+						background-color: #0067ff47;
+						border-radius: 10px;
+						padding: .5rem 1rem;
+						margin: 10px 0;
 					}
 
 					.btn-play:hover icon-play {
@@ -89,19 +82,25 @@ export class Header extends Component {
 		}
 		
 		toggleSidebar() {
-				console.log("DIspatch")
 				document.dispatchEvent(new Event('toggleSidebar'));
 		}
 	
 	
 		script() {
 			lucide.createIcons();
-			const toggleButton = this.querySelector('.navbar-toggler');
+			const toggleButton = document.querySelector('.navbar-toggler');
 			if (toggleButton) {
 					toggleButton.addEventListener('click', this.toggleSidebar.bind(this));
 			} else {
 					console.error("Le bouton de toggle n'a pas été trouvé dans le DOM.");
 			}
+
+			const searchForm = document.querySelector('.search-form');
+			searchForm.addEventListener('submit', (e) => {
+					e.preventDefault();
+					const searchValue = searchForm.querySelector('input[type="search"]').value;
+					window.router.push(`/search?q=${searchValue}`);
+			});
 
 	}
 }

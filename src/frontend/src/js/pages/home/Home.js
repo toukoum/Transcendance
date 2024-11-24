@@ -161,11 +161,10 @@ export class Home extends Component {
   }
 
   renderUserInfo(userInfo) {
-    const userNameElement = this.querySelector('.user-name');
-    const userAvatarElement = this.querySelector('.user-avatar');
-    const userBioElement = this.querySelector('.user-bio');
-    const userLocationElement = this.querySelector('.user-location');
-		console.log(userInfo);
+    const userNameElement = document.querySelector('.user-name');
+    const userAvatarElement = document.querySelector('.user-avatar');
+    const userBioElement = document.querySelector('.user-bio');
+    const userLocationElement = document.querySelector('.user-location');
     userNameElement.textContent = userInfo.username;
     userAvatarElement.src = userInfo.profile.avatar;
 		userBioElement.textContent = userInfo.profile.bio || 'No bio available.';
@@ -173,7 +172,7 @@ export class Home extends Component {
   }
 
   renderGameInfo(gameInfo) {
-    const gamesListElement = this.querySelector('.games-list');
+    const gamesListElement = document.querySelector('.games-list');
 
     if (!gameInfo || gameInfo.length === 0) {
       gamesListElement.innerHTML = '<p>No games found.</p>';

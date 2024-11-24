@@ -12,7 +12,7 @@ export class Component extends HTMLElement {
 			this.render();
 			this.#rendered = true;
 			this.script();
-			//this.replaceWith(...this.childNodes);
+			this.replaceWith(...this.childNodes);
 		}
 	}
 

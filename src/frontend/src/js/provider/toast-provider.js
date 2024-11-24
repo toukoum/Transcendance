@@ -170,10 +170,7 @@ export class Toast extends Component {
         try {
             const target = e.target;
             const actionUrl = target.getAttribute('data-action');
-            console.log('Making action:', actionUrl);
-
             const { data, error } = await api.request.post(actionUrl);
-						console.log('Action response:', data);
 						if (error) throw error;
 						Toast.success(data.message);
         } catch (error) {

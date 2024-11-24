@@ -81,22 +81,19 @@ export class Login extends Component {
 	}
 
 	otpModal(ephemeral_token, redirectTo){
-		console.log("ephemeral_token", ephemeral_token);
 
-		const modal = this.querySelector(".otp-modal");
+		const modal = document.querySelector(".otp-modal");
 		modal.style.display = "block";
 
 		modal.querySelector("#otp-form").addEventListener("submit", async (e) => {
 			e.preventDefault();
 			try {
 				const otp = modal.querySelector("#otp").value;
-				console.log("OTP", otp);
 				const { data, error } = await api.request.post("auth/2fa/validate/", {
 					ephemeral_token: ephemeral_token,
 					code: otp,
 				});
 				if (error) throw error;
-				Toast.success("OTP validated");
 				window.location.href = redirectTo || "/";
 			} catch (error) {
 				if (error instanceof ApiRequestError) {
@@ -112,7 +109,7 @@ export class Login extends Component {
 
 	script() {
 		const redirectTo = new URLSearchParams(window.location.search).get("redirectTo");
-		const form = this.querySelector("#login-form");
+		const form = document.querySelector("#login-form");
 		form.addEventListener("submit", async (e) => {
 			e.preventDefault();
 			try {
@@ -123,7 +120,6 @@ export class Login extends Component {
 				} = Object.fromEntries(formData.entries());
 				const { data, error } = await api.auth.loginWithIdentifier(identifier, password);
 				if (error) throw error;
-				console.log("DATA", data);
 				if (data.ephemeral_token != undefined){
 					this.otpModal(data.ephemeral_token, redirectTo);
 				} else {
@@ -153,13 +149,13 @@ export class Login extends Component {
 			}
 		}
 
-		this.querySelector(".login-42").addEventListener("click", () => handleLoginOAuth());
+		document.querySelector(".login-42").addEventListener("click", () => handleLoginOAuth());
 
 
 
 
 		// close modal on click on close button
-		const modal = this.querySelector(".otp-modal");
+		const modal = document.querySelector(".otp-modal");
 		modal.querySelector(".btn-close").addEventListener("click", () => modal.style.display = "none");
 
 	}

@@ -248,7 +248,6 @@ export class Sidebar extends Component {
     async delete_notif(id) {
         try {
             const response = await api.request.delete(`notifications/${id}/`);
-            console.log(`Notification ${id} deleted`, response);
 
             const notifElement = document.querySelector(`[data-id="${id}"]`);
             if (notifElement) {
@@ -262,7 +261,6 @@ export class Sidebar extends Component {
     async mark_as_read(id) {
         try {
             const response = await api.request.post(`notifications/${id}/mark-as-read/`);
-            console.log(`Notification ${id} marked as read`, response);
 
             const notifElement = document.querySelector(`[data-id="${id}"]`);
             if (notifElement) {
@@ -289,9 +287,7 @@ export class Sidebar extends Component {
                 const target = e.target;
                 const actionUrl = target.getAttribute('data-action');
                 try {
-                    console.log('Performing action:', actionUrl);
                     const response = await api.request.post(actionUrl);
-                    console.log('Action response:', response);
                 } catch (error) {
                     console.error('Error performing action:', error);
                 }
@@ -317,7 +313,6 @@ export class Sidebar extends Component {
 					} else {
 						sidebar.style.display = 'none';
 					}
-					console.log("toggleSidebar", this.showSidebar);
 				});
 
 				const closeBtn = document.querySelector('.close-btn');

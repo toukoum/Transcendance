@@ -20,6 +20,8 @@ from home_api.utils import BaseViewSet, BaseReadOnlyViewSet, format_response
 from friends.models import Friendship
 from django.db.models import Case, When, Value, BooleanField
 
+from rest_framework.exceptions import ValidationError
+
 
 class UserViewSet(BaseReadOnlyViewSet):
 
@@ -66,19 +68,26 @@ class UserSearchView(BaseReadOnlyViewSet):
     serializer_class = UserSearchSerializer
     queryset = User.objects.all()
 
-    def get_queryset(self):
+    permission_classes = [IsAuthenticated]
+
+    def list(self, request, *args, **kwargs):
         query = self.request.query_params.get('q', '').strip()
 
         if len(query) < 3:
-            return format_response(error='Query must be at least 3 characters long', status=status.HTTP_400_BAD_REQUEST)
+            return format_response(error="Query must be at least 3 characters long", status=status.HTTP_400_BAD_REQUEST)
 
-        # List d'amis actuel
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def get_queryset(self):
+        query = self.request.query_params.get('q', '').strip()
+
         friends = Friendship.objects.filter(
             user1=self.request.user,
             status='accepted'
         ).values_list('user2', flat=True)
 
-        # Annoter les utilisateurs pour indiquer si ce sont des amis
         users = User.objects.filter(
             is_active=True,
             username__icontains=query
@@ -89,8 +98,7 @@ class UserSearchView(BaseReadOnlyViewSet):
                 output_field=BooleanField()
             )
         ).exclude(id=self.request.user.id)
-        
-        # Retourner amis d'abord, puis par username, A TESTER
+
         return users.order_by('-is_friend', 'username')
         
 class UploadAvatar(APIView):

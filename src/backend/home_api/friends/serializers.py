@@ -26,12 +26,15 @@ class FriendshipSerializer(serializers.ModelSerializer):
 
     user1_avatar = serializers.SerializerMethodField()
     user2_avatar = serializers.SerializerMethodField()
+    
+    is_online_user1 = serializers.SerializerMethodField()
+    is_online_user2 = serializers.SerializerMethodField()
 
     status = serializers.CharField(read_only=True)
 
     class Meta:
         model = Friendship
-        fields = ['id', 'user1', 'user2', 'status', 'created_at', 'user1_avatar', 'user2_avatar']
+        fields = ['id', 'user1', 'user2', 'status', 'created_at', 'user1_avatar', 'user2_avatar', 'is_online_user1', 'is_online_user2']
 
     def create(self, validated_data):
         return Friendship.objects.create(**validated_data)
@@ -57,6 +60,18 @@ class FriendshipSerializer(serializers.ModelSerializer):
                 return settings.DEFAULT_AVATAR
         except Profile.DoesNotExist:
             return None
+        
+    def get_is_online_user1(self, obj):
+        try:
+            return obj.user1.profile.is_online
+        except Profile.DoesNotExist:
+            return False
+    
+    def get_is_online_user2(self, obj):
+        try:
+            return obj.user2.profile.is_online
+        except Profile.DoesNotExist:
+            return False
     
 
 class DetailFriendshipSerializer(serializers.ModelSerializer):
