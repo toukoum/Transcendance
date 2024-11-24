@@ -5,10 +5,10 @@ from games.models import Match, MatchPlayer
 
 class MatchPlayerSerializer(serializers.ModelSerializer):
     
-    username = serializers.CharField(source='player_id.username', read_only=True)
+    username = serializers.CharField(source='user.username', read_only=True)
     class Meta:
         model = MatchPlayer
-        fields = ['id', 'username', 'score', 'match_id', 'player_id']
+        fields = ['id', 'username', 'score', 'match', 'user']
         
 
 class MatchSerializer(serializers.ModelSerializer):

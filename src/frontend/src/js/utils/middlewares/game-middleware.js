@@ -16,7 +16,7 @@ export const gameMiddleware = async (route, next) => {
 			console.log("User is in a game");
 			if (route.path !== `/play/:id`) {
 				// A REMETTRE C'est raf qui l'a enlevé
-				//window.router.redirect(`/play/${data.id}`);
+				window.router.redirect(`/play/${data.id}`);
 			}
 		} else {
 			window.isInGame = null;

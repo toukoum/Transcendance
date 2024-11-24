@@ -318,8 +318,12 @@ export class Route {
 	// #createPathRegex() {
 	// 	this.pathRegex = new RegExp(`^${this.path.replace(/:\w+/g, "([\\w-]+)")}/?$`);
 	// }
+	// #createPathRegex() {
+	// 	this.pathRegex = new RegExp(`^${this.path.replace(/:\w+/g, "(\\w+)")}$`);
+	// }
 	#createPathRegex() {
-		this.pathRegex = new RegExp(`^${this.path.replace(/:\w+/g, "(\\w+)")}$`);
+		// Remplacer les paramètres de route :param par des groupes de capture, et ajouter la gestion du slash optionnel à la fin
+		this.pathRegex = new RegExp(`^${this.path.replace(/:\w+/g, "(\\w+)")}/?$`);
 	}
 }
 

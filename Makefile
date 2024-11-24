@@ -9,7 +9,6 @@ DOCKER_COMPOSE := $(shell \
         echo "docker-compose"; \
     fi)
 
-
 # ---------------------------------------------------------------------------- #
 #                                     RULES                                    #
 # ---------------------------------------------------------------------------- #
@@ -25,8 +24,14 @@ permission:
 logs:
 	@$(DOCKER_COMPOSE) logs -f $(SERVICE)
 
+logs:
+	@$(DOCKER_COMPOSE) logs -f $(SERVICE)
+
 migrate:
 	@$(DOCKER_COMPOSE) exec backend python home_api/manage.py makemigrations
 	@$(DOCKER_COMPOSE) exec backend python home_api/manage.py migrate
 
-.PHONY: all build permission logs migrate
+down:
+	@$(DOCKER_COMPOSE) down
+
+.PHONY: all build permission logs migrate down

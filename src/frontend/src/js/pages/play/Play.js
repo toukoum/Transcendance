@@ -139,7 +139,7 @@ export class Play extends Component {
 							<!-- Score is falcultatif and NULL by default, ive score is set, the partie can end before duration if score is reached -->
 							<div class="form-group">
 								<label for="max-score">Max Score</label>
-								<input type="number" id="max-score" class="form-control" name="maxScore" value="" placeholder="Max Score" readonly>
+								<input type="number" id="max-score" class="form-control" name="maxScore" value="" placeholder="Max Score">
 								<small id="maxScore-error" class="form-text text-danger" style="display: none;"></small>
 							</div>
 						</div>
@@ -343,8 +343,8 @@ export class Play extends Component {
 
 				const { data, error } = await api.game.create({
 					duration,
-					maxPlayers,
-					maxScore
+					max_players: maxPlayers === "" ? null : parseInt(maxPlayers),
+					max_score: maxScore === "" ? null : parseInt(maxScore)
 				});
 				if (error) throw error;
 				Toast.success("Game created successfully");
