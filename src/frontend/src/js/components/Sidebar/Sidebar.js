@@ -43,19 +43,19 @@ export class Sidebar extends Component {
             </div>
             ${primary_action || secondary_action ? `
             <div class="notification-actions">
-								 ${primary_action ? 
-                        (is_link_primary ? 
-                            `<a class="action btn-primary text-decoration-none text-center" href="${primary_action.url}">${primary_action.label}</a>` : 
-                            `<button class="make-action action btn-secondary" data-action="${primary_action.url}">${primary_action.label}</button>`
-                        ) : ''
-                    }
-
-                    ${secondary_action ? 
-                        (is_link_secondary ? 
-                            `<a class="action btn-primary text-decoration-none text-center" href="${secondary_action.url}">${secondary_action.label}</a>` : 
-                            `<button class="make-action action btn-secondary" data-action="${secondary_action.url}">${secondary_action.label}</button>`
-                        ) : ''
+								${primary_action ? 
+											(is_link_primary ? 
+													`<a class="action btn-primary text-decoration-none text-center" href="${primary_action.url}">${primary_action.label}</a>` : 
+													`<button class="make-action action btn-primary" data-action="${primary_action.url}">${primary_action.label}</button>`
+											) : ''
 									}
+
+								${secondary_action ? 
+										(is_link_secondary ? 
+												`<a class="action btn-secondary text-decoration-none text-center" href="${secondary_action.url}">${secondary_action.label}</a>` : 
+												`<button class="make-action action btn-secondary" data-action="${secondary_action.url}">${secondary_action.label}</button>`
+										) : ''
+								}
             </div>
             ` : ''}
             ${!isRead ? `
@@ -250,7 +250,6 @@ export class Sidebar extends Component {
             const response = await api.request.delete(`notifications/${id}/`);
             console.log(`Notification ${id} deleted`, response);
 
-            // Remove the notification from the DOM
             const notifElement = document.querySelector(`[data-id="${id}"]`);
             if (notifElement) {
                 notifElement.remove();
@@ -265,18 +264,15 @@ export class Sidebar extends Component {
             const response = await api.request.post(`notifications/${id}/mark-as-read/`);
             console.log(`Notification ${id} marked as read`, response);
 
-            // Update the notification in the DOM
             const notifElement = document.querySelector(`[data-id="${id}"]`);
             if (notifElement) {
                 notifElement.classList.remove('unread');
 
-                // Remove the unread badge
                 const badge = notifElement.querySelector('.badge-unread');
                 if (badge) {
                     badge.remove();
                 }
 
-                // Remove the mark-as-read button
                 const button = notifElement.querySelector('.mark-as-read');
                 if (button) {
                     button.remove();

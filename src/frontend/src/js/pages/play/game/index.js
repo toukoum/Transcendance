@@ -1,5 +1,4 @@
 import { Client } from './components/Client.js';
-import { StateManager } from './components/StateManager/StateManager.js';
 import { UI } from './components/UI/UI.js';
 import { PingManager } from './components/PingManager.js';
 import { Scene } from './components/Scene/Scene.js';
@@ -15,7 +14,6 @@ export default class Game {
         this.client = new Client(this, settings.gameId);
         this.pingManager = new PingManager(this.client);
         this.ui = new UI(this);
-        this.stateManager = new StateManager(this);
         this.controller = new Controller(this);
         this.scene = new Scene(this);
     }

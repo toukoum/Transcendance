@@ -105,51 +105,8 @@ class GameConsumer(AsyncWebsocketConsumer):
 	async def game_state(self, event):
 		await self.send(text_data=json.dumps(event))
 	
-	async def game_player_connected(self, event):
-		message = event['message']
-		
-		await self.send(text_data=json.dumps({
-			'type': 'game.player_connected',
-			'message': message
-		}))
-
-	async def game_player_reconnected(self, event):
-		message = event['message']
-		
-		await self.send(text_data=json.dumps({
-			'type': 'game.player_reconnected',
-			'message': message
-		}))
-
-	# async def game_state_initialized(self, event):
-	# 	"""
-	# 	Handle the initialization of the game state
-	# 	"""
-	# 	await self.send(text_data=json.dumps({
-	# 		'type': 'game.state_initialized',
-	# 		'message': event['message'],
-	# 		'data': event['data']
-	# 	}))
-
-	# async def game_state_started(self, event):
-	# 	"""
-	# 	Handle the start of the game
-	# 	"""
-	# 	await self.send(text_data=json.dumps({
-	# 		'type': 'game.state_started',
-	# 		'message': event['message'],
-	# 		'data': event['data']
-	# 	}))
-	
-	# async def game_state_finished(self, event):
-	# 	"""
-	# 	Handle the end of the game
-	# 	"""
-	# 	await self.send(text_data=json.dumps({
-	# 		'type': 'game.state_finished',
-	# 		'message': event['message'],
-	# 		'data': event['data']
-	# 	}))
+	async def game_player(self, event):
+		await self.send(text_data=json.dumps(event))
 
 	async def game_playing_update(self, event):
 		"""

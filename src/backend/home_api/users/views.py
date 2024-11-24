@@ -9,6 +9,7 @@ from users.serializers import (
     UserWrapperSerializer,
     UserDetailSerializer,
     ProfileAvatarSerializer,
+    UserSearchSerializer
 )
 
 from rest_framework.permissions import IsAuthenticated
@@ -37,9 +38,21 @@ class UserUpdateProfileViewSet(BaseViewSet):
     serializer_class = UserSelfSerializer
     permission_classes = [IsAuthenticated]
 
-
     def get_object(self):
         return self.request.user 
+    
+    def update(self, request, *args, **kwargs):
+      partial = kwargs.pop('partial', False)
+      
+      if request.method.lower() == 'patch':
+          partial = True
+
+      instance = self.get_object()
+      serializer = self.get_serializer(instance, data=request.data, partial=partial)
+      serializer.is_valid(raise_exception=True)
+      self.perform_update(serializer)
+
+      return Response(serializer.data, status=status.HTTP_200_OK)
 
 class UserWrapperViewSet(BaseViewSet):
     serializer_class = UserWrapperSerializer
@@ -50,14 +63,14 @@ class UserWrapperViewSet(BaseViewSet):
 
 
 class UserSearchView(BaseReadOnlyViewSet):
-    serializer_class = UserListSerializer
+    serializer_class = UserSearchSerializer
     queryset = User.objects.all()
 
     def get_queryset(self):
         query = self.request.query_params.get('q', '').strip()
 
         if len(query) < 3:
-            return User.objects.none()
+            return format_response(error='Query must be at least 3 characters long', status=status.HTTP_400_BAD_REQUEST)
 
         # List d'amis actuel
         friends = Friendship.objects.filter(
@@ -75,19 +88,20 @@ class UserSearchView(BaseReadOnlyViewSet):
                 default=Value(0),
                 output_field=BooleanField()
             )
-        )
+        ).exclude(id=self.request.user.id)
         
         # Retourner amis d'abord, puis par username, A TESTER
         return users.order_by('-is_friend', 'username')
-				
+        
 class UploadAvatar(APIView):
     """
-			Update avatar of the user
+      Update avatar of the user
     """
     permission_classes = [IsAuthenticated]
     
     def post(self, request):
         user_profile = request.user.profile
+        print("============> DATA REQUEST", request.data)
         serializer = ProfileAvatarSerializer(user_profile, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()

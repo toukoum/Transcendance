@@ -11,7 +11,7 @@ class TournamentSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Tournament
-        fields = ['id', 'name', 'max_score', 'duration', 'created_at', 'updated_at', 'pseudo']
+        fields = ['id', 'name', 'max_score', 'duration', 'created_at', 'updated_at', 'pseudo', 'address_tournament']
         read_only_fields = ['created_at', 'updated_at']
 
     def create(self, validated_data):
@@ -19,7 +19,7 @@ class TournamentSerializer(serializers.ModelSerializer):
         tournament = super().create(validated_data)
         
         # check if the pseudo is already taken
-        if pseudo is not None and TournamentParticipant.objects.filter(pseudo=pseudo).exists():
+        if pseudo is not None and TournamentParticipant.objects.filter(tournament=tournament, pseudo=pseudo).exists():
             raise serializers.ValidationError({'pseudo': 'Pseudo already taken'})
 
         user = self.context['request'].user

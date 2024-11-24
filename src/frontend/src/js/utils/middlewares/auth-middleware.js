@@ -5,9 +5,10 @@ import { startNotification } from "../notification/notification.js";
 import { ApiWebSocket } from "../api/ApiWebSocket.js";
 
 const privateRoutes = [
-	"/user/:username",
 	"/settings",
 	"/play",
+	"/tournament",
+	"/friends",
 ];
 
 const anonRoutes = [

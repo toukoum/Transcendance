@@ -230,6 +230,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5500"
 ]
 
+# 42 OAUTH ==================================================
 CLIENT_ID = os.environ.get('CLIENT_ID', default='')
 CLIENT_SECRET = os.environ.get('CLIENT_SECRET', default='')
 REDIRECT_URI = os.environ.get('REDIRECT_URI', default='')
@@ -237,6 +238,8 @@ REDIRECT_URI = os.environ.get('REDIRECT_URI', default='')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+DEFAULT_AVATAR = os.environ.get('DEFAULT_AVATAR')	
 
 
 # TRENCH ==================================================

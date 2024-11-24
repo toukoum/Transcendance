@@ -22,12 +22,15 @@ export class App {
 				// Auth
 				new Route("/auth/login", "auth-login-page"),
 				new Route("/auth/signup", "auth-signup-page"),
+				new Route("/auth/login/42", "auth-login-42-page"),
 				// User
 				new Route("/user/:username", "user-page"),
 				// Play
 				new Route("/play", "play-page"),
 				new Route("/play/:id", "play-game-page"),
 
+				// Friends
+				new Route("/friends", "friends-page"),
 
 				// raf test
 				new Route("/raf", "raf-test-page"),
@@ -38,6 +41,7 @@ export class App {
 				new Route("/settings", "settings-profile-page"),
 				new Route("/settings/profile", "settings-profile-page"),
 				new Route("/settings/security", "settings-security-page"),
+				new Route("/settings/web3", "settings-web3-page"),
 
 				// Tournament
 				new Route("/tournaments/lobby/:id", "tournaments-lobby"),

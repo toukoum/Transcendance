@@ -54,8 +54,7 @@ export class Scene {
 		// this.scene.add(axesHelper);
 		/* -------------------------------------------------------------------------- */
 
-		// Server
-		// this.serverData = new ServerData();
+		this.lastUpdateTime = Date.now();
 
 		/* -------------------------------- Game Item ------------------------------- */
 		this.field = undefined;
@@ -90,14 +89,13 @@ export class Scene {
 		this.renderer.domElement.remove();
 	}
 
-
 	update() {
-		// if (!this.isInit) {
-		// 	return;
-		// }
+		const now = Date.now();
+		const deltaTime = (now - this.lastUpdateTime) / 1000;
+		this.lastUpdateTime = now;
 
 		if (this.ball) {
-			this.ball.update();
+			this.ball.update(deltaTime);
 		}
 		if (this.player_1) {
 			this.player_1.update();
@@ -106,7 +104,6 @@ export class Scene {
 			this.player_2.update();
 		}
 		this.world.update();
-		// this.checkCollisions();
 	}
 
 	/* ---------------------------------- Tools --------------------------------- */
@@ -179,15 +176,15 @@ export class Scene {
 
 	/* ---------------------------------- Utils --------------------------------- */
 
-	handleServerData(data) {
-		if (this.serverData) {
-			this.serverData.update(data);
-		}
-		this.syncWithServer();
-		if (!this.game.controller.player && this.player_1 && this.player_2) {
-			this.game.controller.assignPlayer();
-		}
-	}
+	// handleServerData(data) {
+	// 	if (this.serverData) {
+	// 		this.serverData.update(data);
+	// 	}
+	// 	this.syncWithServer();
+	// 	if (!this.game.controller.player && this.player_1 && this.player_2) {
+	// 		this.game.controller.assignPlayer();
+	// 	}
+	// }
 
 	/* ---------------------------------- Size ---------------------------------- */
 

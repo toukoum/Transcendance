@@ -28,8 +28,8 @@ class Match(models.Model):
 	started_at = models.DateTimeField(blank=True, null=True)
 	finished_at = models.DateTimeField(blank=True, null=True)
 
-	winner = models.ForeignKey('MatchPlayer', on_delete=models.CASCADE, related_name='won_matches', blank=True, null=True)
-	# winner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='won_matches', blank=True, null=True)
+	# winner = models.ForeignKey('MatchPlayer', on_delete=models.CASCADE, related_name='won_matches', blank=True, null=True)
+	winner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='won_matches', blank=True, null=True)
 
 	# Config
 	duration = models.IntegerField(default=300, blank=True, null=True) # in seconds

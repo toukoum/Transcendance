@@ -1,5 +1,6 @@
 import Game from "../index.js";
 import { api } from "../../../../utils/api/Api.js";
+import { Toast } from "../../../../provider/toast-provider.js";
 
 export class Client {
 	constructor(game, gameId) {
@@ -36,8 +37,7 @@ export class Client {
 		const type = message.type ? message.type.split(".")[0].trim() : null;
 		switch (type) {
 			case "game":
-				window.game.stateManager.handleEvent(message);
-				// this.game.stateManager.handleEvent(message);
+				this.handleEvent(message);
 				break;
 			case "pong":
 				this.game.pingManager.handlePong(message.timestamp);
@@ -53,11 +53,28 @@ export class Client {
 		this.initListeners();
 	}
 
-	// sendMovement(keys) {
-	// 	console.log("[Game Client] Sending movement", keys);
-	// 	this.ws.send({
-	// 		type: "player.move",
-	// 		keys: keys,
-	// 	});
-	// }
+	handleEvent(message) {
+		const type = message.type.split(".")[1].trim();
+		if (message.dataMatch) {
+			this.game.serverData.update(message.dataMatch);
+		}
+		switch (type) {
+			case "state":
+				if (!message.state) {
+					console.error("[Game: Client] State is required");
+				}
+				this.game.ui.activateScreen(message.state, message.data);
+				break;
+			/* --------------------------------- Players -------------------------------- */
+			case "player":
+				if (!message.action) {
+					console.error("[Game: Client] Player action is required");
+				}
+				Toast.info(message.message);
+				break;
+			default:
+				console.log("[Game: Client] Unknown message type", type);
+				break;
+		}
+	}
 }

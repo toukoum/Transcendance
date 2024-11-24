@@ -7,7 +7,29 @@ export class Login extends Component {
 	content() {
 		return (/*html*/`
 			<main-layout>
-				<div class="container container-sm bg-background rounded rounded-3 p-4 my-4 d-flex flex-column gap-2">
+
+				<div class="otp-modal modal-dialog modal-dialog-centered p-4 position-absolute bg-background border border-secondary rounded rounded-3 top-50 start-50 translate-middle" style="width: 300px; display: none;">
+					<div class="modal-content bg-background text-light">
+						<div class="modal-header border-0 w-100 d-flex justify-content-between">
+							<h5 class="modal-title">Enter the code</h5>
+							<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fermer"></button>
+						</div>
+						<div class="modal-body">
+							<form id="otp-form">
+								<div class="mb-3">
+									<label for="otp" class="form-label">6 Digits code</label>
+									<input type="text" id="otp" class="form-control bg-background text-light border-secondary" placeholder="Enter the code">
+								</div>
+								<button type="submit" class="btn btn-outline-light w-100">
+									Vérifier
+									<span id="loading-otp-submit" class="spinner-border spinner-border-sm text-light ms-2 d-none" role="status" aria-hidden="true"></span>
+								</button>
+							</form>
+						</div>
+					</div>
+				</div>
+				
+				<div class="container  wrapper-all container-sm rounded rounded-3 p-4 my-4 d-flex flex-column gap-2">
 					<h2 class="text-center">Login</h2>
 	 				<p class="text-center">Please enter your credentials to login</p>
 					<separator-component></separator-component>
@@ -33,25 +55,59 @@ export class Login extends Component {
 					<!-- Social Media Login -->
 		 			<div class="container">
 		 				<div class="row">
-		 					<div class="col">
-		 						<button class="btn btn-primary w-100 login-facebook">
-		 							<i class="bi bi-facebook"></i> Login with Facebook
+		 						<button class="btn btn-secondary w-100 login-42">
+		 							Login with
+									<img src="../../../../public/logo42.png" alt="42 logo" style="width: 20px;">
 		 						</button>
-		 					</div>
-		 					<div class="col">
-		 						<button class="btn btn-primary w-100 login-google">
-		 							<i class="bi bi-google"></i> Login with Google
-		 						</button>
-		 					</div>
 		 				</div>
 		 			</div>
 		 			<!-- Signup -->
-		 			 <div class="d-flex justify-content-center">
-		 				Don't have an account?<a href="/auth/signup" class="text-decoration-none">Signup</a>
+					<div class="d-flex justify-content-center">
+		 				Don't have an account? <a href="/auth/signup" class="text-decoration-none"> Signup</a>
 		 			</div>
 				</div>
 			</main-layout>
 		`);
+	}
+
+	style() {
+		return (/*css*/`
+		<style>
+			.wrapper-all {
+				background-color: #1c1c1e;
+		}
+		</style>
+		`);
+	}
+
+	otpModal(ephemeral_token, redirectTo){
+		console.log("ephemeral_token", ephemeral_token);
+
+		const modal = this.querySelector(".otp-modal");
+		modal.style.display = "block";
+
+		modal.querySelector("#otp-form").addEventListener("submit", async (e) => {
+			e.preventDefault();
+			try {
+				const otp = modal.querySelector("#otp").value;
+				console.log("OTP", otp);
+				const { data, error } = await api.request.post("auth/2fa/validate/", {
+					ephemeral_token: ephemeral_token,
+					code: otp,
+				});
+				if (error) throw error;
+				Toast.success("OTP validated");
+				window.location.href = redirectTo || "/";
+			} catch (error) {
+				if (error instanceof ApiRequestError) {
+					console.error(error.message);
+					Toast.error(error.message);
+				} else {
+					console.error(error);
+					Toast.error("An error occurred");
+				}
+			}
+		});
 	}
 
 	script() {
@@ -67,22 +123,26 @@ export class Login extends Component {
 				} = Object.fromEntries(formData.entries());
 				const { data, error } = await api.auth.loginWithIdentifier(identifier, password);
 				if (error) throw error;
-				window.router.push(redirectTo || "/");
+				console.log("DATA", data);
+				if (data.ephemeral_token != undefined){
+					this.otpModal(data.ephemeral_token, redirectTo);
+				} else {
+					window.router.push(redirectTo || "/");
+				}
 			} catch (error) {
 				if (error instanceof ApiRequestError) {
 					console.error(error.message);
 					Toast.error(error.message);
 				} else {
-					console.error("An error occurred");
+					console.error(error);
 					Toast.error("An error occurred");
 				}
 			}
 		});
 
-		const handleLoginOAuth = async (provider) => {
-			return alert('Not implemented yet');
+		const handleLoginOAuth = async () => {
 			try {
-				const { data, error } = await api.auth.loginWithOAuth(provider);
+				window.location.href = "http://localhost:8000/v1/auth/42/authorize/";
 				if (error) throw error;
 			} catch (error) {
 				if (error instanceof ApiRequestError) {
@@ -93,8 +153,15 @@ export class Login extends Component {
 			}
 		}
 
-		this.querySelector(".login-facebook").addEventListener("click", () => handleLoginOAuth("facebook"));
-		this.querySelector(".login-google").addEventListener("click", () => handleLoginOAuth("google"));
+		this.querySelector(".login-42").addEventListener("click", () => handleLoginOAuth());
+
+
+
+
+		// close modal on click on close button
+		const modal = this.querySelector(".otp-modal");
+		modal.querySelector(".btn-close").addEventListener("click", () => modal.style.display = "none");
+
 	}
 }
 

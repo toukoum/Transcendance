@@ -42,6 +42,11 @@ export class ApiRequest {
 			throw new Error(`Invalid method: ${method}`);
 		}
 		const { response, data } = await fn(`${this.api.baseUrl}/${endpoint}`, options);
+		if (data.data === undefined && data.error === undefined) {
+			return {
+				data: data
+			}
+		}
 		return {
 			data: data.data,
 			error: data.error

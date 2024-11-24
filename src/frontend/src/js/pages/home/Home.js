@@ -41,7 +41,7 @@ export class Home extends Component {
         }
 
         .user-info-section, .recent-games-section {
-          background-color: #2C2C2E;
+          background-color: #1C1C1E;
           border-radius: 10px;
           padding: 20px;
           margin-bottom: 30px;

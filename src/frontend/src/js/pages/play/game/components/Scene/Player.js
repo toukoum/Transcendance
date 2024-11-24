@@ -23,6 +23,5 @@ export class Player {
 	}
 
 	update() {
-		this.paddle.position.add(this.paddle.velocity);
 	}
 }

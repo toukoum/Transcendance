@@ -34,7 +34,12 @@ const schemaProfile = zod.object({
 		.string()
 		.max(200, {
 			message: "Must be at most 200 characters long"
-		})
+		}),
+	location: zod
+		.string()
+		.max(100, {
+			message: "Must be at most 100 characters long"
+		}),
 });
 
 export class SettingsProfile extends Component {
@@ -43,8 +48,28 @@ export class SettingsProfile extends Component {
 		if (!user) window.router.redirect("/auth/login&redirect=/settings/profile");
 		return (/*html*/`
 			<settings-layout>
-				<!-- Start form -->
-				<form id="profile-form" class="d-flex flex-column gap-1">
+			<!-- Profile Picture -->
+			
+			<h3 class="text-start align-self-start">Profile Picture</h3>
+			<div class="d-flex flex-column align-items-center gap-3 text-light p-4 rounded">
+				<div class="rounded-circle overflow-hidden" style="width: 100px; height: 100px; cursor: pointer;">
+					<img src="${user.profile.avatar}" alt="Profile Picture" class="w-100 h-100 profile-avatar">
+				</div>
+				<form class="change-picture-form mt-2" method="post" enctype="multipart/form-data">
+					<input type="file" name="avatar" accept="image/*" id="avatarInput" style="display: none;">
+					<button type="button" class="btn btn-primary" id="changePictureButton">
+						Change Picture
+					</button>
+				</form>
+			</div>
+
+			<separator-component></separator-component>
+
+
+			<!-- Start form -->
+			<form id="profile-form" class="d-flex flex-column gap-1">
+					<h3 class="text-start">Profile</h3>
+
 					<!-- Username -->
 					<div class="form-group">
 						<label for="username">Username</label>
@@ -69,13 +94,32 @@ export class SettingsProfile extends Component {
 						<textarea id="bio" class="form-control" name="bio" placeholder="Describe yourself here...">${user.profile.bio}</textarea>
 						<small id="bio-error" class="form-text text-danger" style="display: none;"></small>
 					</div>
+					<!-- Location -->
+					<div class="form-group">
+						<label for="location">Location</label>
+						<input type="text" id="location" class="form-control" name="location" value="${user.profile.location}" placeholder="City, Country">
+						<small id="location-error" class="form-text text-danger" style="display: none;"></small>
+					</div>
+
 					<!-- Submit -->
-					<button-component id="submit-button" type="submit" variant="muted" class="d-flex align-items-center justify-content-center gap-2">	
+					<button-component id="submit-button" type="submit" variant="muted" class="d-flex align-items-center justify-content-center gap-2 m-2">	
 						<span id="loading-icon"  class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
 						Save
 					</button-component>
+
 				</form>
 			</settings-layout>
+		`);
+	}
+
+
+	style () {	
+		return (/*css*/`
+		<style>
+			.profile-avatar {
+				object-fit: cover;
+			}
+		</style>
 		`);
 	}
 
@@ -95,21 +139,24 @@ export class SettingsProfile extends Component {
 					username,
 					firstName,
 					lastName,
-					bio
+					bio,
+					location
 				} = Object.fromEntries(formData.entries());
 
 				schemaProfile.parse({
 					username,
 					firstName,
 					lastName,
-					bio
+					bio,
+					location
 				});
 
 				const { data, error } = await api.auth.update({
 					username,
 					firstName,
 					lastName,
-					bio
+					bio,
+					location
 				})
 				if (error) throw error;
 				window.auth = data;
@@ -152,6 +199,58 @@ export class SettingsProfile extends Component {
 				submitButton.disabled = false;
 			}
 		});
+		
+
+		// Profile Picture
+		const avatarInput = document.getElementById("avatarInput");
+		const changePictureButton = document.getElementById("changePictureButton");
+		const profileImage = document.querySelector(".profile-avatar");
+
+		profileImage.addEventListener("click", () => {
+			avatarInput.click();
+		});
+		changePictureButton.addEventListener("click", () => {
+			avatarInput.click();
+		});
+
+		avatarInput.addEventListener("change", async () => {
+			const file = avatarInput.files[0];
+			if (!file) {
+				Toast.error("No file selected");
+			}
+			const formData = new FormData();
+			formData.append('avatar', file);
+
+			try {
+				const response = await fetch('http://localhost:8000/v1/avatar/upload/', {
+					method: 'POST',
+					credentials: 'include',
+					body: formData,
+				});
+
+				if (!response.ok) {
+					const errorData = await response.json();
+					throw new Error(errorData.error || 'Failed to upload avatar');
+				}
+				const { data, error } = await api.request.get("me/");
+				if (error) throw error;
+
+				profileImage.src = data.profile.avatar;
+				window.auth.profile.avatar = data.profile.avatar;
+				Toast.success("Profile picture updated successfully");
+			} catch (error) {
+				console.error(error.message);
+				Toast.error(error.message);
+			}
+		});
+	
+	
+	
+	
+	
+	
+	
+	
 	}
 }
 
