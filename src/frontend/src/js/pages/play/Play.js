@@ -107,9 +107,11 @@ export class Play extends Component {
 					<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#joinGameModal">
 						Join Game
 					</button>
-					<button type="button" id="create" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createTournamentModal">
-						Create Tournament
-					</button>
+					<div id="createDiv" style="display: flex; justify-content: center; width: 100%;">
+						<button type="button" id="createBtn" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#createTournamentModal">
+							Create Tournament
+						</button>
+					</div>
 
 				</div>
 			</div>
@@ -465,14 +467,17 @@ export class Play extends Component {
 				console.error("Erreur lors de la connexion au portefeuille:", error);
 			}
 		};
-
 		if (window.auth.profile.publicKey !== "") {
 			connectWallet();
+			document.querySelector("#createBtn").disabled = false;
+		}
+		else {
+			document.querySelector("#createDiv").addEventListener("click", async () => {
+				Toast.error("You must be connected to create a tournament");
+			});
+			document.querySelector("#createBtn").disabled = true;
 		}
 
-		document.querySelector("#create").addEventListener("mouseover", async () => {
-			Toast.error("You must be connected to create a tournament");
-		});
 
 		let addressTournament;
 

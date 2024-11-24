@@ -47,6 +47,7 @@ export class SettingsWeb3 extends Component {
 				console.log(data);
 				Toast.success("Profile updated");
 				document.getElementById("savePubKey").style.display = "none";
+				window.reload();
 			} catch (error) {
 				Toast.error(error.error);
 			}
