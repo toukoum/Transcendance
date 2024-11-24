@@ -2,6 +2,7 @@ import { api } from "../api/Api.js";
 import { startNotification } from "../notification/notification.js";
 // import { Route } from "../Router";
  import { Toast } from "../../provider/toast-provider.js";
+import { ApiWebSocket } from "../api/ApiWebSocket.js";
 
 const privateRoutes = [
 	"/settings",
@@ -15,9 +16,10 @@ const anonRoutes = [
 ];
 
 export const authMiddleware = async (route, next) => {
-
-	const notif = api.websocket.connect('notification/');
-	notif.on('message', (data) => {
+	if (!window.notif) {
+		window.notif = new ApiWebSocket('notification/');
+	}
+	window.notif.on('message', (data) => {
 		console.log("===========>> Notification", data);
 		if (data.action != null){
 			Toast.notificationAction(data)
