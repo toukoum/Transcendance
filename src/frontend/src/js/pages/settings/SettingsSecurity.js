@@ -5,25 +5,24 @@ import { ApiRequestError } from "../../utils/api/parser/ApiRequestError.js";
 
 import zod from 'https://cdn.jsdelivr.net/npm/zod@3.23.8/+esm'
 
-const twoFactorSchema = zod.object({
-	enabled: zod.boolean()
-});
-
 const passwordSchema = zod.object({
-	currentPassword: zod,
-	newPassword: zod
-		.string()
-		.min(8, {
+	currentPassword: zod.string().min(8, {
 			message: "Must be at least 8 characters long"
-		})
-		.max(128, {
-			message: "Must be at most 128 characters long"
-		})
-		.refine((value) => /^[a-zA-Z0-9!@#$%^&*_\-]*$/.test(value), {
-			message: "Must contain only letters, numbers, and special characters"
-		}),
-	confirmPassword: zod
-		.string()
+	}),
+	newPassword: zod.string()
+			.min(8, {
+					message: "Must be at least 8 characters long"
+			})
+			.max(128, {
+					message: "Must be at most 128 characters long"
+			})
+			.refine((value) => !/\s/.test(value), {
+					message: "Cannot contain whitespace",
+			}),
+	confirmPassword: zod.string()
+}).refine((data) => data.newPassword === data.confirmPassword, {
+	message: "Passwords do not match",
+	path: ["confirmPassword"],
 });
 
 export class SettingsSecurity extends Component {
@@ -213,11 +212,7 @@ export class SettingsSecurity extends Component {
 				submitPassword.disabled = true;
 
 				const formData = new FormData(passwordForm);
-				const {
-					currentPassword,
-					newPassword,
-					confirmPassword
-				} = Object.fromEntries(formData.entries());
+				const { currentPassword, newPassword, confirmPassword } = Object.fromEntries(formData.entries());
 
 				passwordSchema.parse({
 					currentPassword,
@@ -225,15 +220,23 @@ export class SettingsSecurity extends Component {
 					confirmPassword
 				});
 
-				const { data, error } = await api.auth({
-					currentPassword,
-					newPassword,
-					confirmPassword
-				});
+				const { data: dataVerif, error: errorVerif } = await api.auth.loginWithIdentifier(window.auth.username, currentPassword);
 
-				// if (error) throw error;
+				if (errorVerif) throw new ApiRequestError("Current password is incorrect");
+
+				const { data, error } = await api.request.post('auth/password/change/', {
+					new_password1: newPassword,
+					new_password2: confirmPassword,
+				})
+
+				if (error) throw error;
 
 				Toast.success("Password updated successfully");
+				passwordForm.querySelectorAll(".is-invalid").forEach(input => input.classList.remove("is-invalid"));
+				passwordForm.querySelectorAll(".form-text").forEach(errorElement => {
+					errorElement.innerText = "";
+					errorElement.style.display = "none";
+				});
 			} catch (error) {
 				if (error instanceof ApiRequestError) {
 					console.error(error.message);
@@ -249,7 +252,7 @@ export class SettingsSecurity extends Component {
 						}
 					});
 				} else {
-					// console.error(`An error occurred: ${error}`);
+					console.error(`An error occurred: ${error}`);
 					Toast.error("An error occurred");
 				}
 			} finally {

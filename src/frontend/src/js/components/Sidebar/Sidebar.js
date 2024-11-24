@@ -308,7 +308,6 @@ export class Sidebar extends Component {
 				try{
 					const { data, error } = await api.request.get('notifications/');
 					if (error) throw error;
-					console.log("New request")
 					const wrapperNotif = document.getElementById("wrapper-notif");
 					wrapperNotif.innerHTML = "";
 					const notifications = Object.values(data);
@@ -322,7 +321,7 @@ export class Sidebar extends Component {
 					this.bind_action_buttons();
 					lucide.createIcons();
 	
-					await new Promise((resolve) => setTimeout(resolve, 1000));
+					await new Promise((resolve) => setTimeout(resolve, 10000));
 
 				} catch (error) {
 					console.error('Failed to fetch notifications:', error);
