@@ -6,6 +6,7 @@ contract Tournament {
 	address public winner;
 
 	mapping(uint8 => address[]) public rounds;
+	mapping(uint8 => mapping(address => bool)) public hasWonInRound;
 	uint8 public currentRound;
 
 	event PlayerRegistered(address indexed player);
@@ -41,18 +42,31 @@ contract Tournament {
 		}
 	}
 
-	function setWinners(address[] calldata roundWinners) external {
-		require(roundWinners.length == rounds[currentRound].length / 2, "Invalid number of winners");
+	function setWinner(address roundWinner) external {
 		require(currentRound >= 0 && currentRound <= 2, "Invalid round");
+		require(rounds[currentRound].length > 0, "Current round has no players");
+		require(!hasWonInRound[currentRound][roundWinner], "Player has already won in this round");
 
-		rounds[currentRound + 1] = roundWinners;
-		emit RoundUpdated(currentRound + 1, roundWinners);
+		bool isValidWinner = false;
+		for (uint8 i = 0; i < rounds[currentRound].length; i++) {
+			if (rounds[currentRound][i] == roundWinner) {
+				isValidWinner = true;
+				break;
+			}
+		}
+		require(isValidWinner, "Invalid winner");
 
-		currentRound++;
+		rounds[currentRound + 1].push(roundWinner);
+		hasWonInRound[currentRound][roundWinner] = true;
 
-		if (currentRound == 2) {
-			require(roundWinners.length == 1, "Final round must have one winner");
-			winner = roundWinners[0];
+		uint8 maxWinners = uint8(rounds[currentRound].length / 2);
+		if (rounds[currentRound + 1].length == maxWinners) {
+			emit RoundUpdated(currentRound + 1, rounds[currentRound + 1]);
+			currentRound++;
+		}
+
+		if (currentRound == 2 && rounds[currentRound].length == 1) {
+			winner = rounds[currentRound][0];
 			emit WinnerDeclared(winner);
 		}
 	}
