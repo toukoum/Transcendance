@@ -18,6 +18,7 @@ export const authMiddleware = async (route, next) => {
 
 	const notif = api.websocket.connect('notification/');
 	notif.on('message', (data) => {
+		console.log("===========>> Notification", data);
 		if (data.action != null){
 			Toast.notificationAction(data)
 		}else{

@@ -17,6 +17,7 @@ from asgiref.sync import async_to_sync
 from notification.utils import send_notification
 from home_api.utils import BaseViewSet
 
+
 class FriendshipViewSet(BaseViewSet):
 
     def get_queryset(self):
@@ -141,6 +142,9 @@ class FriendshipViewSet(BaseViewSet):
         if friendship.user2 != request.user:
             return format_response(error='You can not reject this friendship request', status=400)
         
+        if (friendship.status != 'pending'):
+            return format_response(error='This friendship request is not pending', status=400)
+        
         friendship.delete()
 
         send_notification(
@@ -192,6 +196,8 @@ class FriendshipViewSet(BaseViewSet):
             return format_response(error='You can not delete this friendship request', status=400)
 
         friendship.delete()
+
+        
 
         other_user = friendship.user2 if friendship.user1 == request.user else friendship.user1
         send_notification(
