@@ -278,7 +278,7 @@ export class Friends extends Component {
   }
 
   async fillFriends() {
-    const friendsList = this.querySelector(".friends-list");
+    const friendsList = document.querySelector(".friends-list");
     friendsList.innerHTML = "";
     try {
       const { data, error } = await api.request.get("friends/");
@@ -351,7 +351,7 @@ export class Friends extends Component {
   }
 
   async fillFriendsReceive() {
-    const friendsList = this.querySelector(".friends-list-receive");
+    const friendsList = document.querySelector(".friends-list-receive");
     friendsList.innerHTML = "";
     try {
       const { data, error } = await api.request.get("friends/received/");
@@ -372,16 +372,16 @@ export class Friends extends Component {
     this.fillFriends();
     this.fillFriendsReceive();
 
-    const sentRequestForm = this.querySelector("#sent-request-form");
+    const sentRequestForm = document.querySelector("#sent-request-form");
     sentRequestForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const username = this.querySelector("#username").value;
+      const username = document.querySelector("#username").value;
       try {
         const { data, error } = await api.request.post("friends/", { user2: username });
         if (error) throw error;
         Toast.success("Friend request sent");
         this.fillFriends();
-        this.querySelector("#username").value = "";
+        document.querySelector("#username").value = "";
       } catch (error) {
         Toast.error(error.message);
       }
