@@ -37,9 +37,9 @@ export class RoundWinnerComponent {
         this.element.style.opacity = "0";
         const animation = this.element.animate(
 			[
-				{ opacity: "0", transform: "scale(0.8)" }, // Début rapide, petit
-				{ opacity: "1", transform: "scale(1.3)", offset: 0.2 }, // Croît rapidement
-				{ opacity: "1", transform: "scale(1.3)", offset: 0.8 }, // Garde sa taille
+				{ opacity: "0", transform: "scale(0.8)" }, // Début très petit
+				{ opacity: "1", transform: "scale(2)", offset: 0.1 }, // Grandit très rapidement
+				{ opacity: "1", transform: "scale(1.3)", offset: 0.6 }, // Ralentit et garde la taille
 				{ opacity: "0", transform: "scale(1.5)" } // Fin lente et grande
 			],
 			{

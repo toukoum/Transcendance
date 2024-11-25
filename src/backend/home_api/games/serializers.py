@@ -11,8 +11,7 @@ class MatchPlayerSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'score', 'match', 'user']
         
 
-class MatchSerializer(serializers.ModelSerializer):
-    
+class MatchSerializer(serializers.ModelSerializer):    
     match_players = MatchPlayerSerializer(many=True, read_only=True)
     class Meta:
         model = Match
@@ -34,13 +33,6 @@ class MatchCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Max score must be at least 1')
 
         return data
-        
-
-class MatchListSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Match
-        fields = '__all__'
-
         
 class MatchLocalSerializer(serializers.ModelSerializer):
 		class Meta:

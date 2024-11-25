@@ -43,19 +43,19 @@ export class Sidebar extends Component {
 								</div>
 								${primary_action || secondary_action ? `
 								<div class="notification-actions">
-													${primary_action ? 
-																(is_link_primary ? 
-																		`<a class="action btn-primary text-decoration-none text-center" href="${primary_action.url}">${primary_action.label}</a>` : 
-																		`<button class="make-action action btn-primary" data-action="${primary_action.url}">${primary_action.label}</button>`
-																) : ''
-														}
+                                    ${primary_action ? 
+                                        (is_link_primary ? 
+                                                `<a class="action btn-primary text-decoration-none text-center" href="${primary_action.url}">${primary_action.label}</a>` : 
+                                                `<button class="make-action action btn-primary" salam="${primary_action.url}">${primary_action.label}</button>`
+                                        ) : ''
+                                    }
 
-													${secondary_action ? 
-															(is_link_secondary ? 
-																	`<a class="action btn-secondary text-decoration-none text-center" href="${secondary_action.url}">${secondary_action.label}</a>` : 
-																	`<button class="make-action action btn-secondary" data-action="${secondary_action.url}">${secondary_action.label}</button>`
-															) : ''
-													}
+                                    ${secondary_action ? 
+                                        (is_link_secondary ? 
+                                                `<a class="action btn-secondary text-decoration-none text-center" href="${secondary_action.url}">${secondary_action.label}</a>` : 
+                                                `<button class="make-action action btn-secondary" salam="${secondary_action.url}">${secondary_action.label}</button>`
+                                        ) : ''
+                                    }
 								</div>
 								` : ''}
 								${!isRead ? `
@@ -282,7 +282,7 @@ export class Sidebar extends Component {
         document.querySelectorAll('.make-action').forEach((element) => {
             element.addEventListener('click', async (e) => {
                 const target = e.target;
-                const actionUrl = target.getAttribute('data-action');
+                const actionUrl = target.getAttribute('salam');
                 try {
                     const response = await api.request.post(actionUrl);
                 } catch (error) {

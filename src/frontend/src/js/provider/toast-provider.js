@@ -116,14 +116,14 @@ export class Toast extends Component {
                     ${primaryAction ? 
                         (is_link_primary ? 
                             `<a class="action btn-primary text-decoration-none text-center" href="${primaryAction.url}">${primaryAction.label}</a>` : 
-                            `<button class="make-action action btn-secondary" data-action="${primaryAction.url}">${primaryAction.label}</button>`
+                            `<button class="make-action action btn-secondary" salam="${primaryAction.url}">${primaryAction.label}</button>`
                         ) : ''
                     }
 
                     ${secondaryAction ? 
                         (is_link_secondary ? 
                             `<a class="action btn-primary text-decoration-none text-center" href="${secondaryAction.url}">${secondaryAction.label}</a>` : 
-                            `<button class="make-action action btn-secondary" data-action="${secondaryAction.url}">${secondaryAction.label}</button>`
+                            `<button class="make-action action btn-secondary" salam="${secondaryAction.url}">${secondaryAction.label}</button>`
                         ) : ''
                     }
                 </div>
@@ -152,9 +152,8 @@ export class Toast extends Component {
             });
         }
 
-        // Événements des boutons d'action
         toast.querySelectorAll('.make-action').forEach((element) => {
-            element.addEventListener('click', (e) => this.makeAction(e, bootstrapToast, toast));
+            element.addEventListener('click', async (e) => await this.makeAction(e, bootstrapToast, toast));
         });
 
         // Disparaît automatiquement après X secondes
@@ -168,18 +167,14 @@ export class Toast extends Component {
 
     async makeAction(e, bootstrapToast, toast) {
         try {
-						const target = e.target;
-						const actionUrl = target.getAttribute('data-action');
-						console.log("REQUESING:", actionUrl);
+            const target = e.target;
+            const actionUrl = target.getAttribute('salam');
             const { data, error } = await api.request.post(actionUrl);
-						if (error) throw error;
-						Toast.success(data.message);
+            if (error) throw error;
+            Toast.success(data.message);
         } catch (error) {
             Toast.error(error.message);
         }
-        // Optionnellement cacher le toast après l'action
-        // bootstrapToast.hide();
-        // toast.parentNode.removeChild(toast);
     }
 
     // Méthodes statiques pour déclencher les toasts

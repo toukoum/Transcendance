@@ -7,7 +7,7 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from games.models import Match, MatchPlayer, MatchLocal
 
-from games.serializers import MatchSerializer, MatchListSerializer, MatchCreateSerializer, MatchLocalSerializer
+from games.serializers import MatchSerializer, MatchCreateSerializer, MatchLocalSerializer
 
 from django.contrib.auth.models import User
 from rest_framework.views import APIView
@@ -18,13 +18,13 @@ from home_api.utils import BaseViewSet
 
 
 class MatchViewSet(BaseViewSet):
-	serializer_class = MatchListSerializer
+	serializer_class = MatchSerializer
 	
 	permission_classes = [IsAuthenticated]
 	
 	def get_queryset(self):
 		user_id = self.request.user.id
-		return MatchLocal.objects.filter(match_players__user=user_id)
+		return Match.objects.filter(match_players__user=user_id)
 	
 
 class MatchLocalViewSet(BaseViewSet):
