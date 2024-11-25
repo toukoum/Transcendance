@@ -1,4 +1,4 @@
-import Game from "../index.js";
+import Game from "../Game.js";
 
 export class Controller {
 	constructor(game) {

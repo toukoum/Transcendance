@@ -1,4 +1,5 @@
-import Game from "../../index.js";
+import GameLocal from "../../../local/GameLocal.js";
+import Game from "../../Game.js";
 import { BaseScreen } from "./screens/BaseScreen.js";
 import { FinishedScreen } from "./screens/FinishedScreen.js";
 import { InitializingScreen } from "./screens/InitializingScreen.js";
@@ -9,7 +10,7 @@ import { WaitingScreen } from "./screens/WaitingScreen.js";
 
 export class UI {
 	constructor(game) {
-		if (!game || !(game instanceof Game)) {
+		if (!game || (!(game instanceof Game) && !(game instanceof GameLocal))) {
 			throw new Error("[Game: UI] Game instance is required");
 		}
 		this.game = game;

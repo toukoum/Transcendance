@@ -1,18 +1,19 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.170.0/+esm';
 import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.124/examples/jsm/controls/OrbitControls.js';
-import Game from "../../index.js";
+import Game from "../../Game.js";
 import { Field } from './Field.js';
 // import { ServerData } from './ServerData.js';
 import { Ball } from './Ball.js';
 import { Player } from './Player.js';
 import { WaterMap } from './Map/WaterMap.js';
 import { SynthwaveMap } from './Map/SynthwaveMap.js';
+import GameLocal from '../../../local/GameLocal.js';
 
 window.THREE = THREE;
 
 export class Scene {
 	constructor(game) {
-		if (!game || !(game instanceof Game)) {
+		if (!game || (!(game instanceof Game) && !game instanceof GameLocal)) {
 			throw new Error("[Game Scene] Game instance is required");
 		}
 		this.game = game;

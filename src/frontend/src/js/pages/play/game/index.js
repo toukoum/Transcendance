@@ -1,26 +1,39 @@
-import { Client } from './components/Client.js';
-import { UI } from './components/UI/UI.js';
-import { PingManager } from './components/PingManager.js';
-import { Scene } from './components/Scene/Scene.js';
-import { Controller } from './components/Controller.js';
-import { ServerData } from './components/Scene/ServerData.js';
+import { Component } from "../../../utils/Component.js";
+import GameTHREE from "./Game.js";
 
-export default class Game {
-    constructor(settings) {
-        this.settings = settings;
-        this.container = document.getElementById(settings.container);
+export class Game extends Component {
+	content() {
+		return (/*html*/`
+		<main-layout>
+			<div id="game" class="h-100 position-relative d-flex justify-content-center align-items-center">
+			</div>
+		</main-layout>
+		`);
+	}
 
-        this.serverData = new ServerData();
-        this.client = new Client(this, settings.gameId);
-        this.pingManager = new PingManager(this.client);
-        this.ui = new UI(this);
-        this.controller = new Controller(this);
-        this.scene = new Scene(this);
-    }
-    
-    start() {
-        this.client.connect();
-        this.pingManager.start();
-        this.scene.start();
-    }
+	script() {
+		const gameId = parseInt(this.getAttribute("id"));
+		let game = window.isInGame;
+		if (!game || game.id !== gameId) {
+			window.router.redirect("/play");
+		}
+		const settings = {
+			gameId: gameId,
+			camera: {
+				position: {
+					x: 0,
+					y: 10,
+					z: 10
+				},
+				angle: 70
+			},
+			container: "game",
+			player_id: window.auth.id
+		}
+
+		window.game = new GameTHREE(settings);
+		window.game.start();
+	}
 }
+
+customElements.define("play-game-page", Game);

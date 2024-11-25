@@ -89,14 +89,10 @@ export class Header extends Component {
 		script() {
 			lucide.createIcons();
 			const toggleButton = document.querySelector('.navbar-toggler');
-			if (toggleButton) {
-					toggleButton.addEventListener('click', this.toggleSidebar.bind(this));
-			} else {
-					console.error("Le bouton de toggle n'a pas été trouvé dans le DOM.");
-			}
+			toggleButton?.addEventListener('click', this.toggleSidebar.bind(this));
 
 			const searchForm = document.querySelector('.search-form');
-			searchForm.addEventListener('submit', (e) => {
+			searchForm?.addEventListener('submit', (e) => {
 					e.preventDefault();
 					const searchValue = searchForm.querySelector('input[type="search"]').value;
 					window.router.push(`/search?q=${searchValue}`);

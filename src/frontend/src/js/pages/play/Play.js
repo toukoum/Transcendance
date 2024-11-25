@@ -345,12 +345,8 @@ export class Play extends Component {
 					</form>
 				</div>
 			</div>
-
-
-
-
 		</main-layout>
-							`);
+	`);
 	}
 
 	script() {
@@ -655,20 +651,15 @@ export class Play extends Component {
 					pseudoPlayer2
 				});
 
-				const { data, error } = await api.request.post("local_games/", {
-					duration: durationLocal === "" ? null : parseInt(durationLocal),
-					max_score: maxScoreLocal === "" ? null : parseInt(maxScoreLocal),
-					player1_name: pseudoPlayer1,
-					player2_name: pseudoPlayer2
-				});
-				if (error) throw error;
-				Toast.success("Local game created successfully");
-				window.router.push(`/play/local/${data.id}`);
+				const params = new URLSearchParams();
+				if (durationLocal) params.append("duration", durationLocal);
+				if (maxScoreLocal) params.append("maxScore", maxScoreLocal);
+				if (pseudoPlayer1) params.append("player1", pseudoPlayer1);
+				if (pseudoPlayer2) params.append("player2", pseudoPlayer2);
+				window.router.push(`/play-local?${params.toString()}`);
 			} catch (error) {
 				console.error(error);
-				if (error instanceof ApiRequestError) {
-					Toast.error(error.message);
-				} else if (error instanceof zod.ZodError) {
+				if (error instanceof zod.ZodError) {
 					error.errors.forEach(err => {
 						err.path.forEach(path => {
 							const input = formLocal.querySelector(`[name="${path}"]`);

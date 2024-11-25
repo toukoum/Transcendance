@@ -18,9 +18,6 @@ const anonRoutes = [
 export const authMiddleware = async (route, next) => {
 
 	// check if user is logged in
-
-	
-	console.log("Auth Middleware");
 	
 	const { data: user } = await api.auth.getUser();
 	if (user) {

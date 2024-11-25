@@ -2,10 +2,6 @@ import { Toast } from "../../provider/toast-provider.js";
 import { api } from "../api/Api.js";
 
 export const gameMiddleware = async (route, next) => {
-	console.log("Game Middleware");
-	console.log('path', window.path);
-	console.log('router', route);
-
 	// Check if user is in a game
 	if (window.auth) {
 		const { data, error } = await api.game.onGame();

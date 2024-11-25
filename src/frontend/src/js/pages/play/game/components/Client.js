@@ -1,4 +1,4 @@
-import Game from "../index.js";
+import Game from "../Game.js";
 import { api } from "../../../../utils/api/Api.js";
 import { Toast } from "../../../../provider/toast-provider.js";
 
