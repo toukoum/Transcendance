@@ -107,7 +107,11 @@ class FriendshipViewSet(BaseViewSet):
         accept a friendship request
         """
 
-        friendship = self.get_object()
+        try:
+            friendship = self.get_object()
+        except:
+            return format_response(error='Friendship not found', status=404)
+
         if friendship.user2 != request.user:
             return format_response(error='You can not accept this friendship request', status=400)
         
@@ -138,7 +142,11 @@ class FriendshipViewSet(BaseViewSet):
 
     @action (detail=True, methods=['post'], url_path='reject')
     def reject(self, request, pk=None):
-        friendship = self.get_object()
+        try:
+            friendship = self.get_object()
+        except:
+            return format_response(error='Friendship not found', status=404)
+
         if friendship.user2 != request.user:
             return format_response(error='You can not reject this friendship request', status=400)
         
@@ -159,7 +167,7 @@ class FriendshipViewSet(BaseViewSet):
           event_type='friend_request',
           user=friendship.user2,
           data={
-            'message': f'You rejected the friendship request from {request.user.username}'
+            'message': f'You rejected the friendship request from {friendship.user1.username}'
           },    
         )
 

@@ -31,6 +31,9 @@ export class App {
 
 				// Friends
 				new Route("/friends", "friends-page"),
+				
+
+				new Route("/play/local/:id", "game-local-page"),
 
 				// raf test
 				new Route("/raf", "raf-test-page"),

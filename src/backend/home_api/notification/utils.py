@@ -9,9 +9,20 @@ VALID_EVENT_TYPES = ["information", "game_request", "friend_request", "tournamen
 from home_api.utils import format_response
 
 def send_notification(user, data, event_type="information", user_from=None, action=None):		
-  """
-  send a notification to a user by his id
-  """
+  
+  
+  # Log the notification details
+  print(f"===============\nSending notification to user: {user.username} (ID: {user.id})")
+  if user_from:
+    print(f"Notification sent by: {user_from.username} (ID: {user_from.id})")
+  else:
+    print("Notification sent by: System")
+  print(f"Event type: {event_type}")
+  print(f"Data: {data}")
+  if action:
+    print(f"Action: {action}")
+  print("===============")
+
   
   group_name = f'user_{user.id}'
   

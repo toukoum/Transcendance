@@ -304,31 +304,29 @@ export class Sidebar extends Component {
 
 		async fill_notif() {
 
-			while (true){
-				try{
-					const { data, error } = await api.request.get('notifications/');
-					if (error) throw error;
-					const wrapperNotif = document.getElementById("wrapper-notif");
-					wrapperNotif.innerHTML = "";
-					const notifications = Object.values(data);
-		
-					notifications.forEach((notif) => {
-							const notifElement = document.createElement('div');
-							notifElement.innerHTML = this.get_notif_component(notif);
-							wrapperNotif.appendChild(notifElement);
-					});
-		
-					this.bind_action_buttons();
-					lucide.createIcons();
+			try{
+				const { data, error } = await api.request.get('notifications/');
+				if (error) throw error;
+				const wrapperNotif = document.getElementById("wrapper-notif");
+				wrapperNotif.innerHTML = "";
+				const notifications = Object.values(data);
 	
-					await new Promise((resolve) => setTimeout(resolve, 10000));
+				notifications.forEach((notif) => {
+						const notifElement = document.createElement('div');
+						notifElement.innerHTML = this.get_notif_component(notif);
+						wrapperNotif.appendChild(notifElement);
+				});
+	
+				this.bind_action_buttons();
+				lucide.createIcons();
 
-				} catch (error) {
-					console.error('Failed to fetch notifications:', error);
-					Toast.error('Failed to fetch notifications');
-				}
+				await new Promise((resolve) => setTimeout(resolve, 10000));
 
+			} catch (error) {
+				console.error('Failed to fetch notifications:', error);
+				Toast.error('Failed to fetch notifications');
 			}
+
 		}
 
     script() {
@@ -363,6 +361,10 @@ export class Sidebar extends Component {
 
 
 				this.fill_notif();
+
+				document.addEventListener('notification', () => {
+					this.fill_notif();
+				});
 							
 		}
 }

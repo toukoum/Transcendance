@@ -326,7 +326,6 @@ export class Friends extends Component {
       try {
         const { data, error } = await api.request.post(`friends/${friendId}/accept/`);
         if (error) throw error;
-        Toast.success("Friend request accepted");
         await this.fillFriendsReceive();
         await this.fillFriends();
       } catch (error) {
@@ -340,7 +339,6 @@ export class Friends extends Component {
       try {
         const { data, error } = await api.request.post(`friends/${friendId}/reject/`);
         if (error) throw error;
-        Toast.success("Friend request declined");
         await this.fillFriendsReceive();
       } catch (error) {
         Toast.error(error.message);
@@ -371,6 +369,11 @@ export class Friends extends Component {
   script() {
     this.fillFriends();
     this.fillFriendsReceive();
+
+		document.addEventListener('notification', () => {
+			this.fillFriends();
+			this.fillFriendsReceive();
+		});
 
     const sentRequestForm = document.querySelector("#sent-request-form");
     sentRequestForm.addEventListener("submit", async (e) => {

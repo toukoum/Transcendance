@@ -5,6 +5,56 @@ from django.contrib.auth.models import User
 
 from tournaments.models import Tournament
 
+
+class MatchLocal(models.Model):
+	class State(models.TextChoices):
+			CREATED = 'created', 'Match created'
+			FINISHED = 'finished', 'Match finished'
+			CANCELLED = 'cancelled', 'Match cancelled'
+	
+	state = models.CharField(
+			max_length=20,
+			choices=State.choices,
+			default=State.CREATED,
+	)
+	created_at = models.DateTimeField(auto_now_add=True)
+	updated_at = models.DateTimeField(auto_now=True)
+
+	# Game
+	started_at = models.DateTimeField(blank=True, null=True)
+	finished_at = models.DateTimeField(blank=True, null=True)
+
+	winner = models.CharField(max_length=255, blank=True, null=True)
+	player1_name = models.CharField(max_length=255, blank=True, null=True)
+	player2_name = models.CharField(max_length=255, blank=True, null=True)
+	score_player1 = models.IntegerField(default=0)
+	score_player2 = models.IntegerField(default=0)
+
+	user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+	# Config
+	duration = models.IntegerField(default=300, blank=True, null=True) # in seconds
+	max_score = models.IntegerField(default=None, blank=True, null=True) # max score to win the match
+
+
+	def __str__(self):
+			return f'Match {self.id}=> player1: {self.player1_name}/ player2: {self.player2_name}'
+	
+	def clean(self):
+		if self.duration is None and self.max_score is None:
+			raise ValidationError('Either duration or max_score must be set')
+		if self.duration is not None and self.duration < 30:
+			raise ValidationError('Duration must be at least 30 seconds')
+		if self.max_score is not None and self.max_score < 1:
+			raise ValidationError('Max score must be at least 1')
+		
+		super().clean()
+	
+	def save(self, *args, **kwargs):
+		self.full_clean()
+		super().save(*args, **kwargs)
+
+
 class Match(models.Model):
 	class State(models.TextChoices):
 			CREATED = 'created', 'Match created'

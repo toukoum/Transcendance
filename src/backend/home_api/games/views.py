@@ -5,9 +5,9 @@ from asgiref.sync import async_to_sync
 
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
-from games.models import Match, MatchPlayer
+from games.models import Match, MatchPlayer, MatchLocal
 
-from games.serializers import MatchSerializer, MatchListSerializer, MatchCreateSerializer
+from games.serializers import MatchSerializer, MatchListSerializer, MatchCreateSerializer, MatchLocalSerializer
 
 from django.contrib.auth.models import User
 from rest_framework.views import APIView
@@ -24,52 +24,29 @@ class MatchViewSet(BaseViewSet):
 	
 	def get_queryset(self):
 		user_id = self.request.user.id
-		return Match.objects.filter(match_players__user=user_id)
-		
+		return MatchLocal.objects.filter(match_players__user=user_id)
 	
-  
 
-# class CreateMatchViewSet(viewsets.ModelViewSet):
-#     queryset = Match.objects.all()
-#     serializer_class = MatchSerializer
-#     permission_classes = [IsAuthenticated]
+class MatchLocalViewSet(BaseViewSet):
+	serializer_class = MatchLocalSerializer
+	
+	permission_classes = [IsAuthenticated]
+	
+	def get_queryset(self):
+		user_id = self.request.user.id
+		return MatchLocal.objects.filter(user=user_id)
 
-#     def create(self, request, *args, **kwargs):
-#         player1 = request.user
-#         opponent_username = request.data.get('opponent')
+	def create(self, request, *args, **kwargs):
+			serializer = self.get_serializer(data=request.data)
+			serializer.is_valid(raise_exception=True)
 
-#         try:
-#             player2 = User.objects.get(username=opponent_username)
-#         except User.DoesNotExist:
-#             return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+			# Appelle la méthode de création sur le serializer
+			match = serializer.save(user=request.user)
 
-#         if player1 == player2:
-#             return Response({'error': 'You cannot play against yourself'}, status=status.HTTP_400_BAD_REQUEST)
+			# Personnalise la réponse si nécessaire
+			return format_response(data=MatchLocalSerializer(match).data, status=201)
 
-#         # ongoing_matches_player1 = Match.objects.filter(
-#         #     match_players__player_id=player1.id,
-#         #     end_time__isnull=True
-#         # )
 
-#         # if ongoing_matches_player1.exists():
-#         #     return Response({'error': 'You already have a Game on going'})
-
-#         # ongoing_matches_player2 = Match.objects.filter(
-#         #     match_players__player_id=player1.id,
-#         #     end_time__isnull=True
-#         # )
-
-#         # if ongoing_matches_player2.exists():
-#         #     return Response({'error': f'{opponent_username} is already in game'})
-
-#         match = Match.objects.create()
-
-#         match_player1 = MatchPlayer.objects.create(match_id=match, player_id=player1, is_player1=True)
-#         match_player2 = MatchPlayer.objects.create(match_id=match, player_id=player2, is_player1=False)
-
-#         serializer = MatchSerializer(match)
-
-#         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class MatchView(APIView):
 	permission_classes = [IsAuthenticated]
