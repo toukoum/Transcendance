@@ -26,7 +26,10 @@ const schemaGame = zod.object({
 		.max(100, {
 			message: "Max score must be at most 100"
 		})
-		.nullable()
+		.nullable(),
+	map: zod
+		.string()
+		.optional(),
 }).refine((data) => {
 	if (data.duration === null && data.maxScore === null) {
 		return false;
@@ -141,6 +144,16 @@ export class Play extends Component {
 								<label for="max-score">Max Score</label>
 								<input type="number" id="max-score" class="form-control" name="maxScore" value="" placeholder="Max Score">
 								<small id="maxScore-error" class="form-text text-danger" style="display: none;"></small>
+							</div>
+							<!-- MAP Select -->
+							<div class="form-group">
+								<label for="map">Map</label>
+								<select id="map" class="form-select" name="map">
+									<option value="default">Default</option>
+									<option value="synthwave">Synthwave</option>
+									<option value="water">Water</option>
+								</select>
+								<small id="map-error" class="form-text text-danger" style="display: none;"></small>
 							</div>
 						</div>
 						<div class="modal-footer">
@@ -331,20 +344,23 @@ export class Play extends Component {
 				const {
 					duration,
 					maxPlayers,
-					maxScore
+					maxScore,
+					map
 				} = Object.fromEntries(formData.entries());
 				console.log(duration, maxPlayers, maxScore);
 
 				schemaGame.parse({
 					duration: duration === "" ? null : parseInt(duration),
 					maxPlayers: parseInt(maxPlayers),
-					maxScore: maxScore === "" ? null : parseInt(maxScore)
+					maxScore: maxScore === "" ? null : parseInt(maxScore),
+					map,
 				});
 
 				const { data, error } = await api.game.create({
 					duration,
 					max_players: maxPlayers === "" ? null : parseInt(maxPlayers),
-					max_score: maxScore === "" ? null : parseInt(maxScore)
+					max_score: maxScore === "" ? null : parseInt(maxScore),
+					map: map === "default" ? undefined : map,
 				});
 				if (error) throw error;
 				Toast.success("Game created successfully");

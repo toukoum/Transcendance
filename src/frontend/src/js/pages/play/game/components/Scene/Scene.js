@@ -5,7 +5,8 @@ import { Field } from './Field.js';
 // import { ServerData } from './ServerData.js';
 import { Ball } from './Ball.js';
 import { Player } from './Player.js';
-import { World } from './World.js';
+import { WaterMap } from './Map/WaterMap.js';
+import { SynthwaveMap } from './Map/SynthwaveMap.js';
 
 window.THREE = THREE;
 
@@ -64,8 +65,10 @@ export class Scene {
 		/* -------------------------------------------------------------------------- */
 
 		/* ---------------------------------- World --------------------------------- */
-		this.world = new World();
-		this.world.add(this.scene);
+		// this.world = new World();
+		// this.world.add(this.scene);
+		this.map = undefined;
+		/* -------------------------------------------------------------------------- */
 
 		window.addEventListener("resize", () => this.resize());
 
@@ -94,6 +97,9 @@ export class Scene {
 		const deltaTime = (now - this.lastUpdateTime) / 1000;
 		this.lastUpdateTime = now;
 
+		if (this.map) {
+			this.map.update();
+		}
 		if (this.ball) {
 			this.ball.update(deltaTime);
 		}
@@ -103,7 +109,6 @@ export class Scene {
 		if (this.player_2) {
 			this.player_2.update();
 		}
-		this.world.update();
 	}
 
 	/* ---------------------------------- Tools --------------------------------- */
@@ -134,6 +139,13 @@ export class Scene {
 	syncWithServer() {
 		if (!window.game.serverData) {
 			return console.warn("[Game Scene] Server data is required");
+		}
+		console.log("serverData", window.game.serverData);
+		// if ("map" in window.game.serverData.match) {
+		if (window.game.serverData.match.map) {
+			if (!this.map) {
+				this.createMap(window.game.serverData.match.map);
+			}
 		}
 
 		if (window.game.serverData.field) {
@@ -200,6 +212,19 @@ export class Scene {
 			this.camera.updateProjectionMatrix();
 		} else {
 			console.warn("[Game Scene] Container not found");
+		}
+	}
+
+	/* --------------------------------- Map --------------------------------- */
+
+	createMap(map) {
+		switch (map) {
+			case "water":
+				this.map = new WaterMap(this.game);
+				break;
+			default:
+				this.map = new SynthwaveMap(this.game);
+				break;
 		}
 	}
 }

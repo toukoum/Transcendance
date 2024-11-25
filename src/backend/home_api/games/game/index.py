@@ -14,7 +14,7 @@ from django.db.models import Q
 from games.game.models.Player import Player
 from games.game.models.Ball import Ball
 from games.game.models.Paddle import Paddle
-from games.game.constants import FIELD_WIDTH, FIELD_HEIGHT, PADDLE_HEIGHT, PADDLE_WIDTH, PADDLE_SPEED
+from games.game.constants import FIELD_WIDTH, FIELD_HEIGHT, PADDLE_HEIGHT, PADDLE_WIDTH, PADDLE_SPEED, COUNTDOWN_DURATION, TICK_RATE
 
 logger = logging.getLogger('django')
 
@@ -119,56 +119,44 @@ class Game:
 		"""
 		logger.info(f'Playing round for match {self.match.id}')
 
-		countdown_time = 3
-		countdown_end = datetime.now().timestamp() + countdown_time
+		countdown_end = datetime.now().timestamp() + COUNTDOWN_DURATION
 
-		round_start = datetime.now()
 		winner = None
+
+		tick_duration = 1 / TICK_RATE
+		next_tick_time = datetime.now().timestamp() + tick_duration
+
 		while winner is None:
-			# is_countdown = datetime.now().timestamp() < countdown_end
-			countdown_left = countdown_end - datetime.now().timestamp()
+			current_time = datetime.now().timestamp()
+			delta_time = current_time - self.elapsed_time
+			self.elapsed_time += delta_time  # Temps total écoulé
+
+			countdown_left = countdown_end - current_time
 			is_countdown = countdown_left > 0
 
-			self.elapsed_time += (datetime.now() - round_start).total_seconds()
-			round_start = datetime.now()
-			if self.is_game_over():
-				return None
-			
-
-			# Move the ball
+			# Mise à jour de la balle et des paddles
 			if not is_countdown:
-				self.ball.move()
-
-			# Allow the paddles to move even during the countdown
-			self.player_1.paddle.move()
-			self.player_2.paddle.move()
+				self.ball.move(delta_time)
+			
+			self.player_1.paddle.move(delta_time)
+			self.player_2.paddle.move(delta_time)
 
 			if not is_countdown:
 				self.ball.check_collision_with_wall()
 				self.ball.check_collision_with_paddle(self.player_1.paddle)
 				self.ball.check_collision_with_paddle(self.player_2.paddle)
 
-				# Check if the ball is out of the field
 				if self.ball.is_out_of_field(FIELD_WIDTH, FIELD_HEIGHT):
-					print("Ball is out of the field")
-					if self.ball.x < 0:
-						winner = self.player_2
-					else:
-						winner = self.player_1
-			
-			if not is_countdown:
-				await self.send_state()
-			else:
-				await self.send_state({
-					'countdown': countdown_left
-				})
-			# await self.send_state()
-			await asyncio.sleep(0.01)
+					winner = self.player_2 if self.ball.x < 0 else self.player_1
 
-		# Check the winner
+			await self.send_state() if not is_countdown else await self.send_state({'countdown': countdown_left})
+
+			# Calculez le temps restant jusqu'au prochain tick
+			next_tick_time += tick_duration
+			sleep_time = max(0, next_tick_time - datetime.now().timestamp())
+			await asyncio.sleep(sleep_time)
 
 		return winner
-		# return random.choice([self.player_1, self.player_2])
 
 	# -------------------------------- Games Utils ------------------------------- #
 	
@@ -382,6 +370,7 @@ class Game:
 				'state': self.match.state,
 				'max_players': self.match.max_players,
 				'max_score': self.match.max_score,
+				'map': self.match.map,
 			},
 			# 'players': [player.to_dict() for player in self.players],
 			'player_1': self.player_1.to_dict() if self.player_1 else None,

@@ -7,8 +7,8 @@ class Ball:
 		self.y = 0
 		self.radius = BALL_RADIUS
 		self.speed = BALL_SPEED
-		self.vx = 1
-		self.vy = 0
+		self.vx = random.choice([-1, 1])
+		self.vy = random.choice([-1, 1])
 
 		# Backup previous side
 		self.previous_side = self.vx
@@ -17,42 +17,49 @@ class Ball:
 	# ---------------------------------- Collide --------------------------------- #
 	
 	def check_collision_with_wall(self):
-		if self.y + self.radius >= FIELD_HEIGHT / 2:
-			self.vy = -abs(self.vy)
-		elif self.y - self.radius <= -FIELD_HEIGHT / 2:
-			self.vy = abs(self.vy)
+		"""
+		Vérifie les collisions de la balle avec les murs supérieur et inférieur.
+		Ignore les rebonds si la balle est hors du terrain en X (côté paddle).
+		"""
+		# Vérifie si la balle est dans la zone de jeu en X
+		if -FIELD_WIDTH / 2 <= self.x <= FIELD_WIDTH / 2:
+			# Collision avec le mur supérieur
+			if self.y + self.radius >= FIELD_HEIGHT / 2:
+				self.vy = -abs(self.vy)
+			# Collision avec le mur inférieur
+			elif self.y - self.radius <= -FIELD_HEIGHT / 2:
+				self.vy = abs(self.vy)
 		
 	def check_collision_with_paddle(self, paddle):
 		"""
-		Gère les collisions avec un paddle donné en calculant un rebond basé sur l'angle d'incidence.
+		Vérifie si la balle entre en collision avec un paddle, y compris sur ses côtés.
+		Inverse les directions (vx, vy) en fonction de la zone de collision.
 		"""
-		# Vérifie si la balle est au même x que le paddle (collision horizontale)
-		if (
-			self.x - self.radius <= paddle.x + paddle.width / 2
-			and self.x + self.radius >= paddle.x - paddle.width / 2
-		):
-			# Vérifie si la balle est au même y que le paddle (collision verticale)
-			if (
-				self.y + self.radius >= paddle.y - paddle.height / 2
-				and self.y - self.radius <= paddle.y + paddle.height / 2
-			):
-				# Inverse la direction horizontale
-				self.vx = -self.vx
+		# Limites du paddle
+		paddle_top = paddle.y + paddle.height / 2
+		paddle_bottom = paddle.y - paddle.height / 2
+		paddle_left = paddle.x - paddle.width / 2
+		paddle_right = paddle.x + paddle.width / 2
 
-				# Calcul de l'offset vertical de la balle par rapport au centre du paddle
-				offset = (self.y - paddle.y) / (paddle.height / 2)
+		# Vérification des collisions globales (rectangle englobant)
+		if (self.x + self.radius >= paddle_left and self.x - self.radius <= paddle_right and
+			self.y + self.radius >= paddle_bottom and self.y - self.radius <= paddle_top):
 
-				# Limite l'offset pour éviter des valeurs extrêmes (entre -1 et 1)
-				offset = max(min(offset, 1), -1)
+			# Détecter la face avant/arrière (collision principale)
+			if self.x < paddle_left:  # Balle touche la face arrière (gauche du paddle)
+				self.x = paddle_left - self.radius
+				self.vx = -abs(self.vx)  # Rebondir vers la gauche
+			elif self.x > paddle_right:  # Balle touche la face avant (droite du paddle)
+				self.x = paddle_right + self.radius
+				self.vx = abs(self.vx)  # Rebondir vers la droite
 
-				# Calcule le nouvel angle en radians (ex : 45° max d'inclinaison)
-				max_angle = math.radians(45)
-				angle = offset * max_angle
-
-				# Met à jour les vecteurs de direction (vx, vy) en fonction de l'angle
-				speed = math.sqrt(self.vx**2 + self.vy**2)  # Conserve la vitesse constante
-				self.vx = math.copysign(math.cos(angle) * speed, self.vx)
-				self.vy = math.sin(angle) * speed
+			# Détecter les côtés (haut/bas du paddle)
+			if self.y > paddle_top:  # Touche le haut du paddle
+				self.y = paddle_top + self.radius
+				self.vy = abs(self.vy)  # Rebondir vers le bas
+			elif self.y < paddle_bottom:  # Touche le bas du paddle
+				self.y = paddle_bottom - self.radius
+				self.vy = -abs(self.vy)  # Rebondir vers le haut
 		
 	def is_out_of_field(self, field_width = FIELD_WIDTH, field_height = FIELD_HEIGHT):
 		return (
@@ -62,18 +69,16 @@ class Ball:
 
 	# ---------------------------------------------------------------------------- #
 
-	def move(self):
-		self.x += self.vx * self.speed
-		self.y += self.vy * self.speed
+	def move(self, dt):
+		self.x += self.vx * self.speed * dt
+		self.y += self.vy * self.speed * dt
 		
 	def reset(self):
 		self.x = 0
 		self.y = 0
-		self.vy = 0
+		self.vy = random.choice([-1, 1])
 		self.previous_side = -self.previous_side
 		self.vx = self.previous_side
-
-		# each reset should have a different side
 
 	def to_dict(self):
 		return {

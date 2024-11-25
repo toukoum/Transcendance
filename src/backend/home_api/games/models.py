@@ -16,6 +16,10 @@ class Match(models.Model):
 			FINISHED = 'finished', 'Match finished'
 			CANCELLED = 'cancelled', 'Match cancelled'
 	
+	class MapChoices(models.TextChoices):
+		SYNTHWAVE = 'synthwave', 'Synthwave'
+		WATER = 'water', 'Water'
+	
 	state = models.CharField(
 			max_length=20,
 			choices=State.choices,
@@ -35,15 +39,20 @@ class Match(models.Model):
 	duration = models.IntegerField(default=300, blank=True, null=True) # in seconds
 	max_players = models.IntegerField(default=2)
 	max_score = models.IntegerField(default=None, blank=True, null=True) # max score to win the match
+	map = models.CharField(
+		max_length=20,
+		choices=MapChoices.choices,
+		default=MapChoices.SYNTHWAVE,
+	)
 
 	#Tournament
 	tournament = models.ForeignKey(
-        Tournament,
-        on_delete=models.CASCADE,
-        related_name='matches',
-        null=True, # if match is not part of a tournament
-        blank=True
-    )
+		Tournament,
+		on_delete=models.CASCADE,
+		related_name='matches',
+		null=True, # if match is not part of a tournament
+		blank=True
+	)
 	round = models.IntegerField(default=1)
 
 	def __str__(self):

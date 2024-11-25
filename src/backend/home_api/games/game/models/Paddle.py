@@ -24,20 +24,18 @@ class Paddle:
 		self.speed = self.default_speed
 		self.vy = self.default_vy
 
-	def move(self):
+	def move(self, dt):
 		"""
 		Update the paddle's position based on its velocity (`vy`).
 		Ensure it does not go out of bounds.
 		"""
-		new_y = self.y + self.vy
+		self.y += self.vy * dt
 		# Check top boundary
-		if new_y - self.height / 2 < -FIELD_HEIGHT / 2:
+		if self.y - self.height / 2 < -FIELD_HEIGHT / 2:
 			self.y = -FIELD_HEIGHT / 2 + self.height / 2
 		# Check bottom boundary
-		elif new_y + self.height / 2 > FIELD_HEIGHT / 2:
+		elif self.y + self.height / 2 > FIELD_HEIGHT / 2:
 			self.y = FIELD_HEIGHT / 2 - self.height / 2
-		else:
-			self.y = new_y
 
 	def move_up(self, is_pressed):
 		if is_pressed:
@@ -50,8 +48,6 @@ class Paddle:
 			self.vy = self.speed
 		else:
 			self.vy = 0 if self.vy > 0 else self.vy # prevent erase up movement
-
-		
 
 	def to_dict(self):
 		return {

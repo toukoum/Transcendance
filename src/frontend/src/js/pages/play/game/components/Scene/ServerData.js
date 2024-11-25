@@ -2,12 +2,23 @@ import zod from 'https://cdn.jsdelivr.net/npm/zod@3.23.8/+esm'
 
 export class ServerData {
 	constructor() {
+		this.match = null;
 		this.ball = null;
 		this.player_1 = null;
 		this.player_2 = null;
 		this.field = null;
+		this.elapsed_time = 0;
+
+
 		this.subscribers = [];
 	}
+
+	static matchSchema = zod.object({
+		'id': zod.number(),
+		'state': zod.string(),
+		'max_players': zod.number(),
+		'max_score': zod.number(),
+	});
 
 	static userSchema = zod.object({
 		'id': zod.number(),
@@ -46,6 +57,7 @@ export class ServerData {
 			width: zod.number(),
 			height: zod.number(),
 		}),
+		elapsed_time: zod.number(),
 	});
 
 	validateData(data) {
@@ -54,6 +66,16 @@ export class ServerData {
 
 	update(data) {
 		this.validateData(data);
+
+		if (data.match) {
+			this.match = {
+				id: data.match.id,
+				state: data.match.state,
+				max_players: data.match.max_players,
+				max_score: data.match.max_score,
+				map: data.match.map,
+			};
+		}
 
 		if (data.field) {
 			this.field = {
@@ -98,6 +120,10 @@ export class ServerData {
 					height: data.player_2.paddle.height,
 				} : null
 			};
+		}
+
+		if (data.elapsed_time) {
+			this.elapsed_time = data.elapsed_time;
 		}
 
 		if (window.game.scene) {
