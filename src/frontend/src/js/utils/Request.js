@@ -93,8 +93,10 @@ export class Request {
 		if (options && typeof options !== "object") {
 			throw new TypeError("Options must be an object");
 		}
+
 		const response = await fetch(endpoint, options);
 		const data = await response.json();
+
 		return {
 			response,
 			data,

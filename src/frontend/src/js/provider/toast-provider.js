@@ -168,8 +168,9 @@ export class Toast extends Component {
 
     async makeAction(e, bootstrapToast, toast) {
         try {
-            const target = e.target;
-            const actionUrl = target.getAttribute('data-action');
+						const target = e.target;
+						const actionUrl = target.getAttribute('data-action');
+						console.log("REQUESING:", actionUrl);
             const { data, error } = await api.request.post(actionUrl);
 						if (error) throw error;
 						Toast.success(data.message);

@@ -69,7 +69,7 @@ class NotificationsViewSet(BaseViewSet):
 		try: 
 			instance = self.get_object()
 			instance.delete()
-			return format_response(data={'message': 'Notification deleted'}, status=204)
+			return format_response(data={'message': 'Notification deleted'}, status=200)
 		except:
 			return format_response(data={'message': 'Notification not found'}, status=404)
 	
