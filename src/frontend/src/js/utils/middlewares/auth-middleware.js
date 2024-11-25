@@ -16,21 +16,10 @@ const anonRoutes = [
 ];
 
 export const authMiddleware = async (route, next) => {
-	if (!window.notif) {
-		window.notif = new ApiWebSocket('notification/');
-	}
-	window.notif.on('message', (data) => {
-		console.log("===========>> Notification", data);
-		if (data.action != null){
-			Toast.notificationAction(data)
-		}else{
-			if (data.data.message != null)
-				Toast.info(data.data.message, data.event_type)
-			else if (data.message != null)
-				Toast.info(data.message)
-		}
-	});
 
+	// check if user is logged in
+
+	
 	console.log("Auth Middleware");
 	
 	const { data: user } = await api.auth.getUser();
@@ -52,6 +41,25 @@ export const authMiddleware = async (route, next) => {
 		window.router.redirect("/"); // Redirect to home
 		return;
 	}
+
+	if (window.auth){
+		if (!window.notif) {
+			window.notif = new ApiWebSocket('notification/');
+		}
+		window.notif.on('message', (data) => {
+			console.log("===========>> Notification", data);
+			document.dispatchEvent(new Event('notification'));
+			if (data.action != null){
+				Toast.notificationAction(data)
+			}else{
+				if (data.data.message != null)
+					Toast.info(data.data.message, data.event_type)
+				else if (data.message != null)
+					Toast.info(data.message)
+			}
+		});
+	}
+
 
 	next();
 }
