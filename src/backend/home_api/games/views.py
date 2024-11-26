@@ -60,7 +60,6 @@ class MatchView(APIView):
 			~Q(match__state__in=[Match.State.FINISHED, Match.State.CANCELLED])
 		).exists():
 			return format_response(error="You already have an ongoing match", status=400)
-			# return Response({"error": "You already have an ongoing match"}, status=status.HTTP_400_BAD_REQUEST)
 
 		print('request.data', request.data)
 		serializer = MatchCreateSerializer(data=request.data)
@@ -82,8 +81,6 @@ class MatchView(APIView):
 			async_to_sync(GAMES.set)(match.id, Game(match))
 
 			return format_response(data=MatchSerializer(match).data, status=201)
-			# return Response(MatchSerializer(match).data, status=status.HTTP_201_CREATED)
-		# return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 		return format_response(error=serializer.errors, status=400)
 	
 class MatchJoinView(APIView):
