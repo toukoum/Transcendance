@@ -30,6 +30,15 @@ const schemaGame = zod.object({
 	map: zod
 		.string()
 		.optional(),
+	difficulty: zod
+		.string()
+		.optional()
+		.transform((value) => {
+			if (value === "easy" || value === "medium" || value === "hard") {
+				return value;
+			}
+			return null;
+		})
 }).refine((data) => {
 	if (data.duration === null && data.maxScore === null) {
 		return false;
@@ -109,22 +118,24 @@ const schemaLocal = zod.object({
 			message: "Max score must be at most 100"
 		})
 		.nullable(),
+	mapLocal: zod
+		.string()
+		.optional(),
+	difficultyLocal: zod
+		.string()
+		.optional()
+		.transform((value) => {
+			if (value === "easy" || value === "medium" || value === "hard") {
+				return value;
+			}
+			return null;
+		}),
 	pseudoPlayer1: zod
 		.string()
-		.min(3, {
-			message: "Pseudo must be at least 3 characters"
-		})
-		.max(15, {
-			message: "Pseudo must be at most 15 characters"
-		}),
+		.optional(),
 	pseudoPlayer2: zod
 		.string()
-		.min(3, {
-			message: "Pseudo must be at least 3 characters"
-		})
-		.max(15, {
-			message: "Pseudo must be at most 15 characters"
-		})
+		.optional(),
 }).refine((data) => {
 	if (data.durationLocal === null && data.maxScoreLocal === null) {
 		return false;
@@ -206,6 +217,16 @@ export class Play extends Component {
 									<option value="water">Water</option>
 								</select>
 								<small id="map-error" class="form-text text-danger" style="display: none;"></small>
+							</div>
+							<!-- DIFFICULTY -->
+							<div class="form-group">
+								<label for="difficulty">Difficulty</label>
+								<select id="difficulty" class="form-select" name="difficulty">
+									<option value="easy">Easy</option>
+									<option value="medium">Medium</option>
+									<option value="hard">Hard</option>
+								</select>
+								<small id="difficulty-error" class="form-text text-danger" style="display: none;"></small>
 							</div>
 						</div>
 						<div class="modal-footer">
@@ -320,6 +341,26 @@ export class Play extends Component {
 								<input type="number" id="maxScoreLocal" class="form-control" name="maxScoreLocal" value="" placeholder="Max Score" readonly>
 								<small id="maxScoreLocal-error" class="form-text text-danger" style="display: none;"></small>
 							</div>
+							<!-- MAP Select -->
+							<div class="form-group">
+								<label for="mapLocal">Map</label>
+								<select id="mapLocal" class="form-select" name="mapLocal">
+									<option value="default">Default</option>
+									<option value="synthwave">Synthwave</option>
+									<option value="water">Water</option>
+								</select>
+								<small id="mapLocal-error" class="form-text text-danger" style="display: none;"></small>
+							</div>
+							<!-- DIFFICULTY -->
+							<div class="form-group">
+								<label for="difficultyLocal">Difficulty</label>
+								<select id="difficultyLocal" class="form-select" name="difficultyLocal">
+									<option value="easy">Easy</option>
+									<option value="medium">Medium</option>
+									<option value="hard">Hard</option>
+								</select>
+								<small id="difficultyLocal-error" class="form-text text-danger" style="display: none;"></small>
+							</div>
 							<!-- Pseudo Player 1 -->
 							<div class="form-group">
 								<label for="pseudoPlayer1">Pseudo Player 1</label>
@@ -378,7 +419,8 @@ export class Play extends Component {
 					duration,
 					maxPlayers,
 					maxScore,
-					map
+					map,
+					difficulty
 				} = Object.fromEntries(formData.entries());
 				console.log(duration, maxPlayers, maxScore);
 
@@ -387,6 +429,7 @@ export class Play extends Component {
 					maxPlayers: parseInt(maxPlayers),
 					maxScore: maxScore === "" ? null : parseInt(maxScore),
 					map,
+					difficulty
 				});
 
 				const { data, error } = await api.game.create({
@@ -394,6 +437,7 @@ export class Play extends Component {
 					max_players: maxPlayers === "" ? null : parseInt(maxPlayers),
 					max_score: maxScore === "" ? null : parseInt(maxScore),
 					map: map === "default" ? undefined : map,
+					difficulty
 				});
 				if (error) throw error;
 				Toast.success("Game created successfully");
@@ -639,6 +683,8 @@ export class Play extends Component {
 				const {
 					durationLocal,
 					maxScoreLocal,
+					mapLocal,
+					difficultyLocal,
 					pseudoPlayer1,
 					pseudoPlayer2
 				} = Object.fromEntries(formData.entries());
@@ -647,6 +693,8 @@ export class Play extends Component {
 				schemaLocal.parse({
 					durationLocal: durationLocal === "" ? null : parseInt(durationLocal),
 					maxScoreLocal: maxScoreLocal === "" ? null : parseInt(maxScoreLocal),
+					mapLocal,
+					difficultyLocal,
 					pseudoPlayer1,
 					pseudoPlayer2
 				});
@@ -654,6 +702,8 @@ export class Play extends Component {
 				const params = new URLSearchParams();
 				if (durationLocal) params.append("duration", durationLocal);
 				if (maxScoreLocal) params.append("maxScore", maxScoreLocal);
+				if (mapLocal) params.append("map", mapLocal);
+				if (difficultyLocal) params.append("difficulty", difficultyLocal);
 				if (pseudoPlayer1) params.append("player1", pseudoPlayer1);
 				if (pseudoPlayer2) params.append("player2", pseudoPlayer2);
 				window.router.push(`/play-local?${params.toString()}`);

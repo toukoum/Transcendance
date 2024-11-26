@@ -1,6 +1,7 @@
 import { Scene } from "../game/components/Scene/Scene.js";
 import { ServerData } from "../game/components/Scene/ServerData.js";
 import { UI } from "../game/components/UI/UI.js";
+import { LocalRunner } from "./LocalRunner.js";
 
 export default class GameLocal {
 	constructor(settings) {

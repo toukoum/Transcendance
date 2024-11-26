@@ -16,6 +16,8 @@ export class PlayLocal extends Component {
 
 		const duration = urlParams.get("duration") || 60;
 		const maxScore = urlParams.get("maxScore") || null;
+		const map = urlParams.get("map") || "default";
+		const difficulty = urlParams.get("difficulty") || "medium";
 		const player1 = urlParams.get("player1") || "Player 1";
 		const player2 = urlParams.get("player2") || "Player 2";
 
@@ -31,10 +33,13 @@ export class PlayLocal extends Component {
 			container: "game",
 			duration,
 			maxScore,
+			map,
+			difficulty,
 			player1,
 			player2
 		}
 		const game = new GameLocal(settings);
+		game.start();
 	}
 }
 

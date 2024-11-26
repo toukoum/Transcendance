@@ -22,7 +22,7 @@ class MatchSerializer(serializers.ModelSerializer):
 class MatchCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Match
-        fields = ['duration', 'max_players', 'max_score', 'map'] # When creating a match, we only need to specify the duration, max_players, max_score, and map
+        fields = ['duration', 'max_players', 'max_score', 'map', 'difficulty'] # When creating a match, we only need to specify the duration, max_players, max_score, and map
     
     def validate(self, data):
         if data.get('duration') is None and data.get('max_score') is None:

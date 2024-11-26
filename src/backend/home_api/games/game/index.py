@@ -14,7 +14,7 @@ from django.db.models import Q
 from games.game.models.Player import Player
 from games.game.models.Ball import Ball
 from games.game.models.Paddle import Paddle
-from games.game.constants import FIELD_WIDTH, FIELD_HEIGHT, PADDLE_HEIGHT, PADDLE_WIDTH, PADDLE_SPEED, COUNTDOWN_DURATION, TICK_RATE
+from games.game.constants import FIELD_WIDTH, FIELD_HEIGHT, PADDLE_HEIGHT, PADDLE_WIDTH, PADDLE_SPEED, COUNTDOWN_DURATION, TICK_RATE, BALL_ACCELERATION_FACTOR, BALL_MAX_SPEED
 
 logger = logging.getLogger('django')
 
@@ -46,14 +46,14 @@ class Game:
 
 		await self.update_state(Match.State.INITIALIZING)
 
-		self.ball = Ball()
+		self.ball = Ball(BALL_ACCELERATION_FACTOR[self.match.difficulty], BALL_MAX_SPEED[self.match.difficulty])
 
 		random.shuffle(self.players)
 		self.player_1 = self.players[0]
 		self.player_2 = self.players[1]
 
-		self.player_1.paddle = Paddle((-FIELD_WIDTH / 2) - (PADDLE_WIDTH / 2), 0, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_SPEED)
-		self.player_2.paddle = Paddle((FIELD_WIDTH / 2) + (PADDLE_WIDTH / 2), 0, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_SPEED)
+		self.player_1.paddle = Paddle((-FIELD_WIDTH / 2) - (PADDLE_WIDTH / 2), 0, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_SPEED.get(self.match.difficulty))
+		self.player_2.paddle = Paddle((FIELD_WIDTH / 2) + (PADDLE_WIDTH / 2), 0, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_SPEED.get(self.match.difficulty))
 
 		await self.send_state()
 	
