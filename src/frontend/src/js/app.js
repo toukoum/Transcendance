@@ -33,11 +33,6 @@ export class App {
 				// Friends
 				new Route("/friends", "friends-page"),
 
-				// raf test
-				new Route("/raf", "raf-test-page"),
-				new Route("/raf/play", "raf-play-page"),
-				new Route("/raf/notif", "raf-notif-page"),
-				
 				// Settings
 				new Route("/settings", "settings-profile-page"),
 				new Route("/settings/profile", "settings-profile-page"),
@@ -48,7 +43,6 @@ export class App {
 				new Route("/tournaments/lobby/:id", "tournaments-lobby"),
 				new Route("/tournaments/:id", "tournaments-page"),
 				new Route("/tournaments/join/:id", "tournaments-join-page"),
-				new Route("/loul", "loul-page"),
         
 				// 404
 				new Route("", "not-found-page"),

@@ -192,7 +192,8 @@ REST_AUTH = {
     'USE_JWT': True,
     'JWT_AUTH_COOKIE': 'transcendence-token',
     'JWT_AUTH_REFRESH_COOKIE': 'transcendence-refresh-token',
-    'JWT_AUTH_SECURE': False,  # Permet d'envoyer les cookies sans HTTPS (dev uniquement)
+    # 'JWT_AUTH_SECURE': False,  # Permet d'envoyer les cookies sans HTTPS (dev uniquement)
+    'JWT_AUTH_SECURE': True,  # Permet d'envoyer les cookies sans HTTPS (dev uniquement)
     'JWT_AUTH_SAMESITE': 'Lax',  # Permet d'envoyer les cookies cross-site
     'JWT_AUTH_HTTPONLY': True,  # Empêche JavaScript d'accéder aux cookies
 }

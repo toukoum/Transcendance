@@ -314,15 +314,15 @@ export class Friends extends Component {
         </div>
 				</link-component>
         <div class="friend-actions d-flex gap-2 align-items-center">
-          <button data-id="${friend.id}" class="btn btn-success accept-friend-btn">Accept</button>
-          <button data-id="${friend.id}" class="btn btn-danger decline-friend-btn">Decline</button>
+          <button accept-friends="${friend.id}" class="btn btn-success accept-friend-btn">Accept</button>
+          <button decline-friends="${friend.id}" class="btn btn-danger decline-friend-btn">Decline</button>
         </div>
       </div>
     `;
 
     const acceptBtn = friendComponent.querySelector(".accept-friend-btn");
     acceptBtn.addEventListener("click", async (e) => {
-      const friendId = e.target.getAttribute("data-id");
+      const friendId = e.target.getAttribute("accept-friends");
       try {
         const { data, error } = await api.request.post(`friends/${friendId}/accept/`);
         if (error) throw error;
@@ -335,7 +335,7 @@ export class Friends extends Component {
 
     const declineBtn = friendComponent.querySelector(".decline-friend-btn");
     declineBtn.addEventListener("click", async (e) => {
-      const friendId = e.target.getAttribute("data-id");
+      const friendId = e.target.getAttribute("decline-friends");
       try {
         const { data, error } = await api.request.post(`friends/${friendId}/reject/`);
         if (error) throw error;
