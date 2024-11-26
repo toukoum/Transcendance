@@ -1,4 +1,5 @@
 import { Api } from "./Api.js";
+import { ApiWebSocket } from "./ApiWebSocket.js";
 
 export class Game {
 	constructor(api) {
@@ -15,8 +16,8 @@ export class Game {
 	 */
 	async create(config = {
 		duration,
-		maxPlayers,
-		maxScore
+		max_players,
+		max_score,
 	}) {
 		return await this.api.request.post("game/", config);
 	}
@@ -49,8 +50,7 @@ export class Game {
 	 * @param {String} gameId - The game id
 	 */
 	connect(gameId) {
-		return this.api.websocket.connect(`game/${gameId}/`);
+		return new ApiWebSocket(`game/${gameId}/`);
+		// return this.api.websocket.connect(`game/${gameId}/`);
 	}
-
-	
 }

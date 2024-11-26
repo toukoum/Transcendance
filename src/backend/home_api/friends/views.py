@@ -17,6 +17,7 @@ from asgiref.sync import async_to_sync
 from notification.utils import send_notification
 from home_api.utils import BaseViewSet
 
+
 class FriendshipViewSet(BaseViewSet):
 
     def get_queryset(self):
@@ -106,7 +107,11 @@ class FriendshipViewSet(BaseViewSet):
         accept a friendship request
         """
 
-        friendship = self.get_object()
+        try:
+            friendship = self.get_object()
+        except:
+            return format_response(error='Friendship not found', status=404)
+
         if friendship.user2 != request.user:
             return format_response(error='You can not accept this friendship request', status=400)
         
@@ -137,9 +142,16 @@ class FriendshipViewSet(BaseViewSet):
 
     @action (detail=True, methods=['post'], url_path='reject')
     def reject(self, request, pk=None):
-        friendship = self.get_object()
+        try:
+            friendship = self.get_object()
+        except:
+            return format_response(error='Friendship not found', status=404)
+
         if friendship.user2 != request.user:
             return format_response(error='You can not reject this friendship request', status=400)
+        
+        if (friendship.status != 'pending'):
+            return format_response(error='This friendship request is not pending', status=400)
         
         friendship.delete()
 
@@ -155,7 +167,7 @@ class FriendshipViewSet(BaseViewSet):
           event_type='friend_request',
           user=friendship.user2,
           data={
-            'message': f'You rejected the friendship request from {request.user.username}'
+            'message': f'You rejected the friendship request from {friendship.user1.username}'
           },    
         )
 
@@ -192,6 +204,8 @@ class FriendshipViewSet(BaseViewSet):
             return format_response(error='You can not delete this friendship request', status=400)
 
         friendship.delete()
+
+        
 
         other_user = friendship.user2 if friendship.user1 == request.user else friendship.user1
         send_notification(

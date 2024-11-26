@@ -28,6 +28,7 @@ export class App {
 				// Play
 				new Route("/play", "play-page"),
 				new Route("/play/:id", "play-game-page"),
+				new Route("/play-local", "play-local-page"),
 
 				// Friends
 				new Route("/friends", "friends-page"),

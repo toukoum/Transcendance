@@ -47,6 +47,7 @@ export class ApiRequest {
 				data: data
 			}
 		}
+
 		return {
 			data: data.data,
 			error: data.error

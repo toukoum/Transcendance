@@ -11,21 +11,6 @@ services:
     networks:
       - trans_network
 
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: pgadmin
-    env_file:
-      - .env
-    volumes:
-      - ./.data/pgadmin:/var/lib/pgadmin
-    ports:
-      - "8888:80"
-    depends_on:
-      - db
-    networks:
-      - trans_network
-
-
   backend:
     build: ./src/backend
     container_name: backend

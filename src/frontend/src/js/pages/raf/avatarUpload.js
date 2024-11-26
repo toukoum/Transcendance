@@ -3,7 +3,6 @@
 export function avatarUpload(){
     const avatarForm = document.getElementById("avatarForm");
     avatarForm.addEventListener("submit", function(event) {
-      console.log("form submited")
       event.preventDefault();
       const formData = new FormData();
       const avatarInput = document.getElementById("avatarInput");
@@ -18,7 +17,6 @@ export function avatarUpload(){
           })
           .then(response => response.json())
           .then(data => {
-              console.log('Success:', data);
               alert("Avatar uploaded successfully!");
           })
           .catch((error) => {

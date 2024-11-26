@@ -201,6 +201,16 @@ export class Friends extends Component {
         .text-muted {
           color: #8e8e93 !important;
         }
+
+				/* Online Status */
+				.online-status-active {
+					background-color: #30d158;
+				}
+
+				.online-status-inactive {
+					background-color: #8e8e93;
+				}
+
       </style>
     `;
   }
@@ -216,11 +226,16 @@ export class Friends extends Component {
     return friend.user1 === username ? friend.user2_avatar : friend.user1_avatar;
   }
 
+	getOnlineFriend(friend) {
+		const username = window.auth.username;
+		return friend.user1 === username ? friend.is_online_user2 : friend.is_online_user1;
+	}
+		
+
   // ======= Friends =========
   getFriendsComponent(friend) {
     const friendComponent = document.createElement("div");
     friendComponent.classList.add("col-12", "col-md-6");
-
     friendComponent.innerHTML = `
 			<div class="friend-card">
 				<link-component href="/user/${this.getFriendName(friend)}" class="friend-card-link">
@@ -229,7 +244,10 @@ export class Friends extends Component {
 							<img src="${this.getFriendAvatar(friend)}" alt="Avatar">
 						</div>
 						<div>
-							<div class="friend-username">${this.getFriendName(friend)}</div>
+							<div class="d-flex align-items-center gap-2">
+								<div class="friend-username">${this.getFriendName(friend)}</div>
+                ${this.getOnlineFriend(friend) ? `<div class="online-status-active badge badge-pill badge-success">Online</div>` : `<div class="online-status-inactive badge badge-pill badge-secondary">Offline</div>`}
+              </div>
 							<div class="friend-status">${friend.status}</div>
 						</div>
 					</div>
@@ -243,7 +261,6 @@ export class Friends extends Component {
 
     const removeBtn = friendComponent.querySelector(".remove-friend-btn");
     removeBtn.addEventListener("click", async (e) => {
-			console.log("remove friend");
 			e.stopPropagation();
       e.preventDefault();
       const friendId = e.target.getAttribute("data-id");
@@ -261,7 +278,7 @@ export class Friends extends Component {
   }
 
   async fillFriends() {
-    const friendsList = this.querySelector(".friends-list");
+    const friendsList = document.querySelector(".friends-list");
     friendsList.innerHTML = "";
     try {
       const { data, error } = await api.request.get("friends/");
@@ -290,7 +307,10 @@ export class Friends extends Component {
           <div class="friend-avatar">
             <img src="${this.getFriendAvatar(friend)}" alt="Avatar">
           </div>
-          <div class="friend-username">${this.getFriendName(friend)}</div>
+					<div class="d-flex justify-content-center gap-2 flex-column">
+						<div class="friend-username">${this.getFriendName(friend)}</div>
+						${this.getOnlineFriend(friend) ? `<div class="online-status-active badge badge-pill badge-success">Online</div>` : `<div class="online-status-inactive badge badge-pill badge-secondary">Offline</div>`}
+					</div>
         </div>
 				</link-component>
         <div class="friend-actions d-flex gap-2 align-items-center">
@@ -306,7 +326,6 @@ export class Friends extends Component {
       try {
         const { data, error } = await api.request.post(`friends/${friendId}/accept/`);
         if (error) throw error;
-        Toast.success("Friend request accepted");
         await this.fillFriendsReceive();
         await this.fillFriends();
       } catch (error) {
@@ -320,7 +339,6 @@ export class Friends extends Component {
       try {
         const { data, error } = await api.request.post(`friends/${friendId}/reject/`);
         if (error) throw error;
-        Toast.success("Friend request declined");
         await this.fillFriendsReceive();
       } catch (error) {
         Toast.error(error.message);
@@ -331,7 +349,7 @@ export class Friends extends Component {
   }
 
   async fillFriendsReceive() {
-    const friendsList = this.querySelector(".friends-list-receive");
+    const friendsList = document.querySelector(".friends-list-receive");
     friendsList.innerHTML = "";
     try {
       const { data, error } = await api.request.get("friends/received/");
@@ -352,16 +370,21 @@ export class Friends extends Component {
     this.fillFriends();
     this.fillFriendsReceive();
 
-    const sentRequestForm = this.querySelector("#sent-request-form");
+		document.addEventListener('notification', () => {
+			this.fillFriends();
+			this.fillFriendsReceive();
+		});
+
+    const sentRequestForm = document.querySelector("#sent-request-form");
     sentRequestForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const username = this.querySelector("#username").value;
+      const username = document.querySelector("#username").value;
       try {
         const { data, error } = await api.request.post("friends/", { user2: username });
         if (error) throw error;
         Toast.success("Friend request sent");
         this.fillFriends();
-        this.querySelector("#username").value = "";
+        document.querySelector("#username").value = "";
       } catch (error) {
         Toast.error(error.message);
       }

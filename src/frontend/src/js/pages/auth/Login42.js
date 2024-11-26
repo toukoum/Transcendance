@@ -22,15 +22,11 @@ export class Login42 extends Component {
 		const state = urlParams.get("state");
 		const code = urlParams.get("code");
 
-		console.log("state", state);
-		console.log("code", code);
-
 		const login42 = this.querySelector(".login-42");
 		login42.addEventListener("click", async () => {
 			try{
 				const { data, error } = await api.request.get(`auth/42/callback/?state=${state}&code=${code}`);
 				if (error) throw error;
-				console.log(data);
 				window.auth = data;
 				window.router.redirect("/");
 			}catch(error){

@@ -5,12 +5,10 @@ from django.contrib.auth.models import User
 
 from tournaments.models import Tournament
 
-class Match(models.Model):
+
+class MatchLocal(models.Model):
 	class State(models.TextChoices):
 			CREATED = 'created', 'Match created'
-			WAITING = 'wainting', 'Waiting for players'
-			IN_PROGRESS = 'in_progress', 'Match in progress'
-			PAUSED = 'paused', 'Match paused'
 			FINISHED = 'finished', 'Match finished'
 			CANCELLED = 'cancelled', 'Match cancelled'
 	
@@ -25,21 +23,86 @@ class Match(models.Model):
 	# Game
 	started_at = models.DateTimeField(blank=True, null=True)
 	finished_at = models.DateTimeField(blank=True, null=True)
+
+	winner = models.CharField(max_length=255, blank=True, null=True)
+	player1_name = models.CharField(max_length=255, blank=True, null=True)
+	player2_name = models.CharField(max_length=255, blank=True, null=True)
+	score_player1 = models.IntegerField(default=0)
+	score_player2 = models.IntegerField(default=0)
+
+	user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+	# Config
+	duration = models.IntegerField(default=300, blank=True, null=True) # in seconds
+	max_score = models.IntegerField(default=None, blank=True, null=True) # max score to win the match
+
+
+	def __str__(self):
+			return f'Match {self.id}=> player1: {self.player1_name}/ player2: {self.player2_name}'
+	
+	def clean(self):
+		if self.duration is None and self.max_score is None:
+			raise ValidationError('Either duration or max_score must be set')
+		if self.duration is not None and self.duration < 30:
+			raise ValidationError('Duration must be at least 30 seconds')
+		if self.max_score is not None and self.max_score < 1:
+			raise ValidationError('Max score must be at least 1')
+		
+		super().clean()
+	
+	def save(self, *args, **kwargs):
+		self.full_clean()
+		super().save(*args, **kwargs)
+
+
+class Match(models.Model):
+	class State(models.TextChoices):
+			CREATED = 'created', 'Match created'
+			WAITING = 'waiting', 'Waiting for players'
+			READY = 'ready', 'Match ready'
+			INITIALIZING = 'initializing', 'Match initializing'
+			IN_PROGRESS = 'in_progress', 'Match in progress'
+			PAUSED = 'paused', 'Match paused'
+			FINISHED = 'finished', 'Match finished'
+			CANCELLED = 'cancelled', 'Match cancelled'
+	
+	class MapChoices(models.TextChoices):
+		SYNTHWAVE = 'synthwave', 'Synthwave'
+		WATER = 'water', 'Water'
+	
+	state = models.CharField(
+			max_length=20,
+			choices=State.choices,
+			default=State.CREATED,
+	)
+	created_at = models.DateTimeField(auto_now_add=True)
+	updated_at = models.DateTimeField(auto_now=True)
+
+	# Game
+	started_at = models.DateTimeField(blank=True, null=True)
+	finished_at = models.DateTimeField(blank=True, null=True)
+
+	# winner = models.ForeignKey('MatchPlayer', on_delete=models.CASCADE, related_name='won_matches', blank=True, null=True)
 	winner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='won_matches', blank=True, null=True)
 
 	# Config
 	duration = models.IntegerField(default=300, blank=True, null=True) # in seconds
 	max_players = models.IntegerField(default=2)
 	max_score = models.IntegerField(default=None, blank=True, null=True) # max score to win the match
+	map = models.CharField(
+		max_length=20,
+		choices=MapChoices.choices,
+		default=MapChoices.SYNTHWAVE,
+	)
 
 	#Tournament
 	tournament = models.ForeignKey(
-        Tournament,
-        on_delete=models.CASCADE,
-        related_name='matches',
-        null=True, # if match is not part of a tournament
-        blank=True
-    )
+		Tournament,
+		on_delete=models.CASCADE,
+		related_name='matches',
+		null=True, # if match is not part of a tournament
+		blank=True
+	)
 	round = models.IntegerField(default=1)
 
 	def __str__(self):
@@ -63,15 +126,15 @@ class Match(models.Model):
 
 class MatchPlayer(models.Model):
 	class Meta: [
-		models.UniqueConstraint(fields=['match_id', 'player_id'], name='unique_match_player')
+		models.UniqueConstraint(fields=['match', 'user'], name='unique_match_player')
 	]
 	class State(models.TextChoices):
 		CONNECTED = 'connected', 'Player connected' # Player is connected to the match
 		DISCONNECTED = 'disconnected', 'Player disconnected' # Player disconnected during the match (internet issue, etc.)
 		LEFT = 'left', 'Player left' # Player left the match before it finished (rage quit, etc.)
 
-	match_id = models.ForeignKey(Match, on_delete=models.CASCADE, related_name='match_players')
-	player_id = models.ForeignKey(User, on_delete=models.CASCADE)
+	match = models.ForeignKey(Match, on_delete=models.CASCADE, related_name='match_players')
+	user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user')
 	created_at = models.DateTimeField(auto_now_add=True)
 	state = models.CharField(
 			max_length=20,
@@ -83,19 +146,19 @@ class MatchPlayer(models.Model):
 	score = models.IntegerField(default=0)
 
 	def __str__(self):
-			return f'{self.player_id} in match {self.match_id}'
+			return f'{self.user} in match {self.match}'
 	
 	def clean(self):
 		# Check if the player already connected to another match
 		if self.state == MatchPlayer.State.CONNECTED:
 			if MatchPlayer.objects.filter(
-				player_id=self.player_id,
+				user=self.user,
 				state=MatchPlayer.State.CONNECTED
-			).exclude(match_id=self.match_id).exists():
+			).exclude(match=self.match).exists():
 				raise ValidationError('Player already connected to another match')
 
 		# Check if the match is full
-		match = self.match_id
+		match = self.match
 		if match.match_players.count() > match.max_players:
 			raise ValidationError('Match is full')
 		

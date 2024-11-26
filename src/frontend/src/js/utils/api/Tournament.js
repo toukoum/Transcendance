@@ -1,4 +1,5 @@
 import { Api } from "./Api.js";
+import { ApiWebSocket } from "./ApiWebSocket.js";
 
 export class Tournament {
 	constructor(api) {
@@ -50,7 +51,8 @@ export class Tournament {
 	 * @param {String} tournamentId - The tournament id
 	 */
 	connect(tournamentId) {
-		return this.api.websocket.connect(`tournament/${tournamentId}/`);
+		return new ApiWebSocket(`tournament/${tournamentId}/`);
+		// return this.api.websocket.connect(`tournament/${tournamentId}/`);
 	}
 
 	

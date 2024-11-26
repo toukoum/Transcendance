@@ -2,6 +2,7 @@ import { api } from "../api/Api.js";
 import { startNotification } from "../notification/notification.js";
 // import { Route } from "../Router";
  import { Toast } from "../../provider/toast-provider.js";
+import { ApiWebSocket } from "../api/ApiWebSocket.js";
 
 const privateRoutes = [
 	"/settings",
@@ -16,19 +17,7 @@ const anonRoutes = [
 
 export const authMiddleware = async (route, next) => {
 
-	const notif = api.websocket.connect('notification/');
-	notif.on('message', (data) => {
-		if (data.action != null){
-			Toast.notificationAction(data)
-		}else{
-			if (data.data.message != null)
-				Toast.info(data.data.message, data.event_type)
-			else if (data.message != null)
-				Toast.info(data.message)
-		}
-	});
-
-	console.log("Auth Middleware");
+	// check if user is logged in
 	
 	const { data: user } = await api.auth.getUser();
 	if (user) {
@@ -49,6 +38,25 @@ export const authMiddleware = async (route, next) => {
 		window.router.redirect("/"); // Redirect to home
 		return;
 	}
+
+	if (window.auth){
+		if (!window.notif) {
+			window.notif = new ApiWebSocket('notification/');
+		}
+		window.notif.on('message', (data) => {
+			console.log("===========>> Notification", data);
+			document.dispatchEvent(new Event('notification'));
+			if (data.action != null){
+				Toast.notificationAction(data)
+			}else{
+				if (data.data.message != null)
+					Toast.info(data.data.message, data.event_type)
+				else if (data.message != null)
+					Toast.info(data.message)
+			}
+		});
+	}
+
 
 	next();
 }

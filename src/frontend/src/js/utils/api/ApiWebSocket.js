@@ -1,19 +1,13 @@
-import { Api } from "./Api.js";
-
 export class ApiWebSocket {
-	constructor(api, baseUrl) {
-		if (!(api instanceof Api)) {
-			throw new Error("Invalid API instance");
+	constructor(endpoint) {
+		if (!endpoint) {
+			throw new Error("Invalid endpoint");
 		}
-		if (!baseUrl) {
-			throw new Error("Invalid baseUrl");
-		}
-
-		this.api = api;
-		this.baseUrl = baseUrl;
+		this.baseUrl = "ws://localhost:8000/ws";
 		this.socket = null;
 		this.listeners = {};
 		this.isConnected = false;
+		this.connect(endpoint);
 	}
 
 	/**
@@ -30,7 +24,7 @@ export class ApiWebSocket {
 			this.emit("open");
 		}
 		this.socket.onmessage = (event) => {
-			console.log(`WebSocket message`, event.data);
+			// console.log(`WebSocket message`, event.data);
 			this.emit("message", JSON.parse(event.data));
 		}
 		this.socket.onclose = () => {
@@ -42,8 +36,6 @@ export class ApiWebSocket {
 			console.error(`WebSocket error`, error);
 			this.emit("error", error);
 		}
-
-		return this;
 	}
 
 	/**
@@ -87,7 +79,7 @@ export class ApiWebSocket {
 	/**
 	 * @brief Get the connection state
 	 */
-	isConnected() {
+	get connected() {
 		return this.isConnected;
 	}
 	

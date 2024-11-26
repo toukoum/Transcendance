@@ -1,3 +1,4 @@
+import { Toast } from "../../provider/toast-provider.js";
 import { Component } from "../../utils/Component.js";
 import { api } from "../../utils/api/Api.js";
 
@@ -29,42 +30,41 @@ export class Sidebar extends Component {
 				const is_link_primary = notif.action?.primary?.is_link || false;
 				const is_link_secondary = notif.action?.secondary?.is_link || false;
 
-        return (/*html*/`
-        <div class="notification ${isRead ? 'read' : 'unread'}" data-id="${id}">
-				<div class="notification-header">
-                <strong class="notification-title">${title}</strong>
-                ${!isRead ? '<span class="badge-unread"></span>' : ''}
-								${isRead ? '<i  class="delete-notif check-check" data-lucide="check-check"></i>' : ''}
-                <small class="notification-time">${friendlyDate}</small>
-								<i data-lucide="x" class="delete-notif" data-id="${id}" style="cursor: pointer; z-index:34;"></i>
-            </div>
-            <div class="notification-body">
-                <p>${message}</p>
-            </div>
-            ${primary_action || secondary_action ? `
-            <div class="notification-actions">
-								${primary_action ? 
-											(is_link_primary ? 
-													`<a class="action btn-primary text-decoration-none text-center" href="${primary_action.url}">${primary_action.label}</a>` : 
-													`<button class="make-action action btn-primary" data-action="${primary_action.url}">${primary_action.label}</button>`
-											) : ''
-									}
+				return (/*html*/`
+				<div class="notification ${isRead ? 'read' : 'unread'}" data-id="${id}">
+					<div class="notification-header">
+						<strong class="notification-title">${title}</strong>
+						${!isRead ? '<span class="badge-unread"></span>' : '<i class="check-check bi bi-check"></i>'}
+						<small class="notification-time">${friendlyDate}</small>
+						<i class="bi bi-x cross-delete-notif" data-id="${id}" style="cursor: pointer; z-index:34;"></i>
+					</div>
+					<div class="notification-body">
+							<p>${message}</p>
+								</div>
+								${primary_action || secondary_action ? `
+								<div class="notification-actions">
+                                    ${primary_action ? 
+                                        (is_link_primary ? 
+                                                `<a class="action btn-primary text-decoration-none text-center" href="${primary_action.url}">${primary_action.label}</a>` : 
+                                                `<button class="make-action action btn-primary" salam="${primary_action.url}">${primary_action.label}</button>`
+                                        ) : ''
+                                    }
 
-								${secondary_action ? 
-										(is_link_secondary ? 
-												`<a class="action btn-secondary text-decoration-none text-center" href="${secondary_action.url}">${secondary_action.label}</a>` : 
-												`<button class="make-action action btn-secondary" data-action="${secondary_action.url}">${secondary_action.label}</button>`
-										) : ''
-								}
-            </div>
-            ` : ''}
-            ${!isRead ? `
-            <div class="notification-mark-read">
-                <button class="mark-as-read" data-id="${id}">Mark as Read</button>
-            </div>
-            ` : ''}
-        </div>
-        `);
+                                    ${secondary_action ? 
+                                        (is_link_secondary ? 
+                                                `<a class="action btn-secondary text-decoration-none text-center" href="${secondary_action.url}">${secondary_action.label}</a>` : 
+                                                `<button class="make-action action btn-secondary" salam="${secondary_action.url}">${secondary_action.label}</button>`
+                                        ) : ''
+                                    }
+								</div>
+								` : ''}
+								${!isRead ? `
+								<div class="notification-mark-read">
+							<button class="mark-as-read" data-id="${id}">Mark as Read</button>
+					</div>
+						` : ''}
+				</div>
+				`);
     }
 
     style() {
@@ -98,6 +98,12 @@ export class Sidebar extends Component {
 							width: 24px;
 							height: 24px;
 						}
+						
+						.cross-delete-notif{
+							height: 20px;
+						}
+
+
 
 						.sidebar-header {
 							display: flex;
@@ -233,23 +239,12 @@ export class Sidebar extends Component {
         `);
     }
 
-    async fill_notif() {
-        const response = await api.request.get('notifications/');
-        const wrapperNotif = document.getElementById("wrapper-notif");
-        const notifications = Object.values(response.data);
-
-        notifications.forEach((notif) => {
-            const notifElement = document.createElement('div');
-            notifElement.innerHTML = this.get_notif_component(notif);
-            wrapperNotif.appendChild(notifElement);
-        });
-    }
+    
 
     async delete_notif(id) {
         try {
-            const response = await api.request.delete(`notifications/${id}/`);
-            console.log(`Notification ${id} deleted`, response);
-
+            const { data, error } = await api.request.delete(`notifications/${id}/`);
+						if (error) throw error;
             const notifElement = document.querySelector(`[data-id="${id}"]`);
             if (notifElement) {
                 notifElement.remove();
@@ -261,8 +256,8 @@ export class Sidebar extends Component {
 
     async mark_as_read(id) {
         try {
-            const response = await api.request.post(`notifications/${id}/mark-as-read/`);
-            console.log(`Notification ${id} marked as read`, response);
+						const { data, error } = await api.request.post(`notifications/${id}/mark-as-read/`);
+						if (error) throw error;
 
             const notifElement = document.querySelector(`[data-id="${id}"]`);
             if (notifElement) {
@@ -287,11 +282,9 @@ export class Sidebar extends Component {
         document.querySelectorAll('.make-action').forEach((element) => {
             element.addEventListener('click', async (e) => {
                 const target = e.target;
-                const actionUrl = target.getAttribute('data-action');
+                const actionUrl = target.getAttribute('salam');
                 try {
-                    console.log('Performing action:', actionUrl);
                     const response = await api.request.post(actionUrl);
-                    console.log('Action response:', response);
                 } catch (error) {
                     console.error('Error performing action:', error);
                 }
@@ -309,15 +302,42 @@ export class Sidebar extends Component {
         return `${day} ${month} ${year}, ${hours}:${minutes}`;
     }
 
+		async fill_notif() {
+
+			try{
+				const { data, error } = await api.request.get('notifications/');
+				if (error) throw error;
+				const wrapperNotif = document.getElementById("wrapper-notif");
+				wrapperNotif.innerHTML = "";
+				const notifications = Object.values(data);
+	
+				notifications.forEach((notif) => {
+						const notifElement = document.createElement('div');
+						notifElement.innerHTML = this.get_notif_component(notif);
+						wrapperNotif.appendChild(notifElement);
+				});
+	
+				this.bind_action_buttons();
+				lucide.createIcons();
+
+				await new Promise((resolve) => setTimeout(resolve, 10000));
+
+			} catch (error) {
+				console.error('Failed to fetch notifications:', error);
+				Toast.error('Failed to fetch notifications');
+			}
+
+		}
+
     script() {
 				const sidebar = document.querySelector('.sidebar');
+				lucide.createIcons();
 				document.addEventListener('toggleSidebar', () => {
 					if (sidebar.style.display === 'none') {
 						sidebar.style.display = 'block';
 					} else {
 						sidebar.style.display = 'none';
 					}
-					console.log("toggleSidebar", this.showSidebar);
 				});
 
 				const closeBtn = document.querySelector('.close-btn');
@@ -326,28 +346,27 @@ export class Sidebar extends Component {
 					sidebar.style.display = 'none';
 				});
 
-
-        this.fill_notif().then(() => {
-            // Event listener for delete buttons
-            document.getElementById("wrapper-notif").addEventListener("click", (e) => {
-                if (e.target.classList.contains("delete-notif")) {
-                    const id = e.target.getAttribute("data-id");
-                    this.delete_notif(id);
-                }
-
-                if (e.target.classList.contains("mark-as-read")) {
-                    const id = e.target.getAttribute("data-id");
-                    this.mark_as_read(id);
-                }
-            });
-
-            this.bind_action_buttons();
-						lucide.createIcons();
+				const wrapperNotif = document.getElementById("wrapper-notif");
+				wrapperNotif.addEventListener('click', (e) => {
+						if (e.target.matches('.cross-delete-notif')) {
+								const id = e.target.getAttribute("data-id");
+								this.delete_notif(id);
+						}
+		
+						if (e.target.matches('.mark-as-read')) {
+								const id = e.target.getAttribute("data-id");
+								this.mark_as_read(id);
+						}
 				});
 
 
-				lucide.createIcons();
-				}
+				this.fill_notif();
+
+				document.addEventListener('notification', () => {
+					this.fill_notif();
+				});
+							
+		}
 }
 
 customElements.define("sidebar-component", Sidebar);

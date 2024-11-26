@@ -15,7 +15,26 @@ export class Request {
 			...options,
 		});
 	}
+	
+	static async put(endpoint, data = {}, options = {}) {
+		if (typeof data !== "object") {
+			throw new TypeError("Data must be an object");
+		}
+		if (typeof options !== "object") {
+			throw new TypeError("Options must be an object");
+		}
+		return await Request.request(endpoint, {
+			method: "PUT",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			credentials: "include",
+			body: JSON.stringify(data),
+			...options,
+		});
+	}
 
+	
 	static async post(endpoint, data = {}, options = {}) {
 		if (typeof data !== "object") {
 			throw new TypeError("Data must be an object");
@@ -34,23 +53,6 @@ export class Request {
 		});
 	}
 
-	static async put(endpoint, data = {}, options = {}) {
-		if (typeof data !== "object") {
-			throw new TypeError("Data must be an object");
-		}
-		if (typeof options !== "object") {
-			throw new TypeError("Options must be an object");
-		}
-		return await Request.request(endpoint, {
-			method: "PUT",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			credentials: "include",
-			body: JSON.stringify(data),
-			...options,
-		});
-	}
 
 	static async delete(endpoint, options = {}) {
 		if (typeof options !== "object") {
@@ -91,8 +93,10 @@ export class Request {
 		if (options && typeof options !== "object") {
 			throw new TypeError("Options must be an object");
 		}
+
 		const response = await fetch(endpoint, options);
 		const data = await response.json();
+
 		return {
 			response,
 			data,

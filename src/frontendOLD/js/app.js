@@ -45,7 +45,6 @@ document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
             // afficher le header de la reponse
 
             console.log(response.headers);
-            console.log("OUAIS");
             window.location.href = "./account.html";  // Redirect to the account/dashboard page
         } else {
             // Handle errors or incorrect login (e.g., 400 or 401 response)

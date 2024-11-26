@@ -108,7 +108,7 @@ def oauth_callback(request):
     response = requests.post(token_url, data=data)
 
     if response.status_code != 200:
-        return format_response(error="Error retrieving access token", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return format_response(error="Error retrieving access token", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     token_info = response.json()
     access_token = token_info.get('access_token')
@@ -116,7 +116,7 @@ def oauth_callback(request):
 
     response_42 = get_data_user_42(request)
     if response_42.status_code != 200:
-        return format_response(error="Error retrieving user data", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return format_response(error="Error retrieving user data", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     user_data = response_42.json()
 
@@ -166,7 +166,7 @@ def get_user_profile(request):
         user_profile = response.json()
         return format_response(data=user_profile)
     else:
-        return format_response(error="Error retrieving user profile", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return format_response(error="Error retrieving user profile", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 # ==============================
@@ -191,11 +191,11 @@ class LoginViewCustom(LoginView):
         }
         return format_response(data=data)
     
-    def format_response(self, data=None, error=None, status_code=200):
-        return Response({
-            "data": data,
-            "error": error
-        }, status=status_code)
+    # def format_response(self, data=None, error=None, status_code=200):
+    #     return Response({
+    #         "data": data,
+    #         "error": error
+    #     }, status=status_code)
 
     def post(self, request, *args, **kwargs):
         self.request = request

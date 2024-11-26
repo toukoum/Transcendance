@@ -26,7 +26,10 @@ const schemaGame = zod.object({
 		.max(100, {
 			message: "Max score must be at most 100"
 		})
-		.nullable()
+		.nullable(),
+	map: zod
+		.string()
+		.optional(),
 }).refine((data) => {
 	if (data.duration === null && data.maxScore === null) {
 		return false;
@@ -86,6 +89,53 @@ const schemaTournament = zod
 		}
 	);
 
+
+const schemaLocal = zod.object({
+	durationLocal: zod
+		.number()
+		.min(30, {
+			message: "Duration must be at least 30 seconds"
+		})
+		.max(3600, {
+			message: "Duration must be at most 3600 seconds"
+		})
+		.nullable(),
+	maxScoreLocal: zod
+		.number()
+		.min(1, {
+			message: "Max score must be at least 1"
+		})
+		.max(100, {
+			message: "Max score must be at most 100"
+		})
+		.nullable(),
+	pseudoPlayer1: zod
+		.string()
+		.min(3, {
+			message: "Pseudo must be at least 3 characters"
+		})
+		.max(15, {
+			message: "Pseudo must be at most 15 characters"
+		}),
+	pseudoPlayer2: zod
+		.string()
+		.min(3, {
+			message: "Pseudo must be at least 3 characters"
+		})
+		.max(15, {
+			message: "Pseudo must be at most 15 characters"
+		})
+}).refine((data) => {
+	if (data.durationLocal === null && data.maxScoreLocal === null) {
+		return false;
+	}
+	return true;
+}, {
+	message: "Duration or max score must be set",
+	path: ["durationLocal", "maxScoreLocal"]
+});
+
+
 const joinSchema = zod.object({
 	gameId: zod
 		.number()
@@ -98,7 +148,7 @@ export class Play extends Component {
 			<div class="container container-md bg-background rounded rounded-3 p-4 my-4 d-flex flex-column gap-2">
 				<div>
 					<h2 class="text-center">Play</h2>
-				</div>	
+				</div>
 				<separator-component></separator-component>
 				<div class="d-flex flex-column gap-2">
 					<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createGameModal">
@@ -112,10 +162,14 @@ export class Play extends Component {
 							Create Tournament
 						</button>
 					</div>
-
+					<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createLocalModal">
+						Play Pong Local
+					</button>
 				</div>
 			</div>
+		
 			<!-- MODALS -->
+			<!-- Create Game Modal -->
 			<div class="modal fade" id="createGameModal" tabindex="-1" aria-labelledby="createGameModalLabel" aria-hidden="true">
 				<div class="modal-dialog modal-dialog-centered">
 					<form id="create-game-form" class="modal-content">
@@ -128,34 +182,46 @@ export class Play extends Component {
 							<div class="form-group">
 								<label for="duration">Duration</label>
 								<input type="number" id="duration" class="form-control" name="duration" value="60" placeholder="Duration in seconds">
-								<small id="duration-empty" class="form-text text-muted-foreground" style="display: none;">If no duration is set, the game will be infinite and max score will be required</small>
+								<small id="duration-empty" class="form-text text-muted-foreground" style="display: none;">
+									If no duration is set, the game will be infinite and max score will be required.
+								</small>
 								<small id="duration-error" class="form-text text-danger" style="display: none;"></small>
 							</div>
-							<!-- Max players -->
+							<!-- Max Players -->
 							<div class="form-group">
 								<label for="max-players">Max Players</label>
-								<input type="number" id="max-players" class="form-control" name="maxPlayers" value="2" placeholder="Nombre de joueurs" readonly>
+								<input type="number" id="max-players" class="form-control" name="maxPlayers" value="2" placeholder="Number of players" readonly>
 								<small id="maxPlayers-error" class="form-text text-danger" style="display: none;"></small>
 							</div>
 							<!-- Max Score -->
-							<!-- Score is falcultatif and NULL by default, ive score is set, the partie can end before duration if score is reached -->
 							<div class="form-group">
 								<label for="max-score">Max Score</label>
-								<input type="number" id="max-score" class="form-control" name="maxScore" value="" placeholder="Max Score" readonly>
+								<input type="number" id="max-score" class="form-control" name="maxScore" value="" placeholder="Max Score">
 								<small id="maxScore-error" class="form-text text-danger" style="display: none;"></small>
+							</div>
+							<!-- MAP Select -->
+							<div class="form-group">
+								<label for="map">Map</label>
+								<select id="map" class="form-select" name="map">
+									<option value="default">Default</option>
+									<option value="synthwave">Synthwave</option>
+									<option value="water">Water</option>
+								</select>
+								<small id="map-error" class="form-text text-danger" style="display: none;"></small>
 							</div>
 						</div>
 						<div class="modal-footer">
 							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 							<button-component id="createGameButton" type="submit" variant="muted" class="d-flex align-items-center justify-content-center gap-2">
-								<span id="createGameButtonLoading"  class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+								<span id="createGameButtonLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
 								Create
 							</button-component>
 						</div>
 					</form>
 				</div>
 			</div>
-
+		
+			<!-- Join Game Modal -->
 			<div class="modal fade" id="joinGameModal" tabindex="-1" aria-labelledby="joinGameModalLabel" aria-hidden="true">
 				<div class="modal-dialog modal-dialog-centered">
 					<form id="join-game-form" class="modal-content">
@@ -164,7 +230,7 @@ export class Play extends Component {
 							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 						</div>
 						<div class="modal-body">
-							<!-- GAME ID -->
+							<!-- Game ID -->
 							<div class="form-group">
 								<label for="gameId">Game ID</label>
 								<input type="number" id="gameId" class="form-control" name="gameId" placeholder="Game ID">
@@ -174,23 +240,16 @@ export class Play extends Component {
 						<div class="modal-footer">
 							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 							<button-component id="joinGameButton" type="submit" variant="muted" class="d-flex align-items-center justify-content-center gap-2">
-								<span id="joinGameButtonLoading"  class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+								<span id="joinGameButtonLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
 								Join
 							</button-component>
 						</div>
 					</form>
 				</div>
 			</div>
-
-
-			<!-- TOURNAMENT -->
-			<div
-				class="modal fade"
-				id="createTournamentModal"
-				tabindex="-1"
-				aria-labelledby="createTournamentModalLabel"
-				aria-hidden="true"
-			>
+		
+			<!-- Create Tournament Modal -->
+			<div class="modal fade" id="createTournamentModal" tabindex="-1" aria-labelledby="createTournamentModalLabel" aria-hidden="true">
 				<div class="modal-dialog modal-dialog-centered">
 					<form id="create-tournament-form" class="modal-content">
 						<div class="modal-header">
@@ -201,118 +260,105 @@ export class Play extends Component {
 							<!-- Tournament Name -->
 							<div class="form-group">
 								<label for="tournamentName">Tournament Name</label>
-								<input
-									type="text"
-									id="tournamentName"
-									class="form-control"
-									name="tournamentName"
-									placeholder="Tournament Name"
-								/>
-								<small
-									id="tournamentName-error"
-									class="form-text text-danger"
-									style="display: none;"
-								></small>
+								<input type="text" id="tournamentName" class="form-control" name="tournamentName" placeholder="Tournament Name">
+								<small id="tournamentName-error" class="form-text text-danger" style="display: none;"></small>
 							</div>
-
 							<!-- Duration -->
 							<div class="form-group">
 								<label for="durationTournament">Duration of each game</label>
-								<input
-									type="number"
-									id="durationTournament"
-									class="form-control"
-									name="durationTournament"
-									value="60"
-									placeholder="Duration in seconds"
-								/>
-								<small
-									id="durationTournament-empty"
-									class="form-text text-muted-foreground"
-									style="display: none;"
-									>If no duration is set, the game will be infinite and max score will be
-									required</small
-								>
-								<small
-									id="durationTournament-error"
-									class="form-text text-danger"
-									style="display: none;"
-								></small>
+								<input type="number" id="durationTournament" class="form-control" name="durationTournament" value="60" placeholder="Duration in seconds">
+								<small id="durationTournament-empty" class="form-text text-muted-foreground" style="display: none;">
+									If no duration is set, the game will be infinite and max score will be required.
+								</small>
+								<small id="durationTournament-error" class="form-text text-danger" style="display: none;"></small>
 							</div>
-
 							<!-- Max Score -->
 							<div class="form-group">
 								<label for="maxScoreTournament">Max Score</label>
-								<input
-									type="number"
-									id="maxScoreTournament"
-									class="form-control"
-									name="maxScoreTournament"
-									value=""
-									placeholder="Max Score"
-									readonly
-								/>
-								<small
-									id="maxScoreTournament-error"
-									class="form-text text-danger"
-									style="display: none;"
-								></small>
+								<input type="number" id="maxScoreTournament" class="form-control" name="maxScoreTournament" value="" placeholder="Max Score" readonly>
+								<small id="maxScoreTournament-error" class="form-text text-danger" style="display: none;"></small>
 							</div>
-
 							<!-- Pseudo Creator -->
 							<div class="form-group">
 								<label for="pseudoCreatorTournament">Pseudo</label>
-								<input
-									type="text"
-									id="pseudoCreatorTournament"
-									class="form-control"
-									name="pseudoCreatorTournament"
-									placeholder="Enter your pseudo"
-								/>
-								<small
-									id="pseudoCreatorTournament-error"
-									class="form-text text-danger"
-									style="display: none;"
-								></small>
+								<input type="text" id="pseudoCreatorTournament" class="form-control" name="pseudoCreatorTournament" placeholder="Enter your pseudo">
+								<small id="pseudoCreatorTournament-error" class="form-text text-danger" style="display: none;"></small>
 							</div>
 						</div>
 						<div class="modal-footer">
-							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-								Close
-							</button>
-							<button-component
-								id="createTournamentButton"
-								type="submit"
-								variant="muted"
-								class="d-flex align-items-center justify-content-center gap-2"
-							>
-								<span
-									id="createTournamentButtonLoading"
-									class="spinner-border spinner-border-sm"
-									role="status"
-									aria-hidden="true"
-									style="display: none;"
-								></span>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+							<button-component id="createTournamentButton" type="submit" variant="muted" class="d-flex align-items-center justify-content-center gap-2">
+								<span id="createTournamentButtonLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
 								Create
 							</button-component>
+						</div>
+					</form>
+				</div>
+			</div>
+
+
+			<!-- Create Local Modal -->
+			<div class="modal fade" id="createLocalModal" tabindex="-1" aria-labelledby="createLocalModalLabel" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered">
+					<form id="create-Local-form" class="modal-content">
+						<div class="modal-header">
+							<h1 class="modal-title fs-5" id="createLocalModalLabel">Create Local</h1>
+							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+						</div>
+						<div class="modal-body">
+							
+							<!-- Duration -->
+							<div class="form-group">
+								<label for="durationLocal">Duration of each game</label>
+								<input type="number" id="durationLocal" class="form-control" name="durationLocal" value="60" placeholder="Duration in seconds">
+								<small id="durationLocal-empty" class="form-text text-muted-foreground" style="display: none;">
+									If no duration is set, the game will be infinite and max score will be required.
+								</small>
+								<small id="durationLocal-error" class="form-text text-danger" style="display: none;"></small>
 							</div>
-							</form>
+							<!-- Max Score -->
+							<div class="form-group">
+								<label for="maxScoreLocal">Max Score</label>
+								<input type="number" id="maxScoreLocal" class="form-control" name="maxScoreLocal" value="" placeholder="Max Score" readonly>
+								<small id="maxScoreLocal-error" class="form-text text-danger" style="display: none;"></small>
 							</div>
+							<!-- Pseudo Player 1 -->
+							<div class="form-group">
+								<label for="pseudoPlayer1">Pseudo Player 1</label>
+								<input type="text" id="pseudoPlayer1" class="form-control" name="pseudoPlayer1" placeholder="Enter your pseudo">
+								<small id="pseudoPlayer1-error" class="form-text text-danger" style="display: none;"></small>
+							</div>
+							<!-- Pseudo Player 2 -->
+							<div class="form-group">
+								<label for="pseudoPlayer2">Pseudo Player 2</label>
+								<input type="text" id="pseudoPlayer2" class="form-control" name="pseudoPlayer2" placeholder="Enter your pseudo">
+								<small id="pseudoPlayer2-error" class="form-text text-danger" style="display: none;"></small>
 							</div>
 							
-							
-							</main-layout>
-							`);
+						
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+							<button-component id="createLocalButton" type="submit" variant="muted" class="d-flex align-items-center justify-content-center gap-2">
+								<span id="createLocalButtonLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+								Create
+							</button-component>
+						</div>
+					</form>
+				</div>
+			</div>
+		</main-layout>
+	`);
 	}
 
 	script() {
 		/* ------------------------------- CREATE GAME ------------------------------ */
-		const form = this.querySelector("#create-game-form");
-		const submitButton = this.querySelector("#createGameButton");
-		const loadingIcon = this.querySelector("#createGameButtonLoading");
+		const form = document.querySelector("#create-game-form");
+		const submitButton = document.querySelector("#createGameButton");
+		const loadingIcon = document.querySelector("#createGameButtonLoading");
 
-		const durationInput = this.querySelector("#duration");
-		const durationEmpty = this.querySelector("#duration-empty");
+		const durationInput = document.querySelector("#duration");
+		const durationEmpty = document.querySelector("#duration-empty");
 		// Check if duration is empty
 		durationInput.addEventListener("input", () => {
 			if (durationInput.value === "") {
@@ -333,20 +379,23 @@ export class Play extends Component {
 				const {
 					duration,
 					maxPlayers,
-					maxScore
+					maxScore,
+					map
 				} = Object.fromEntries(formData.entries());
 				console.log(duration, maxPlayers, maxScore);
 
 				schemaGame.parse({
 					duration: duration === "" ? null : parseInt(duration),
 					maxPlayers: parseInt(maxPlayers),
-					maxScore: maxScore === "" ? null : parseInt(maxScore)
+					maxScore: maxScore === "" ? null : parseInt(maxScore),
+					map,
 				});
 
 				const { data, error } = await api.game.create({
 					duration,
-					maxPlayers,
-					maxScore
+					max_players: maxPlayers === "" ? null : parseInt(maxPlayers),
+					max_score: maxScore === "" ? null : parseInt(maxScore),
+					map: map === "default" ? undefined : map,
 				});
 				if (error) throw error;
 				Toast.success("Game created successfully");
@@ -379,9 +428,9 @@ export class Play extends Component {
 		/* -------------------------------------------------------------------------- */
 
 		/* -------------------------------- JOIN GAME ------------------------------- */
-		const joinForm = this.querySelector("#join-game-form");
-		const joinSubmitButton = this.querySelector("#joinGameButton");
-		const joinLoadingIcon = this.querySelector("#joinGameButtonLoading");
+		const joinForm = document.querySelector("#join-game-form");
+		const joinSubmitButton = document.querySelector("#joinGameButton");
+		const joinLoadingIcon = document.querySelector("#joinGameButtonLoading");
 
 		// Submit form
 		joinForm.addEventListener("submit", async (e) => {
@@ -430,12 +479,12 @@ export class Play extends Component {
 		/* -------------------------------------------------------------------------- */
 
 		/* ------------------------------- CREATE TOURNAMENT ------------------------------ */
-		const formTournament = this.querySelector("#create-tournament-form");
-		const submitButtonTournament = this.querySelector("#createTournamentButton");
-		const loadingIconTournament = this.querySelector("#createTournamentButtonLoading");
+		const formTournament = document.querySelector("#create-tournament-form");
+		const submitButtonTournament = document.querySelector("#createTournamentButton");
+		const loadingIconTournament = document.querySelector("#createTournamentButtonLoading");
 
-		const durationInputTournament = this.querySelector("#durationTournament");
-		const durationEmptyTournament = this.querySelector("#durationTournament-empty");
+		const durationInputTournament = document.querySelector("#durationTournament");
+		const durationEmptyTournament = document.querySelector("#durationTournament-empty");
 
 		// Vérifie si la durée est vide
 		durationInputTournament.addEventListener("input", () => {
@@ -531,7 +580,7 @@ export class Play extends Component {
 				const { data, error } = await api.tournament.create(apiData);
 				if (error) throw error;
 				Toast.success("Tournament created successfully with the address: " + addressTournament);
-				const modalElement = this.querySelector("#createTournamentModal");
+				const modalElement = document.querySelector("#createTournamentModal");
 				const modalInstance = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
 				modalInstance.hide();
 				window.router.push(`/tournaments/lobby/${data.id}`);
@@ -573,6 +622,81 @@ export class Play extends Component {
 
 		/* -------------------------------------------------------------------------- */
 
+		/* ------------------------------- CREATE LOCAL ------------------------------ */
+		const formLocal = document.querySelector("#create-Local-form");
+		const submitButtonLocal = document.querySelector("#createLocalButton");
+		const loadingIconLocal = document.querySelector("#createLocalButtonLoading");
+
+		const durationInputLocal = document.querySelector("#durationLocal");
+		const durationEmptyLocal = document.querySelector("#durationLocal-empty");
+
+		durationInputLocal.addEventListener("input", () => {
+			if (durationInputLocal.value === "") {
+				durationEmptyLocal.style.display = "block";
+			} else {
+				durationEmptyLocal.style.display = "none";
+			}
+		});
+
+		formLocal.addEventListener("submit", async (e) => {
+			e.preventDefault();
+			try {
+				loadingIconLocal.style.display = "inline-block";
+				submitButtonLocal.disabled = true;
+
+				const formData = new FormData(formLocal);
+				const {
+					durationLocal,
+					maxScoreLocal,
+					pseudoPlayer1,
+					pseudoPlayer2
+				} = Object.fromEntries(formData.entries());
+				console.log(durationLocal, maxScoreLocal, pseudoPlayer1, pseudoPlayer2);
+
+				schemaLocal.parse({
+					durationLocal: durationLocal === "" ? null : parseInt(durationLocal),
+					maxScoreLocal: maxScoreLocal === "" ? null : parseInt(maxScoreLocal),
+					pseudoPlayer1,
+					pseudoPlayer2
+				});
+
+				const params = new URLSearchParams();
+				if (durationLocal) params.append("duration", durationLocal);
+				if (maxScoreLocal) params.append("maxScore", maxScoreLocal);
+				if (pseudoPlayer1) params.append("player1", pseudoPlayer1);
+				if (pseudoPlayer2) params.append("player2", pseudoPlayer2);
+				window.router.push(`/play-local?${params.toString()}`);
+			} catch (error) {
+				console.error(error);
+				if (error instanceof zod.ZodError) {
+					error.errors.forEach(err => {
+						err.path.forEach(path => {
+							const input = formLocal.querySelector(`[name="${path}"]`);
+							const errorElement = formLocal.querySelector(`#${path}-error`);
+							if (input && errorElement) {
+								input.classList.add("is-invalid");
+								errorElement.innerText = err.message;
+								errorElement.style.display = "block";
+							}
+						});
+					});
+					for (const input of formLocal.querySelectorAll("input")) {
+						if (error.errors.every((err) => !err.path.includes(input.name))) {
+							input.classList.remove("is-invalid");
+							const errorElement = formLocal.querySelector(`#${input.name}-error`);
+							if (errorElement) {
+								errorElement.style.display = "none";
+							}
+						}
+					}
+				} else {
+					Toast.error(error.message);
+				}
+			} finally {
+				loadingIconLocal.style.display = "none";
+				submitButtonLocal.disabled = false;
+			}
+		});
 
 	}
 }
