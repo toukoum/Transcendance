@@ -222,6 +222,7 @@ export class SettingsProfile extends Component {
 			formData.append('avatar', file);
 
 			try {
+				// A CHANGER 
 				const response = await fetch('http://localhost:8000/v1/avatar/upload/', {
 					method: 'POST',
 					credentials: 'include',
