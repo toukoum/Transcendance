@@ -1,12 +1,14 @@
 import random
 import math
-from games.game.constants import FIELD_HEIGHT, FIELD_WIDTH, BALL_RADIUS, BALL_SPEED
+from games.game.constants import FIELD_HEIGHT, FIELD_WIDTH, BALL_RADIUS, BALL_SPEED, BALL_ACCELERATION_FACTOR, BALL_MAX_SPEED
 class Ball:
-	def __init__(self):
+	def __init__(self, acceleration_factor = BALL_ACCELERATION_FACTOR.get('medium'), max_speed = BALL_MAX_SPEED.get('medium')):
 		self.x = 0
 		self.y = 0
 		self.radius = BALL_RADIUS
 		self.speed = BALL_SPEED
+		self.acceleration_factor = acceleration_factor
+		self.max_speed = max_speed
 		self.vx = random.choice([-1, 1])
 		self.vy = random.choice([-1, 1])
 
@@ -60,6 +62,11 @@ class Ball:
 			elif self.y < paddle_bottom:  # Touche le bas du paddle
 				self.y = paddle_bottom - self.radius
 				self.vy = -abs(self.vy)  # Rebondir vers le haut
+			
+			# Augmenter la vitesse de la balle
+			self.speed *= self.acceleration_factor
+			# Limiter la vitesse maximale
+			self.speed = min(self.speed, self.max_speed)
 		
 	def is_out_of_field(self, field_width = FIELD_WIDTH, field_height = FIELD_HEIGHT):
 		return (

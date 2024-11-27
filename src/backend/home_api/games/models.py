@@ -70,6 +70,11 @@ class Match(models.Model):
 		SYNTHWAVE = 'synthwave', 'Synthwave'
 		WATER = 'water', 'Water'
 	
+	class Difficulty(models.TextChoices):
+		EASY = 'easy', 'Easy'
+		MEDIUM = 'medium', 'Medium'
+		HARD = 'hard', 'Hard'
+	
 	state = models.CharField(
 			max_length=20,
 			choices=State.choices,
@@ -93,6 +98,11 @@ class Match(models.Model):
 		max_length=20,
 		choices=MapChoices.choices,
 		default=MapChoices.SYNTHWAVE,
+	)
+	difficulty = models.CharField(
+		max_length=20,
+		choices=Difficulty.choices,
+		default=Difficulty.MEDIUM,
 	)
 
 	#Tournament
