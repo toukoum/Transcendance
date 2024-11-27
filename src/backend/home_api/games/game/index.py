@@ -95,7 +95,7 @@ class Game:
 		await self.update_state(Match.State.FINISHED)
 
 		await self.send_state()
-
+  
 		# Remove the game from the GAMES
 		from games.consumers import GAMES
 		await GAMES.delete(self.match.id)

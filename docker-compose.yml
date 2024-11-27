@@ -11,28 +11,13 @@ services:
     networks:
       - trans_network
 
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: pgadmin
-    env_file:
-      - .env
-    volumes:
-      - ./.data/pgadmin:/var/lib/pgadmin
-    ports:
-      - "8888:80"
-    depends_on:
-      - db
-    networks:
-      - trans_network
-
-
   backend:
     build: ./src/backend
     container_name: backend
     env_file:
       - .env
-    ports:
-      - "8000:8000"
+    # ports:
+    #   - "8000:8000"
     volumes:
       - ./src/backend:/app
     depends_on:
@@ -45,8 +30,8 @@ services:
   frontend:
     container_name: frontend
     build: ./src/frontend
-    ports:
-      - "3000:80"
+    # ports:
+    #   - "3000:80"
     networks:
       - trans_network
     volumes:
@@ -59,6 +44,16 @@ services:
       - "6378:6379"
     networks:
       - trans_network
+
+  nginx:
+    container_name: nginx
+    build: ./src/nginx
+    ports:
+      - "3000:443"
+    networks:
+      - trans_network
+
+    
 
 networks:
   trans_network:

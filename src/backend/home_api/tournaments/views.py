@@ -15,18 +15,6 @@ from django.contrib.auth.models import User
 
 from tournaments.models import Tournament, TournamentParticipant
 
-
-#Créer un tournoi	POST	/tournaments/
-#Lister tous les tournois	GET	/tournaments/
-#Détails d’un tournoi	GET	/tournaments/<id>/
-#Mettre à jour un tournoi	PUT	/tournaments/<id>/
-#Supprimer un tournoi	DELETE	/tournaments/<id>/
-#Ajouter un joueur	POST	/tournaments/<id>/add-player/
-#Démarrer un tournoi	POST	/tournaments/<id>/start/
-#Créer le round suivant	POST	/tournaments/<id>/next-round/
-#Récupérer les matchs	GET	/tournaments/<id>/matches/
-#Terminer un tournoi	POST	/tournaments/<id>/finish/
-
 class TournamentViewSet(BaseViewSet):
     queryset = Tournament.objects.all()
     serializer_class = TournamentSerializer
@@ -41,6 +29,7 @@ class TournamentViewSet(BaseViewSet):
         - The user is not already in a match
         """
         
+        #A REMETRE
         #if (TournamentParticipant.objects.filter(player=request.user).exists()):
         #    return format_response(error='User is already in a tournament', status=400)
         
@@ -140,16 +129,7 @@ class TournamentViewSet(BaseViewSet):
                     'label': 'Reject'
                 }
             },
-            #action={
-            #    'primary': {
-            #        'url': f'tournaments/{pk}/add-player/',
-            #        'label': 'Join'
-            #    },
-            #    'secondary': {
-            #        'url': f'tournaments/{pk}/reject/',
-            #        'label': 'Reject'
-            #    }
-            #},
+    
         )
 
         return format_response(data={'message': f'Invitation sent to {player_to_invite.username}'}, status=200)
@@ -184,36 +164,27 @@ class TournamentViewSet(BaseViewSet):
         players = tournament.participants.all()
         serializer = TournamentParticipantSerializer(players, many=True)
         return format_response(data=serializer.data, status=200)
-
-
-    #@receiver(post_save, sender=Match)
-    #def create_next_round(sender, instance, created, **kwargs):
-    #    print("MATCH SIGNAL!!!");
     
 
-#@receiver(post_save, sender=Match)
-#def create_next_round(sender, instance, created, **kwargs):
-#    tournament = instance.tournament
-#    current_round = instance.round
+    @receiver(post_save, sender=Match)
+    def check_match_finished(sender, instance, **kwargs):
+        """
+        Signal triggered when a Match is saved.
+        """
+        if instance.state == Match.State.FINISHED and instance.tournament:
+            tournament = instance.tournament
+            try:
+                # Check if all matches in the current round are finished
+                matches_in_round = Match.objects.filter(
+                    tournament=tournament,
+                    round=instance.round
+                )
+                
+                if all(match.state == Match.State.FINISHED for match in matches_in_round):
+                    # If all matches are finished, generate the next round
+                    tournament.create_round(instance.round + 1)
+            except Exception as e:
+                # Log any errors
+                print(f"Error processing tournament round for tournament {tournament.id}: {e}")
 
-#    # Vérifier si tous les matchs du tour actuel sont terminés
-#    matches_in_round = Match.objects.filter(tournament=tournament, round=current_round)
-#    if matches_in_round.filter(winner__isnull=True).exists():
-#        # Il y a encore des matchs en cours
-#        return
-
-#    # Tous les matchs du tour sont terminés, créer le prochain tour
-#    next_round = current_round + 1
-
-#    # Récupérer les gagnants du tour actuel
-#    winning_players = matches_in_round.values_list('winner', flat=True)
-
-#    if len(winning_players) < 2:
-#        # Le tournoi est terminé
-#        tournament.state = Tournament.State.FINISHED
-#        tournament.save()
-#        return
-
-    # Créer les matchs pour le prochain tour
-    #tournament.create_matches(winning_players, next_round)
-    
+        

@@ -13,16 +13,10 @@ DOCKER_COMPOSE := $(shell \
 #                                     RULES                                    #
 # ---------------------------------------------------------------------------- #
 
-all: build permission migrate logs
+all: build migrate logs
 
 build:
 	@$(DOCKER_COMPOSE) up --build -d
-
-permission:
-	chmod -R 777 ./.data/pgadmin
-
-logs:
-	@$(DOCKER_COMPOSE) logs -f $(SERVICE)
 
 logs:
 	@$(DOCKER_COMPOSE) logs -f $(SERVICE)
@@ -34,4 +28,4 @@ migrate:
 down:
 	@$(DOCKER_COMPOSE) down
 
-.PHONY: all build permission logs migrate down
+.PHONY: all build logs migrate down

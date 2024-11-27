@@ -7,7 +7,7 @@ import { Tournament } from "./Tournament.js";
 
 export class Api {
 	constructor() {
-		this.baseUrl = "http://localhost:8000/v1";
+		this.baseUrl = "https://10.14.1.11:3000/api/v1";
 		this.auth = new Auth(this);
 		this.request = new ApiRequest(this);
 		// this.websocket = new ApiWebSocket(this,`ws://localhost:8000/ws`);

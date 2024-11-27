@@ -8,6 +8,8 @@ export class Login extends Component {
 		return (/*html*/`
 			<main-layout>
 
+				<div class="h-100 d-flex p-2 justify-content-center align-items-center">
+
 				<div class="otp-modal modal-dialog modal-dialog-centered p-4 position-absolute bg-background border border-secondary rounded rounded-3 top-50 start-50 translate-middle" style="width: 300px; display: none;">
 					<div class="modal-content bg-background text-light">
 						<div class="modal-header border-0 w-100 d-flex justify-content-between">
@@ -66,6 +68,7 @@ export class Login extends Component {
 		 				Don't have an account? <a href="/auth/signup" class="text-decoration-none"> Signup</a>
 		 			</div>
 				</div>
+			</div>
 			</main-layout>
 		`);
 	}
@@ -101,7 +104,7 @@ export class Login extends Component {
 					Toast.error(error.message);
 				} else {
 					console.error(error);
-					Toast.error("An error occurred");
+					Toast.error("Invalide Code");
 				}
 			}
 		});
@@ -131,7 +134,7 @@ export class Login extends Component {
 					Toast.error(error.message);
 				} else {
 					console.error(error);
-					Toast.error("An error occurred");
+					Toast.error("Unable to log in with the provided credentials.");
 				}
 			}
 		});
@@ -144,7 +147,7 @@ export class Login extends Component {
 				if (error instanceof ApiRequestError) {
 					console.error(error.message);
 				} else {
-					console.error("An error occurred");
+					console.error("Unable to log in with the provided credentials.");
 				}
 			}
 		}

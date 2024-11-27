@@ -3,7 +3,7 @@ export class ApiWebSocket {
 		if (!endpoint) {
 			throw new Error("Invalid endpoint");
 		}
-		this.baseUrl = "ws://localhost:8000/ws";
+		this.baseUrl = "wss://10.14.1.11:3000/ws/ws";
 		this.socket = null;
 		this.listeners = {};
 		this.isConnected = false;

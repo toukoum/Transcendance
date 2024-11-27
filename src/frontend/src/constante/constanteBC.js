@@ -109,6 +109,30 @@ export const ABITournament = `[
 		},
 		{
 			"type": "function",
+			"name": "hasWonInRound",
+			"inputs": [
+				{
+					"name": "",
+					"type": "uint8",
+					"internalType": "uint8"
+				},
+				{
+					"name": "",
+					"type": "address",
+					"internalType": "address"
+				}
+			],
+			"outputs": [
+				{
+					"name": "",
+					"type": "bool",
+					"internalType": "bool"
+				}
+			],
+			"stateMutability": "view"
+		},
+		{
+			"type": "function",
 			"name": "players",
 			"inputs": [
 				{
@@ -159,12 +183,12 @@ export const ABITournament = `[
 		},
 		{
 			"type": "function",
-			"name": "setWinners",
+			"name": "setWinner",
 			"inputs": [
 				{
-					"name": "roundWinners",
-					"type": "address[]",
-					"internalType": "address[]"
+					"name": "roundWinner",
+					"type": "address",
+					"internalType": "address"
 				}
 			],
 			"outputs": [],

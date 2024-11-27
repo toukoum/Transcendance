@@ -10,11 +10,10 @@ export class Header extends Component {
 							<button class="navbar-toggler" type="button">
 								<i color="#595959" data-lucide="menu"></i>
 							</button>
-							
-							<a href="/" class="navbar-brand d-flex align-items-center">
+							<lint-component href="/" class="navbar-brand d-flex align-items-center">
 								<img src="../../../../public/logo42.png" alt="Logo" width="30" height="30" class="d-inline-block align-top me-2">
 								PongGame
-							</a>
+							</lint-component>
 					</div>
 
 

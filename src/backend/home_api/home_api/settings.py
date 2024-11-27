@@ -56,10 +56,10 @@ INSTALLED_APPS = [
     'users',
     'friends',
     'chat',
-		'notification',
-		'games',
-		'tournaments',
-		
+    'notification',
+    'games',
+    'tournaments',
+    
     'rest_framework',
     'rest_framework.authtoken',
 
@@ -166,10 +166,6 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = "none"
 ACCOUNT_UNIQUE_EMAIL = True
 
-
-# Redirect for email confirmation
-EMAIL_CONFIRM_REDIRECT_BASE_URL = "http://localhost:5500/email/confirm/"
-PASSWORD_RESET_CONFIRM_REDIRECT_BASE_URL = "http://localhost:5500/password-reset/confirm/"
 # ==================================================
 
 
@@ -192,8 +188,9 @@ REST_AUTH = {
     'USE_JWT': True,
     'JWT_AUTH_COOKIE': 'transcendence-token',
     'JWT_AUTH_REFRESH_COOKIE': 'transcendence-refresh-token',
-    'JWT_AUTH_SECURE': False,  # Permet d'envoyer les cookies sans HTTPS (dev uniquement)
-    'JWT_AUTH_SAMESITE': 'Lax',  # Permet d'envoyer les cookies cross-site
+    # 'JWT_AUTH_SECURE': False,  # Permet d'envoyer les cookies sans HTTPS (dev uniquement)
+    'JWT_AUTH_SECURE': True,  # Permet d'envoyer les cookies sans HTTPS (dev uniquement)
+    'JWT_AUTH_SAMESITE': 'strict',  # Permet d'envoyer les cookies cross-site
     'JWT_AUTH_HTTPONLY': True,  # Empêche JavaScript d'accéder aux cookies
 }
 
@@ -215,8 +212,8 @@ ANYMAIL = {
 
 
 EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
-DEFAULT_FROM_EMAIL = "raphaelgiraud12@gmail.com"
-SERVER_EMAIL = "toukoumcode@gmail.com"
+DEFAULT_FROM_EMAIL = os.environ.get('SERVER_EMAIL_MAILGUN')
+SERVER_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL_MAILGUN')
 
 
 
@@ -226,9 +223,9 @@ SERVER_EMAIL = "toukoumcode@gmail.com"
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = True
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5500"
-]
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:5500"
+# ]
 
 # 42 OAUTH ==================================================
 CLIENT_ID = os.environ.get('CLIENT_ID', default='')
@@ -236,7 +233,8 @@ CLIENT_SECRET = os.environ.get('CLIENT_SECRET', default='')
 REDIRECT_URI = os.environ.get('REDIRECT_URI', default='')
 
 
-MEDIA_URL = '/media/'
+# MEDIA_URL = '/media/'
+MEDIA_URL = os.environ.get('MEDIA_URL')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AVATAR = os.environ.get('DEFAULT_AVATAR')	

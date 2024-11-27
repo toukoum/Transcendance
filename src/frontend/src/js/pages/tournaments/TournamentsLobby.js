@@ -1,12 +1,13 @@
 import { Component } from "../../utils/Component.js";
 import { api } from "../../utils/api/Api.js";
 import { Toast } from "../../provider/toast-provider.js";
+import { ABITournament } from "../../../constante/constanteBC.js";
 
 export class TournamentsLobby extends Component {
-  content() {
-    const tournamentId = parseInt(this.getAttribute("id"));
+	content() {
+		const tournamentId = parseInt(this.getAttribute("id"));
 
-    return /*html*/ `
+		return /*html*/ `
       <main-layout>
 				<div class="wrapper-all">
 					<h1 class="text-center">Tournament Lobby</h1>
@@ -25,7 +26,10 @@ export class TournamentsLobby extends Component {
 							</form>
 						</div>
 						<div class="right-part">
-							<h2>Players in Tournament</h2>
+							<div id="titleRegister">
+								<h2>Players in Tournament</h2>
+								<button class="btn btn-primary" id="btnRegister">Register</button>
+							</div>
 							<div class="connected-players"></div>
 							<div class="bottom-right">
 								<div class="waiting-text">Waiting for other players<span class="dot1">.</span><span class="dot2">.</span><span class="dot3">.</span> <span id="numbers-players-connected"></span></div>
@@ -36,11 +40,17 @@ export class TournamentsLobby extends Component {
 				</div>
       </main-layout>
     `;
-  }
+	}
 
-  style() {
+	style() {
 		return /*css*/ `
 			<style>
+
+				.titleRegister {
+					display: flex;
+					justify-content: space-between;
+					align-items: center;
+				}
 
 				.wrapper-all {
 					overflow-x: hidden;
@@ -231,135 +241,156 @@ export class TournamentsLobby extends Component {
         }
 			</style>
 		`;
-  }
+	}
 
-  getComponentUserInvit(player) {
-    const playerComponent = document.createElement("div");
-    playerComponent.classList.add("player");
-    playerComponent.dataset.id = player.id;
-    playerComponent.innerHTML = `
+
+
+	getComponentUserInvit(player) {
+		const playerComponent = document.createElement("div");
+		playerComponent.classList.add("player");
+		playerComponent.dataset.id = player.id;
+		playerComponent.innerHTML = `
       <p>${player.username}</p>
       <button class="btn btn-primary send-invit-button" data-username="${player.username}">Invite</button>
     `;
-    return playerComponent;
-  }
+		return playerComponent;
+	}
 
-  getComponentUser(player) {
-    const playerComponent = document.createElement("div");
-    playerComponent.classList.add("player");
-    playerComponent.dataset.id = player.id;
-    playerComponent.innerHTML = `<p>${player.pseudo}</p>`;
-    return playerComponent;
-  }
+	getComponentUser(player) {
+		const playerComponent = document.createElement("div");
+		playerComponent.classList.add("player");
+		playerComponent.dataset.id = player.id;
+		playerComponent.innerHTML = `<p>${player.pseudo}</p>`;
+		return playerComponent;
+	}
 
-  async fillPlayersInvite(tournamentId) {
-    const { data, error } = await api.request.get(`users/`);
-    if (error) {
-      Toast.error("No players found");
-      return;
-    }
-    const listPlayers = document.querySelector(".list-users");
-    listPlayers.innerHTML = "";
-    data.forEach((player) => {
-      listPlayers.appendChild(this.getComponentUserInvit(player));
-    });
-    this.sendInvitationButton(tournamentId);
-  }
+	async fillPlayersInvite(tournamentId) {
+		const { data, error } = await api.request.get(`users/`);
+		if (error) {
+			Toast.error("No players found");
+			return;
+		}
+		const listPlayers = document.querySelector(".list-users");
+		listPlayers.innerHTML = "";
+		data.forEach((player) => {
+			listPlayers.appendChild(this.getComponentUserInvit(player));
+		});
+		this.sendInvitationButton(tournamentId);
+	}
 
-  sendInvitation(tournamentId) {
-    const formId = document.getElementById("invite-player");
-    formId.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      try {
-        const username = document.getElementById("username").value;
-        const { data, error } = await api.request.post(
-          `tournaments/${tournamentId}/invite-player/`,
-          { player: username }
-        );
-        if (error) throw error;
-        Toast.success("Invitation sent");
-      } catch (error) {
-        Toast.error(error.message);
-      }
-    });
-  }
+	sendInvitation(tournamentId) {
+		const formId = document.getElementById("invite-player");
+		formId.addEventListener("submit", async (e) => {
+			e.preventDefault();
+			try {
+				const username = document.getElementById("username").value;
+				const { data, error } = await api.request.post(
+					`tournaments/${tournamentId}/invite-player/`,
+					{ player: username }
+				);
+				if (error) throw error;
+				Toast.success("Invitation sent");
+			} catch (error) {
+				Toast.error(error.message);
+			}
+		});
+	}
 
-  sendInvitationButton(tournamentId) {
-    const listUsers = document.querySelector(".list-users");
-    if (!listUsers) return;
+	sendInvitationButton(tournamentId) {
+		const listUsers = document.querySelector(".list-users");
+		if (!listUsers) return;
 
-    listUsers.addEventListener("click", async (e) => {
-      const button = e.target.closest(".send-invit-button");
-      if (!button) return;
-      try {
-        const username = button.getAttribute("data-username");
-        const { data, error } = await api.request.post(
-          `tournaments/${tournamentId}/invite-player/`,
-          { player: username }
-        );
-        if (error) throw error;
-        Toast.success("Invitation sent");
-      } catch (error) {
-        Toast.error(error.message);
-      }
-    });
-  }
+		listUsers.addEventListener("click", async (e) => {
+			const button = e.target.closest(".send-invit-button");
+			if (!button) return;
+			try {
+				const username = button.getAttribute("data-username");
+				const { data, error } = await api.request.post(
+					`tournaments/${tournamentId}/invite-player/`,
+					{ player: username }
+				);
+				if (error) throw error;
+				Toast.success("Invitation sent");
+			} catch (error) {
+				Toast.error(error.message);
+			}
+		});
+	}
 
-  async fillPlayersConnected(tournamentId, status) {
-    const connectedPlayers = document.querySelector(".connected-players");
-    const existingPlayerIds = new Set();
+	async fillPlayersConnected(tournamentId, status) {
+		const connectedPlayers = document.querySelector(".connected-players");
+		const existingPlayerIds = new Set();
+
+		const provider = new ethers.providers.Web3Provider(window.ethereum);
+		const signer = provider.getSigner();
 
 		if (!connectedPlayers) return;
 
-    Array.from(connectedPlayers.children).forEach((player) => {
-      existingPlayerIds.add(parseInt(player.dataset.id));
-    });
+		Array.from(connectedPlayers.children).forEach((player) => {
+			existingPlayerIds.add(parseInt(player.dataset.id));
+		});
 
-    if (existingPlayerIds.size === 4) {
-      status.isReady = true;
-    }
+		let contract;
+		try {
+			const { data, error } = await api.request.get(
+				`tournaments/${tournamentId}/`
+			);
+			console.log(data);
+			contract = new ethers.Contract(data.address_tournament, ABITournament, signer);
+			console.log(contract);
+		} catch (error) {
+			console.error(error);
+		}
+
+		const nbPlayerRegistered = await contract.getPlayers();
+
+		console.log(nbPlayerRegistered.length);
+		
+		if (existingPlayerIds.size === 4 && nbPlayerRegistered.length === 4) {
+			status.isReady = true;
+		}
 
 		status.numberPlayers = existingPlayerIds.size;
 
-    try {
-      const { data, error } = await api.request.get(
-        `tournaments/${tournamentId}/players/`
-      );
-      if (error) throw error;
+		try {
+			const { data, error } = await api.request.get(
+				`tournaments/${tournamentId}/players/`
+			);
+			if (error) throw error;
 
-      data.forEach((player) => {
-        if (!existingPlayerIds.has(player.id)) {
-          connectedPlayers.appendChild(
-            this.getComponentUser(player)
-          );
-        }
-      });
-    } catch (error) {
-      Toast.error(error.message);
-    }
-  }
+			data.forEach((player) => {
+				if (!existingPlayerIds.has(player.id)) {
+					connectedPlayers.appendChild(
+						this.getComponentUser(player)
+					);
+				}
+			});
+		} catch (error) {
+			Toast.error(error.message);
+		}
+	}
 
-  async pollPlayersConnected(tournamentId) {
-    const status = { isReady: false, numberPlayers: 0 };
-    const waitingText = document.querySelector(".waiting-text");
-    waitingText.style.display = "block";
+	async pollPlayersConnected(tournamentId) {
+		const status = { isReady: false, numberPlayers: 0 };
+		const waitingText = document.querySelector(".waiting-text");
+		waitingText.style.display = "block";
 		const numbersPlayersConnected = document.getElementById("numbers-players-connected");
 
-    while (!status.isReady) {
-      await this.fillPlayersConnected(tournamentId, status);
+		while (!status.isReady) {
+			await this.fillPlayersConnected(tournamentId, status);
 			numbersPlayersConnected.innerText = `(${status.numberPlayers}/4)`;
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-    }
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+		}
 
-    waitingText.style.display = "none";
-    const startButton = document.querySelector(".start-btn");
-    startButton.removeAttribute("disabled");
-  }
+		waitingText.style.display = "none";
+		const startButton = document.querySelector(".start-btn");
+		startButton.removeAttribute("disabled");
+	}
 
-  startTournament(tournamentId) {
-    const startButton = document.querySelector(".start-btn");
-    startButton.addEventListener("click", async () => {
-      if (startButton.hasAttribute("disabled")) return;
+	startTournament(tournamentId) {
+		const startButton = document.querySelector(".start-btn");
+		startButton.addEventListener("click", async () => {
+			if (startButton.hasAttribute("disabled")) return;
 
 			try {
 				const { data, error } = await api.request.post(`tournaments/${tournamentId}/start/`);
@@ -370,17 +401,72 @@ export class TournamentsLobby extends Component {
 				Toast.error(error.message);
 			}
 
-    });
-  }
+		});
+	}
 
-  script() {
-    const tournamentId = parseInt(this.getAttribute("id"));
+	script() {
 
-    this.sendInvitation(tournamentId);
-    this.fillPlayersInvite(tournamentId);
-    this.pollPlayersConnected(tournamentId);
-    this.startTournament(tournamentId);
-  }
+		let provider;
+		let signer;
+		let contract;
+		const tounamentId = parseInt(this.getAttribute("id"));
+		const buttonRegister = document.getElementById("btnRegister");
+
+		const getValues = async () => {
+			try {
+				const { data, error } = await api.request.get(
+					`tournaments/${tounamentId}/`
+				);
+				console.log(data);
+				contract = new ethers.Contract(data.address_tournament, ABITournament, signer);
+				console.log(contract);
+			} catch (error) {
+				console.error(error);
+			}
+		};
+
+		const connectWallet = async () => {
+			try {
+				if (typeof window.ethereum === 'undefined') {
+					alert("MetaMask n'est pas installé !");
+					return;
+				}
+				console.log("Connexion au portefeuille en cours...");
+				const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+				console.log("Connecté avec le compte:", accounts[0]);
+				provider = new ethers.providers.Web3Provider(window.ethereum);
+				const balance = await provider.getBalance(accounts[0]);
+				console.log("Balance:", ethers.utils.formatEther(balance), "ETH");
+				signer = provider.getSigner();
+				getValues();
+			} catch (error) {
+				console.error("Erreur lors de la connexion au portefeuille:", error);
+			}
+		};
+
+		if (window.auth.profile.publicKey !== "") {
+			connectWallet();
+		}
+
+		buttonRegister.addEventListener("click", async () => {
+			try {
+				const contractWithWallet = contract.connect(signer);
+				const tx = await contractWithWallet.register();
+				await tx.wait();
+				console.log(tx);
+			}
+			catch (error) {
+				Toast.error("Revert: Player already registered");
+			}
+		});
+
+		const tournamentId = parseInt(this.getAttribute("id"));
+
+		this.sendInvitation(tournamentId);
+		this.fillPlayersInvite(tournamentId);
+		this.pollPlayersConnected(tournamentId);
+		this.startTournament(tournamentId);
+	}
 }
 
 customElements.define("tournaments-lobby", TournamentsLobby);
