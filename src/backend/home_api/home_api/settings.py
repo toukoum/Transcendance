@@ -188,9 +188,8 @@ REST_AUTH = {
     'USE_JWT': True,
     'JWT_AUTH_COOKIE': 'transcendence-token',
     'JWT_AUTH_REFRESH_COOKIE': 'transcendence-refresh-token',
-    # 'JWT_AUTH_SECURE': False,  # Permet d'envoyer les cookies sans HTTPS (dev uniquement)
     'JWT_AUTH_SECURE': True,  # Permet d'envoyer les cookies sans HTTPS (dev uniquement)
-    'JWT_AUTH_SAMESITE': 'strict',  # Permet d'envoyer les cookies cross-site
+    'JWT_AUTH_SAMESITE': 'none',  # Permet d'envoyer les cookies cross-site
     'JWT_AUTH_HTTPONLY': True,  # Empêche JavaScript d'accéder aux cookies
 }
 
@@ -237,6 +236,7 @@ REDIRECT_URI = os.environ.get('REDIRECT_URI', default='')
 MEDIA_URL = os.environ.get('MEDIA_URL')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+
 DEFAULT_AVATAR = os.environ.get('DEFAULT_AVATAR')	
 
 
@@ -249,14 +249,14 @@ TRENCH_AUTH = {
             "HANDLER": "trench.backends.basic_mail.SendMailMessageDispatcher",
             'VERBOSE_NAME': 'email',
             'SOURCE_FIELD': 'email',
-            "VALIDITY_PERIOD": 60 * 10,
+            "VALIDITY_PERIOD": 60 * 3,
             'EMAIL_SUBJECT': 'Your verification code',
             'EMAIL_PLAIN_TEMPLATE': "templates/email/mfa_code.txt",
             'EMAIL_HTML_TEMPLATE': "templates/email/mfa_code.html",
         },
         "app": {
             "VERBOSE_NAME": "app",
-            "VALIDITY_PERIOD": 60 * 10,
+            "VALIDITY_PERIOD": 60,
             "USES_THIRD_PARTY_CLIENT": True,
             "HANDLER": "trench.backends.application.ApplicationMessageDispatcher",
         }
@@ -276,3 +276,6 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
+# HTTPS 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

@@ -217,7 +217,7 @@ export class Search extends Component {
         const searchResults = document.querySelector("#searchResults");
         searchResults.innerHTML = ""; // Clear previous results
         try {
-            const { data, error } = await api.request.get(`search?q=${encodeURIComponent(query)}`);
+            const { data, error } = await api.request.get(`search/?q=${encodeURIComponent(query)}`);
             if (error) throw error;
             if (!data.length) {
                 searchResults.innerHTML = `<p class="no-results">No results found.</p>`;

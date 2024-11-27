@@ -76,6 +76,10 @@ export class Header extends Component {
 						opacity: 0.9;
 					}
 
+					.nav-link{
+						cursor:pointer;
+					}
+
 				
 			</style>
 			`);

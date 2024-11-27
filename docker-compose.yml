@@ -31,7 +31,7 @@ services:
     container_name: frontend
     build: ./src/frontend
     # ports:
-    #   - "3000:80"
+    #   - "3001:80"
     networks:
       - trans_network
     volumes:
@@ -52,6 +52,8 @@ services:
       - "3000:443"
     networks:
       - trans_network
+    volumes:
+    - ./src/backend/home_api/media:/var/www/media
 
     
 

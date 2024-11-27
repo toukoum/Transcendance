@@ -100,7 +100,7 @@ export class SettingsSecurity extends Component {
 		const toggle2FA = document.querySelector("#toggle-2fa");
 		let is2FAEnabled = false;
     try {
-      const { data, error } = await api.request.get("me");
+      const { data, error } = await api.request.get("me/");
       if (error) throw error;
       is2FAEnabled = data.profile.is_2fa_enabled;
       toggle2FA.checked = is2FAEnabled;

@@ -522,7 +522,7 @@ export class Play extends Component {
 		}
 		else {
 			document.querySelector("#createDiv").addEventListener("click", async () => {
-				Toast.error("You must be connected to create a tournament");
+				Toast.error("Connect your wallet in setting");
 			});
 			document.querySelector("#createBtn").disabled = true;
 		}

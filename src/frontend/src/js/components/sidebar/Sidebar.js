@@ -46,14 +46,14 @@ export class Sidebar extends Component {
                                     ${primary_action ? 
                                         (is_link_primary ? 
                                                 `<a class="action btn-primary text-decoration-none text-center" href="${primary_action.url}">${primary_action.label}</a>` : 
-                                                `<button class="make-action action btn-primary" salam="${primary_action.url}">${primary_action.label}</button>`
+                                                `<button class="make-action-notif action btn-primary" salam="${primary_action.url}">${primary_action.label}</button>`
                                         ) : ''
                                     }
 
                                     ${secondary_action ? 
                                         (is_link_secondary ? 
                                                 `<a class="action btn-secondary text-decoration-none text-center" href="${secondary_action.url}">${secondary_action.label}</a>` : 
-                                                `<button class="make-action action btn-secondary" salam="${secondary_action.url}">${secondary_action.label}</button>`
+                                                `<button class="make-action-notif action btn-secondary" salam="${secondary_action.url}">${secondary_action.label}</button>`
                                         ) : ''
                                     }
 								</div>
@@ -279,7 +279,7 @@ export class Sidebar extends Component {
     }
 
     bind_action_buttons() {
-        document.querySelectorAll('.make-action').forEach((element) => {
+        document.querySelectorAll('.make-action-notif').forEach((element) => {
             element.addEventListener('click', async (e) => {
                 const target = e.target;
                 const actionUrl = target.getAttribute('salam');

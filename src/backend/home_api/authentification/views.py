@@ -47,23 +47,6 @@ from trench.responses import ErrorResponse
 #=======================================================================================================
 
 
-
-# ==============================
-# ===== MAIL VERIF =============
-# ==============================
-
-
-def email_confirm_redirect(request, key):
-    return HttpResponseRedirect(
-        f"{settings.EMAIL_CONFIRM_REDIRECT_BASE_URL}{key}/"
-    )
-
-def password_reset_confirm_redirect(request, uidb64, token):
-    return HttpResponseRedirect(
-        f"{settings.PASSWORD_RESET_CONFIRM_REDIRECT_BASE_URL}{uidb64}/{token}/"
-    )
-
-
 # ==============================
 # ===== OAUTH 42 ===============
 # ==============================
@@ -91,9 +74,8 @@ def oauth_callback(request):
     code = request.GET.get('code')
     state = request.GET.get('state')
 
-
     if state != request.session.get('oauth_state'):
-        return Response({"detail": "Invalid state"}, status=status.HTTP_400_BAD_REQUEST)
+        return format_response(data={"detail": "Invalid state"}, status=status.HTTP_400_BAD_REQUEST)
     
     token_url = "https://api.intra.42.fr/oauth/token"
 
@@ -150,23 +132,6 @@ def get_data_user_42(request):
     response = requests.get(profile_url, headers=headers)
     
     return response
-
-
-@api_view(['GET'])
-def get_user_profile(request):
-    access_token = request.session.get('access_token')
-    if not access_token:
-        return redirect('42_authorize')
-
-    headers = {'Authorization': f'Bearer {access_token}'}
-    profile_url = "https://api.intra.42.fr/v2/me"
-    response = requests.get(profile_url, headers=headers)
-    
-    if response.status_code == 200:
-        user_profile = response.json()
-        return format_response(data=user_profile)
-    else:
-        return format_response(error="Error retrieving user profile", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 # ==============================

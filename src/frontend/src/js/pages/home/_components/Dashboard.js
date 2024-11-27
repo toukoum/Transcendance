@@ -230,13 +230,13 @@ export class Dashboard extends Component {
   }
 
   async script() {
-    const userInfo = await this.getInfo("me");
-    const gameInfo = await this.getInfo("games");
-
+    const userInfo = await this.getInfo("me/");
+    const gameInfo = await this.getInfo("games/");
+    
     if (userInfo) {
       this.renderUserInfo(userInfo);
     }
-
+    
     if (gameInfo) {
       this.renderGameInfo(gameInfo);
     }

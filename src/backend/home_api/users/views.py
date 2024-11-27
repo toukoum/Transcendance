@@ -73,12 +73,9 @@ class UserSearchView(BaseReadOnlyViewSet):
     def list(self, request, *args, **kwargs):
         query = self.request.query_params.get('q', '').strip()
 
-        # if len(query) < 3:
-        #     return format_response(error="Query must be at least 3 characters long", status=status.HTTP_400_BAD_REQUEST)
-
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+        return format_response(data=serializer.data)
 
     def get_queryset(self):
         query = self.request.query_params.get('q', '').strip()
