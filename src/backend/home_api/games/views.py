@@ -125,19 +125,15 @@ class MatchCheckView(APIView):
 		"""
 		player = MatchPlayer.objects.filter(
 			Q(user=request.user) &
+			~Q(state=MatchPlayer.State.LEFT) &
 			~Q(match__state__in=[Match.State.FINISHED, Match.State.CANCELLED])
 		).first()
 
 		if player is None:
 			return format_response(data=None)
-			# return Response({ "data": None, "error": None })
-		
-		# Here match as None isnt an error, it just means the player is not in a match
-		# if match is None:
-		#     return Reponse({ "data": None, "error": "Player is not in a match" })
+
 	
 		serializer = MatchSerializer(player.match)
-		# return Response({ "data": serializer.data, "error": None })
 		return format_response(data=serializer.data)
 
 

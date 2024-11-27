@@ -11,10 +11,7 @@ export class Client {
 			throw new Error("[Game Client] Game ID is required");
 		}
 		this.game = game;
-		// this.ws = api.game.connect(gameId);
 		this.ws = null;
-
-		// this.initListeners();
 	}
 
 	initListeners() {
@@ -76,5 +73,13 @@ export class Client {
 				console.log("[Game: Client] Unknown message type", type);
 				break;
 		}
+	}
+
+	leave() {
+		this.ws.send({
+			type: "game.leave"
+		});
+		this.ws.close();
+		window.router.push("/play");
 	}
 }

@@ -83,17 +83,25 @@ class Game:
 			})
 			await asyncio.sleep(2)
 		
-		self.winner = self.player_1 if self.player_1.player.score > self.player_2.player.score else self.player_2
+		# if self.match.winner is None:
+		# 	self.winner = self.player_1 if self.player_1.player.score > self.player_2.player.score else self.player_2
+		# else:
+		# 	self.winner = self.match.winner
+		# self.winner = self.player_1 if self.player_1.player.score > self.player_2.player.score else self.player_2
 
 		# End the game
+		await self.sync_from()
 		await self.end()
 
 	async def end(self):
 		logger.info(f'Game ended for match {self.match.id}')
-		self.match.winner = self.winner.player.user
-		self.match.finished_at = datetime.now()
-		await self.update_state(Match.State.FINISHED)
+		if self.match.state not in [Match.State.FINISHED, Match.State.CANCELLED]:
+			# self.match.winner = self.winner.player.user
+			self.match.winner = self.player_1.player.user if self.player_1.player.score > self.player_2.player.score else self.player_2.player.user
+			self.match.finished_at = datetime.now()
+			await self.update_state(Match.State.FINISHED)
 
+		print(f"======> Game WINNER: {self.match.winner}")
 		await self.send_state()
   
 		# Remove the game from the GAMES
@@ -103,7 +111,6 @@ class Game:
 		# close socket for all player
 		from games.consumers import USER_CHANNELS
 		for player in self.players:
-			await player.update_state(MatchPlayer.State.LEFT)
 			player_channel_name = await USER_CHANNELS.get(player.player.user.id)
 			if player_channel_name:
 				await self.channel_layer.group_discard(self.group_name, player_channel_name)
@@ -243,8 +250,8 @@ class Game:
 			await self.update_state(Match.State.READY)
 			print(f"======> Game {self.match.id} is {self.match.state}")
 
-		# Send the game state
 		await self.send_state()
+
 
 
 	async def handle_player_disconnect(self, user: User):
@@ -257,6 +264,22 @@ class Game:
 				'type': 'game.player',
 				'action': 'disconnected',
 				'message': f'{user.username} disconnected',
+				'data': {
+					'user': user.id
+				}
+			}
+		)
+	
+	async def handle_player_leave(self, user: User):
+		logger.info(f'User {user.id} left the game {self.match.id}')
+		await self.update_player_state(user, MatchPlayer.State.LEFT)
+		await self.send_state()
+		await self.channel_layer.group_send(
+			self.group_name,
+			{
+				'type': 'game.player',
+				'action': 'left',
+				'message': f'{user.username} left',
 				'data': {
 					'user': user.id
 				}
@@ -311,6 +334,8 @@ class Game:
 		type = data.get('type')
 		if type == 'paddle.move':
 			await self.move_paddle(user, data)
+		if type == 'game.leave':
+			await self.handle_player_leave(user)
 		
 
 
@@ -321,7 +346,7 @@ class Game:
 		if (self.match.state == Match.State.WAITING):
 			data['players'] = [player.to_dict() for player in self.players]
 		if (self.match.state == Match.State.FINISHED):
-			data['winner'] = self.winner.to_dict()
+			data['winner'] = self.match.winner
 		await self.channel_layer.group_send(
 			self.group_name,
 			{

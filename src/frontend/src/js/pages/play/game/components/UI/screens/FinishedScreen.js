@@ -10,7 +10,7 @@ export class FinishedScreen extends BaseScreen {
 		this.element.innerHTML = (/*html*/`
 			<div class="finished-screen position-absolute top-50 start-50 translate-middle p-2 border rounded bg-background w-50">
 				<div class="finished-screen__content d-flex flex-column gap-2 align-items-center">
-					<h3 style="font-size: 2rem;">👑 ${this.data.winner.user.username}</h3>
+					<h3 style="font-size: 2rem;">👑 ${this.data.winner.username}</h3>
 					<div class="finished-screen__scores d-flex flex-column gap-2 my-2 w-100">
 						<div class="finished-screen__score d-flex justify-content-between align-items-center">
 							<div class="finished-screen__score--user d-flex gap-2 align-items-center">

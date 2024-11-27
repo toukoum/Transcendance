@@ -1,6 +1,8 @@
 import GameLocal from "../../../local/GameLocal.js";
 import Game from "../../Game.js";
+import { LeaveButton } from "./components/LeaveButton.js";
 import { BaseScreen } from "./screens/BaseScreen.js";
+import { CanceledScreen } from "./screens/CanceledScreen.js";
 import { FinishedScreen } from "./screens/FinishedScreen.js";
 import { InitializingScreen } from "./screens/InitializingScreen.js";
 import { InProgressScreen } from "./screens/InProgressScreen.js";
@@ -24,10 +26,12 @@ export class UI {
 			in_progress: InProgressScreen,
 			paused: BaseScreen,
 			finished: FinishedScreen,
-			cancelled: BaseScreen,
+			cancelled: CanceledScreen,
 		}
 
 		this.components = {
+			leaveButton: game instanceof Game ? new LeaveButton(this.game) : null,
+			// leaveButton: new LeaveButton(this.game),
 			
 		}
 	}
