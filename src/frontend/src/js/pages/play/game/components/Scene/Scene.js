@@ -138,50 +138,48 @@ export class Scene {
 	/* ------------------------------- Syncing ------------------------------- */
 
 	syncWithServer() {
-		if (!window.game.serverData) {
+		if (!this.game.serverData) {
 			return console.warn("[Game Scene] Server data is required");
 		}
-		console.log("serverData", window.game.serverData);
-		// if ("map" in window.game.serverData.match) {
-		if (window.game.serverData.match.map) {
+		if (this.game.serverData.match.map) {
 			if (!this.map) {
-				this.createMap(window.game.serverData.match.map);
+				this.createMap(this.game.serverData.match.map);
 			}
 		}
 
-		if (window.game.serverData.field) {
+		if (this.game.serverData.field) {
 			if (this.field) {
-				this.field.updateFromServer(window.game.serverData.field);
+				this.field.updateFromServer(this.game.serverData.field);
 			} else {
-				this.field = new Field(window.game.serverData.field.width, window.game.serverData.field.height);
+				this.field = new Field(this.game.serverData.field.width, this.game.serverData.field.height);
 				this.scene.add(this.field.mesh);
 				this.adjustCameraToField();
 			}
 		}
 
-		if (window.game.serverData.ball) {
+		if (this.game.serverData.ball) {
 			if (this.ball) {
-				this.ball.updateFromServer(window.game.serverData.ball);
+				this.ball.updateFromServer(this.game.serverData.ball);
 			} else {
-				this.ball = new Ball(window.game.serverData.ball);
+				this.ball = new Ball(this.game.serverData.ball);
 				this.scene.add(this.ball.mesh);
 			}
 		}
 
-		if (window.game.serverData.player_1) {
+		if (this.game.serverData.player_1) {
 			if (this.player_1) {
-				this.player_1.updateFromServer(window.game.serverData.player_1);
+				this.player_1.updateFromServer(this.game.serverData.player_1);
 			} else {
-				this.player_1 = new Player(window.game.serverData.player_1);
+				this.player_1 = new Player(this.game.serverData.player_1);
 				this.scene.add(this.player_1.paddle);
 			}
 		}
 
-		if (window.game.serverData.player_2) {
+		if (this.game.serverData.player_2) {
 			if (this.player_2) {
-				this.player_2.updateFromServer(window.game.serverData.player_2);
+				this.player_2.updateFromServer(this.game.serverData.player_2);
 			} else {
-				this.player_2 = new Player(window.game.serverData.player_2);
+				this.player_2 = new Player(this.game.serverData.player_2);
 				this.scene.add(this.player_2.paddle);
 			}
 		}

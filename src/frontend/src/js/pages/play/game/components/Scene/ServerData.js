@@ -1,7 +1,13 @@
 import zod from 'https://cdn.jsdelivr.net/npm/zod@3.23.8/+esm'
+import Game from '../../Game.js';
+import GameLocal from '../../../local/GameLocal.js';
 
 export class ServerData {
-	constructor() {
+	constructor(game) {
+		if (!game ||(!(game instanceof Game) && !game instanceof GameLocal)) {
+			throw new Error("[Game: ServerData] Game instance is required");
+		}
+		this.game = game;
 		this.match = null;
 		this.ball = null;
 		this.player_1 = null;
@@ -126,12 +132,12 @@ export class ServerData {
 			this.elapsed_time = data.elapsed_time;
 		}
 
-		if (window.game.scene) {
-			window.game.scene.syncWithServer();
+		if (this.game.scene) {
+			this.game.scene.syncWithServer();
 
-			if (window.game.controller) {
-				if (!window.game.controller.player && this.player_1 && this.player_2) {
-					window.game.controller.assignPlayer();
+			if (this.game.controller) {
+				if (!this.game.controller.player && this.player_1 && this.player_2) {
+					this.game.controller.assignPlayer();
 				}
 			}
 		}

@@ -2,7 +2,7 @@ import { BaseScreen } from "./BaseScreen.js";
 
 export class FinishedScreen extends BaseScreen {
     enter() {
-        // add modals
+        // add modals 
 		this.element = document.createElement("div");
 		this.element.id = "finished-screen";
 		this.game.container.appendChild(this.element);
@@ -15,24 +15,24 @@ export class FinishedScreen extends BaseScreen {
 						<div class="finished-screen__score d-flex justify-content-between align-items-center">
 							<div class="finished-screen__score--user d-flex gap-2 align-items-center">
 								<div class="player-waiting__avatar">
-									<img src="${window.game.serverData.player_1.user.avatar}" alt="Avatar" class=" rounded-circle" style="width: 50px; height: 50px;">
+									<img src="${this.game.serverData.player_1.user.avatar}" alt="Avatar" class=" rounded-circle" style="width: 50px; height: 50px;">
 								</div>
 								<div class="player-waiting__name">
-									${window.game.serverData.player_1.user.username}
+									${this.game.serverData.player_1.user.username}
 								</div>
 							</div>
-							<div>${window.game.serverData.player_1.score}</div>
+							<div>${this.game.serverData.player_1.score}</div>
 						</div>
 						<div class="finished-screen__score d-flex justify-content-between align-items-center">
 							<div class="finished-screen__score--user d-flex gap-2 align-items-center">
 								<div class="player-waiting__avatar">
-									<img src="${window.game.serverData.player_2.user.avatar}" alt="Avatar" class=" rounded-circle" style="width: 50px; height: 50px;">
+									<img src="${this.game.serverData.player_2.user.avatar}" alt="Avatar" class=" rounded-circle" style="width: 50px; height: 50px;">
 								</div>
 								<div class="player-waiting__name">
-									${window.game.serverData.player_2.user.username}
+									${this.game.serverData.player_2.user.username}
 								</div>
 							</div>
-							<div>${window.game.serverData.player_2.score}</div>
+							<div>${this.game.serverData.player_2.score}</div>
 						</div>
 					</div>
 					<link-component href="/play" type="button" class="btn btn-primary">Play Again</link-component>
