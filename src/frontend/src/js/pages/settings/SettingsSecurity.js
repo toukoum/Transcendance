@@ -6,9 +6,6 @@ import { ApiRequestError } from "../../utils/api/parser/ApiRequestError.js";
 import zod from 'https://cdn.jsdelivr.net/npm/zod@3.23.8/+esm'
 
 const passwordSchema = zod.object({
-	currentPassword: zod.string().min(8, {
-			message: "Must be at least 8 characters long"
-	}),
 	newPassword: zod.string()
 			.min(8, {
 					message: "Must be at least 8 characters long"
@@ -220,9 +217,10 @@ export class SettingsSecurity extends Component {
 					confirmPassword
 				});
 
-				const { data: dataVerif, error: errorVerif } = await api.auth.loginWithIdentifier(window.auth.username, currentPassword);
+				const response = await api.auth.loginWithIdentifier(window.auth.username, currentPassword);
 
-				if (errorVerif) throw new ApiRequestError("Current password is incorrect");
+				console.log("RESPONSE", response)
+				if (response.error) throw new ApiRequestError("Current password is incorrect");
 
 				const { data, error } = await api.request.post('auth/password/change/', {
 					new_password1: newPassword,
@@ -240,7 +238,7 @@ export class SettingsSecurity extends Component {
 			} catch (error) {
 				if (error instanceof ApiRequestError) {
 					console.error(error.message);
-					Toast.error(error.message);
+					Toast.error("Password invalid");
 				} else if (error instanceof zod.ZodError) {
 					error.errors.forEach(err => {
 						const input = passwordForm.querySelector(`[name="${err.path[0]}"]`);
