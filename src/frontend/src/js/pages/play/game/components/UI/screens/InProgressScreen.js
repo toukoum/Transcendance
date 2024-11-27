@@ -14,14 +14,16 @@ export class InProgressScreen extends BaseScreen {
 
     update(data) {
 		super.update(data);
-
-        if ("countdown" in data) {
-            this.countdown.update(data.countdown);
-            this.roundWinner.remove();
-        }
-
-        if ("round_winner" in data) {
-            this.roundWinner.show(data.round_winner);
+        
+        if (this.data) {
+            if (this.data.countdown) {
+                this.countdown.update(this.data.countdown);
+                this.roundWinner.remove();
+            }
+    
+            if (this.data.round_winner) {
+                this.roundWinner.show(this.data.round_winner);
+            }
         }
 	}
 

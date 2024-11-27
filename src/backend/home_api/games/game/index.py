@@ -14,7 +14,7 @@ from django.db.models import Q
 from games.game.models.Player import Player
 from games.game.models.Ball import Ball
 from games.game.models.Paddle import Paddle
-from games.game.constants import FIELD_WIDTH, FIELD_HEIGHT, PADDLE_HEIGHT, PADDLE_WIDTH, PADDLE_SPEED, COUNTDOWN_DURATION, TICK_RATE
+from games.game.constants import FIELD_WIDTH, FIELD_HEIGHT, PADDLE_HEIGHT, PADDLE_WIDTH, PADDLE_SPEED, COUNTDOWN_DURATION, TICK_RATE, BALL_ACCELERATION_FACTOR, BALL_MAX_SPEED
 
 logger = logging.getLogger('django')
 
@@ -46,14 +46,14 @@ class Game:
 
 		await self.update_state(Match.State.INITIALIZING)
 
-		self.ball = Ball()
+		self.ball = Ball(BALL_ACCELERATION_FACTOR[self.match.difficulty], BALL_MAX_SPEED[self.match.difficulty])
 
 		random.shuffle(self.players)
 		self.player_1 = self.players[0]
 		self.player_2 = self.players[1]
 
-		self.player_1.paddle = Paddle((-FIELD_WIDTH / 2) - (PADDLE_WIDTH / 2), 0, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_SPEED)
-		self.player_2.paddle = Paddle((FIELD_WIDTH / 2) + (PADDLE_WIDTH / 2), 0, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_SPEED)
+		self.player_1.paddle = Paddle((-FIELD_WIDTH / 2) - (PADDLE_WIDTH / 2), 0, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_SPEED.get(self.match.difficulty))
+		self.player_2.paddle = Paddle((FIELD_WIDTH / 2) + (PADDLE_WIDTH / 2), 0, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_SPEED.get(self.match.difficulty))
 
 		await self.send_state()
 	
@@ -120,20 +120,28 @@ class Game:
 		logger.info(f'Playing round for match {self.match.id}')
 
 		countdown_end = datetime.now().timestamp() + COUNTDOWN_DURATION
-
 		winner = None
 
 		tick_duration = 1 / TICK_RATE
 		next_tick_time = datetime.now().timestamp() + tick_duration
 
-		while winner is None:
-			current_time = datetime.now().timestamp()
-			delta_time = current_time - self.elapsed_time
-			self.elapsed_time += delta_time  # Temps total écoulé
+		last_time = datetime.now().timestamp()  # Initialisation du dernier tick
 
+		while winner is None:
+			if self.is_game_over():
+				return None
+			current_time = datetime.now().timestamp()
+			delta_time = current_time - last_time
+			last_time = current_time  # Met à jour le dernier tick
+			
+			# Gestion du countdown
 			countdown_left = countdown_end - current_time
 			is_countdown = countdown_left > 0
 
+			# Ajoute le temps uniquement si le countdown est terminé
+			if not is_countdown:
+				self.elapsed_time += delta_time
+			
 			# Mise à jour de la balle et des paddles
 			if not is_countdown:
 				self.ball.move(delta_time)
@@ -149,7 +157,8 @@ class Game:
 				if self.ball.is_out_of_field(FIELD_WIDTH, FIELD_HEIGHT):
 					winner = self.player_2 if self.ball.x < 0 else self.player_1
 
-			await self.send_state() if not is_countdown else await self.send_state({'countdown': countdown_left})
+			# Envoie l'état du jeu (pendant ou hors countdown)
+			await self.send_state({'countdown': countdown_left} if is_countdown else None)
 
 			# Calculez le temps restant jusqu'au prochain tick
 			next_tick_time += tick_duration

@@ -10,8 +10,19 @@ export default class Game {
         this.settings = settings;
         this.container = document.getElementById(settings.container);
 
-        this.serverData = new ServerData();
-        this.client = new Client(this, settings.gameId);
+        this.serverData = null;
+        this.client = null;
+        this.pingManager = null;
+        this.ui = null;
+        this.controller = null;
+        this.scene = null;
+
+        this.init();
+    }
+
+    init() {
+        this.serverData = new ServerData(this);
+        this.client = new Client(this, this.settings.gameId);
         this.pingManager = new PingManager(this.client);
         this.ui = new UI(this);
         this.controller = new Controller(this);
