@@ -296,7 +296,7 @@ export class Play extends Component {
 							<!-- Max Score -->
 							<div class="form-group">
 								<label for="maxScoreTournament">Max Score</label>
-								<input type="number" id="maxScoreTournament" class="form-control" name="maxScoreTournament" value="" placeholder="Max Score" readonly>
+								<input type="number" id="maxScoreTournament" class="form-control" name="maxScoreTournament" value="" placeholder="Max Score">
 								<small id="maxScoreTournament-error" class="form-text text-danger" style="display: none;"></small>
 							</div>
 							<!-- Pseudo Creator -->

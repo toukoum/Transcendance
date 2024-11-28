@@ -139,13 +139,14 @@ export class Tournaments extends Component {
   }
 
   async getDetailTournament(tournamentId) {
-    const { data, error } = await api.request.get(`tournaments/${tournamentId}`);
+    const { data, error } = await api.request.get(`tournaments/${tournamentId}/`);
     if (error) {
       Toast.error(error);
       return null;
     }
     return data;
   }
+
 
   renderTournament(data) {
     const tournamentName = document.querySelector('.tournament-name');
@@ -162,9 +163,7 @@ export class Tournaments extends Component {
 
     // Affichage du Winner du tournoi
     if (data.winner) {
-      const winnerParticipant = data.participants.find(participant => participant.player === data.winner);
-      const winnerName = winnerParticipant ? winnerParticipant.pseudo : 'Inconnu';
-      tournamentWinner.textContent = `Winner : ${winnerName}`;
+      tournamentWinner.textContent = `Winner : ${data.winner}`;
     } else {
       tournamentWinner.textContent = `Winner : -`;
     }
@@ -185,9 +184,7 @@ export class Tournaments extends Component {
       const matchStatus = document.createElement('div');
       matchStatus.classList.add('match-status');
       if (match.winner) {
-        const winnerPlayer = match.match_players.find(player => player.player_id === match.winner);
-        const winnerName = winnerPlayer ? winnerPlayer.username : 'Inconnu';
-        matchStatus.textContent = `Winner : ${winnerName}`;
+        matchStatus.textContent = `Winner : ${match.winner_username}`;
       } else {
         matchStatus.textContent = 'Non terminé';
       }
@@ -228,7 +225,8 @@ export class Tournaments extends Component {
   async script() {
     const tournamentId = parseInt(this.getAttribute("id"));
     const data = await this.getDetailTournament(tournamentId);
-
+    
+    console.log("data", data)
     if (data) {
       this.renderTournament(data);
     }
