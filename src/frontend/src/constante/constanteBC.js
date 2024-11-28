@@ -64,6 +64,25 @@ export const ABIFactory = `[
 export const ABITournament = `[
 		{
 			"type": "function",
+			"name": "checkIfIsAlreadyInside",
+			"inputs": [
+				{
+					"name": "player",
+					"type": "address",
+					"internalType": "address"
+				}
+			],
+			"outputs": [
+				{
+					"name": "",
+					"type": "bool",
+					"internalType": "bool"
+				}
+			],
+			"stateMutability": "view"
+		},
+		{
+			"type": "function",
 			"name": "currentRound",
 			"inputs": [],
 			"outputs": [

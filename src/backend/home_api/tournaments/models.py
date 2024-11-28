@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 from django.core.exceptions import ValidationError
+from asgiref.sync import async_to_sync
 
     
 class Tournament(models.Model):
@@ -87,9 +88,14 @@ class Tournament(models.Model):
               max_score=self.max_score,
               duration=self.duration,
               round=round_number,
+              state=Match.State.WAITING
           )
-          MatchPlayer.objects.create(match_id=match, player_id=participants[i].player)
-          MatchPlayer.objects.create(match_id=match, player_id=participants[i + 1].player)
+          MatchPlayer.objects.create(match=match, user=participants[i].player)
+          MatchPlayer.objects.create(match=match, user=participants[i + 1].player)
+
+          from games.consumers import GAMES
+          from games.game.index import Game
+          async_to_sync(GAMES.set)(match.id, Game(match))
 
 
 class TournamentParticipant(models.Model):
@@ -100,7 +106,7 @@ class TournamentParticipant(models.Model):
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name='participants')
     player = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
-    pseudo = models.CharField(max_length=255, blank=True, null=True, unique=True)
+    pseudo = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return f'{self.tournament} - {self.player}'

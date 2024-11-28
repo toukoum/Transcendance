@@ -107,23 +107,18 @@ export class Signup extends Component {
 					password,
 					passwordConfirm,
 				})
-				if (error) throw error;
+				if (error) throw (error);
 				Toast.success("Signup successful. Please login to continue");
 			} catch (error) {
-				if (error instanceof ApiRequestError) {
-					console.error(error.message);
-					Toast.error(error.message);
-				} else {
-					Toast.error("An error occurred");
-					console.error("An error occurred");
-				}
+				console.error(error.message);
+				Toast.error(error.message);
 			}
 		});
 
 
 		const handleLoginOAuth = async () => {
 			try {
-				window.location.href = "https://10.14.1.11:3000/api/v1/auth/42/authorize/";
+				window.location.href = "https://10.14.1.12:3000/api/v1/auth/42/authorize/";
 				if (error) throw error;
 			} catch (error) {
 				if (error instanceof ApiRequestError) {

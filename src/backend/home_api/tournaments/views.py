@@ -50,6 +50,8 @@ class TournamentViewSet(BaseViewSet):
     @action (detail=True, methods=['post'])
     def start(self, request, pk=None):
         tournament = self.get_object()
+        if (tournament.state == Tournament.State.IN_PROGRESS):
+            return format_response(data={'message': 'Tournament already started'}, status=200)
         if (tournament.state != Tournament.State.WAITING):
             return format_response(error='Tournament must be waiting to start', status=400)
         if (tournament.connected_players < tournament.number_players):

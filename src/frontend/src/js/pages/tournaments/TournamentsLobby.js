@@ -320,6 +320,7 @@ export class TournamentsLobby extends Component {
 	async fillPlayersConnected(tournamentId, status) {
 		const connectedPlayers = document.querySelector(".connected-players");
 		const existingPlayerIds = new Set();
+		const buttonRegister = document.getElementById("btnRegister");
 
 		const provider = new ethers.providers.Web3Provider(window.ethereum);
 		const signer = provider.getSigner();
@@ -345,7 +346,11 @@ export class TournamentsLobby extends Component {
 		const nbPlayerRegistered = await contract.getPlayers();
 
 		console.log(nbPlayerRegistered.length);
-		
+
+		if (await contract.checkIfIsAlreadyInside(window.auth.profile.publicKey)) {
+			console.log("salut");
+			buttonRegister.setAttribute("disabled", "disabled");
+		}
 		if (existingPlayerIds.size === 4 && nbPlayerRegistered.length === 4) {
 			status.isReady = true;
 		}
@@ -387,7 +392,7 @@ export class TournamentsLobby extends Component {
 		startButton.removeAttribute("disabled");
 	}
 
-	startTournament(tournamentId) {
+	async startTournament(tournamentId) {
 		const startButton = document.querySelector(".start-btn");
 		startButton.addEventListener("click", async () => {
 			if (startButton.hasAttribute("disabled")) return;
@@ -395,13 +400,35 @@ export class TournamentsLobby extends Component {
 			try {
 				const { data, error } = await api.request.post(`tournaments/${tournamentId}/start/`);
 				if (error) throw error;
+
 				Toast.success("Tournament started");
-				window.location.href = `/tournaments/${tournamentId}`;
+				// window.location.href = `/tournaments/${tournamentId}`;
 			} catch (error) {
 				Toast.error(error.message);
 			}
-
 		});
+
+		let status = false;
+		while (!status) {
+			try {
+				const { data, error } = await api.request.get(`tournaments/${tournamentId}/`);
+				if (error) throw error;
+
+				if (data.matches.length > 0) {
+					const { data, error } = await api.request.get(`game/check/`);
+					if (error) throw error;
+					console.log("ID GAME :", data.id);
+					window.location.href = `/play/${data.id}`;
+					status = true;
+				}
+
+			} catch (error) {
+				Toast.error(error.message);
+			}
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+
+		}
+
 	}
 
 	script() {
