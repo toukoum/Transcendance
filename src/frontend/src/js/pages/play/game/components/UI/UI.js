@@ -31,8 +31,6 @@ export class UI {
 
 		this.components = {
 			leaveButton: game instanceof Game ? new LeaveButton(this.game) : null,
-			// leaveButton: new LeaveButton(this.game),
-			
 		}
 	}
 

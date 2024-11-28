@@ -122,6 +122,15 @@ export class Dashboard extends Component {
         .game-status.in-progress {
           color: #FFD60A;
         }
+        .game-status.waiting {
+          color: #0A84FF;
+        }
+        .game-status.cancelled {
+          color: #8E8E93;
+        }
+        .game-status.ready {
+          color: #30D158;
+        }
 
         @media (max-width: 600px) {
           .user-details {
@@ -218,9 +227,15 @@ export class Dashboard extends Component {
       } else if (game.state === 'in_progress') {
         gameStatus.textContent = 'In progress';
         gameStatus.classList.add('in-progress');
-      } else {
+      } else if (game.state === 'cancelled') {
+        gameStatus.textContent = 'Cancelled';
+        gameStatus.classList.add('cancelled');
+      } else if (game.state === 'ready') {
+        gameStatus.textContent = 'Ready';
+        gameStatus.classList.add('ready');
+      } else if (game.state === 'waiting') {
         gameStatus.textContent = 'Waiting';
-        gameStatus.classList.add('in-progress');
+        gameStatus.classList.add('waiting');
       }
 
       gameItem.appendChild(gameInfoDiv);

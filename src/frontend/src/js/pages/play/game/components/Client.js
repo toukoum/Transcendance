@@ -51,7 +51,7 @@ export class Client {
 	connect() {
 		this.ws = api.game.connect(this.game.settings.gameId);
 		this.initListeners();
-		if (this.ws.connected && this.game.pingManager) {
+		if (this.ws && this.game.pingManager) {
 			this.game.pingManager.start();
 		}
 	}

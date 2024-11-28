@@ -22,13 +22,6 @@ class GameConsumer(AsyncWebsocketConsumer):
 		self.game_id = self.scope['url_route']['kwargs']['game_id']
 		self.user = self.scope['user']
 
-		if (await GAMES.size()) == 0:
-			await self.init_games()
-
-		print("==========> PRINT <==========")
-		await GAMES.print()
-		print("========> END PRINT <========")
-
 		game = await GAMES.get(self.game_id)
 		if game is None or not self.user.is_authenticated or not await self.is_player_in_game(self.user.id, self.game_id):
 			return await self.close()
@@ -42,7 +35,6 @@ class GameConsumer(AsyncWebsocketConsumer):
 
 		# If the game is ready, start it
 		if game.match.state == Match.State.READY:
-			print("Game is ready")
 			asyncio.create_task(game.start())
 	
 	async def disconnect(self, close_code):
@@ -95,7 +87,7 @@ class GameConsumer(AsyncWebsocketConsumer):
 			)
 		)
 		for match in matches:
-			await GAMES.set(str(match.id), Game(match))
+			await GAMES.set(match.id, Game(match))
 
 
 # ---------------------------------------------------------------------------- #

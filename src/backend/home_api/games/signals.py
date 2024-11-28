@@ -37,11 +37,11 @@ def handle_match_player_update(sender, instance, **kwargs):
 		elif match.state in [Match.State.CREATED, Match.State.WAITING, Match.State.READY, Match.State.INITIALIZING]:
 			match.state = Match.State.CANCELLED
 			match.save()
-	else:
-		if match.state == Match.State.WAITING:
-			if match.match_players.count() == match.max_players:
-				match.state = Match.State.READY
-				match.save()
+	# else:
+	# 	if match.state == Match.State.WAITING:
+	# 		if match.match_players.count() == match.max_players:
+	# 			match.state = Match.State.READY
+	# 			match.save()
 
 	from games.consumers import GAMES
 	game = async_to_sync(GAMES.get)(instance.match_id)

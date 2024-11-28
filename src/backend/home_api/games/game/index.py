@@ -88,11 +88,9 @@ class Game:
 			self.match.winner = self.player_1.player.user if self.player_1.player.score > self.player_2.player.score else self.player_2.player.user
 			self.match.finished_at = datetime.now()
 			await self.update_state(Match.State.FINISHED)
-			winner = self.match.winner
-		else:
-			winner = await self.get_winner()
+		
+		winner = await self.get_winner()
 
-		print(f"Winner: {winner}")
 		await self.send_state({
 			'winner': {
 				'id': winner.id,
@@ -239,14 +237,10 @@ class Game:
 					'data': player.to_dict()
 				}
 			)
-
-		print(f"There is {len(self.players)} players / {self.match.max_players} players in the game")
-			
 		# Check if the game is ready to start (only if the game is waiting)
-		# if self.match.state == Match.State.WAITING and len(self.players) == self.match.max_players:
-		# 	await self.update_state(Match.State.READY)
-		# 	print(f"======> Game {self.match.id} is {self.match.state}")
-
+		if self.match.state == Match.State.WAITING and len(self.players) == self.match.max_players:
+			await self.update_state(Match.State.READY)
+		
 		await self.send_state()
 
 
@@ -324,8 +318,6 @@ class Game:
 		"""
 		Handle the message from the player
 		"""
-		logger.info(f'Message from user {user.id} in game {self.match.id}')
-
 		type = data.get('type')
 		if type == 'paddle.move':
 			await self.move_paddle(user, data)
@@ -412,7 +404,6 @@ class Game:
 				return
 
 
-	# add str method to print the game state
 	def __str__(self):
 		return f"""
 		========================
