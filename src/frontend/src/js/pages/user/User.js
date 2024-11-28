@@ -184,8 +184,7 @@ export class User extends Component {
 
   getMatchWinner(match) {
     if (match.state !== "finished") return "In Progress";
-    const winnerPlayer = match.match_players.find(player => player.id === match.winner);
-    return winnerPlayer ? winnerPlayer.username : "Draw";
+    return match.winner_username;
   }
 
   formatDate(dateString) {
@@ -240,7 +239,7 @@ export class User extends Component {
                   <p class="card-text"><strong>State:</strong> <span class="badge badge-state ${match.state}">${this.capitalize(matchState)}</span></p>
                 </div>
                 <div class="mt-auto">
-                  <p class="card-text"><strong>Score:</strong> You ${player ? player.score : '0'} - ${opponent ? opponent.score : '0'} ${opponentName}</p>
+                  <p class="card-text"><strong>Score:</strong> ${player ? player.username : ''} ${player ? player.score : '0'} - ${opponent ? opponent.score : '0'} ${opponentName}</p>
                   <p class="card-text"><strong>Winner:</strong> ${matchWinner}</p>
                 </div>
               </div>

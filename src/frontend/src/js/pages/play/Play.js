@@ -296,7 +296,7 @@ export class Play extends Component {
 							<!-- Max Score -->
 							<div class="form-group">
 								<label for="maxScoreTournament">Max Score</label>
-								<input type="number" id="maxScoreTournament" class="form-control" name="maxScoreTournament" value="" placeholder="Max Score" readonly>
+								<input type="number" id="maxScoreTournament" class="form-control" name="maxScoreTournament" value="" placeholder="Max Score">
 								<small id="maxScoreTournament-error" class="form-text text-danger" style="display: none;"></small>
 							</div>
 							<!-- Pseudo Creator -->
@@ -539,54 +539,54 @@ export class Play extends Component {
 			}
 		});
 
-		let provider;
-		let signer;
-		let contract;
-		const connectWallet = async () => {
-			try {
-				if (typeof window.ethereum === 'undefined') {
-					alert("MetaMask n'est pas installé !");
-					return;
-				}
-				console.log("Connexion au portefeuille en cours...");
-				const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-				console.log("Connecté avec le compte:", accounts[0]);
-				provider = new ethers.providers.Web3Provider(window.ethereum);
-				const balance = await provider.getBalance(accounts[0]);
-				console.log("Balance:", ethers.utils.formatEther(balance), "ETH");
-				signer = provider.getSigner();
-				contract = new ethers.Contract(contractAddressFactory, ABIFactory, signer);
-			} catch (error) {
-				console.error("Erreur lors de la connexion au portefeuille:", error);
-			}
-		};
-		if (window.auth.profile.publicKey !== "") {
-			connectWallet();
-			document.querySelector("#createBtn").disabled = false;
-		}
-		else {
-			document.querySelector("#createDiv").addEventListener("click", async () => {
-				Toast.error("Connect your wallet in setting");
-			});
-			document.querySelector("#createBtn").disabled = true;
-		}
+		// let provider;
+		// let signer;
+		// let contract;
+		// const connectWallet = async () => {
+		// 	try {
+		// 		if (typeof window.ethereum === 'undefined') {
+		// 			alert("MetaMask n'est pas installé !");
+		// 			return;
+		// 		}
+		// 		console.log("Connexion au portefeuille en cours...");
+		// 		const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+		// 		console.log("Connecté avec le compte:", accounts[0]);
+		// 		provider = new ethers.providers.Web3Provider(window.ethereum);
+		// 		const balance = await provider.getBalance(accounts[0]);
+		// 		console.log("Balance:", ethers.utils.formatEther(balance), "ETH");
+		// 		signer = provider.getSigner();
+		// 		contract = new ethers.Contract(contractAddressFactory, ABIFactory, signer);
+		// 	} catch (error) {
+		// 		console.error("Erreur lors de la connexion au portefeuille:", error);
+		// 	}
+		// };
+		// if (window.auth.profile.publicKey !== "") {
+		// 	connectWallet();
+		// 	document.querySelector("#createBtn").disabled = false;
+		// }
+		// else {
+		// 	document.querySelector("#createDiv").addEventListener("click", async () => {
+		// 		Toast.error("Connect your wallet in setting");
+		// 	});
+		// 	document.querySelector("#createBtn").disabled = true;
+		// }
 
 
-		let addressTournament;
+		// let addressTournament;
 
-		const createTournament = async () => {
-			const contractWithWallet = contract.connect(signer);
-			const tx = await contractWithWallet.createTournament();
-			await tx.wait();
-			console.log(tx);
-			const block = await provider.getBlockNumber()
-			const transferEvents = await contract.queryFilter('TournamentCreated', block - 1, block)
-			if (transferEvents.length == 2)
-				addressTournament = transferEvents[1].args.tournamentAddress;
-			else
-				addressTournament = transferEvents[0].args.tournamentAddress;
-			console.log("Tournament created with the address:", addressTournament);
-		}
+		// const createTournament = async () => {
+		// 	const contractWithWallet = contract.connect(signer);
+		// 	const tx = await contractWithWallet.createTournament();
+		// 	await tx.wait();
+		// 	console.log(tx);
+		// 	const block = await provider.getBlockNumber()
+		// 	const transferEvents = await contract.queryFilter('TournamentCreated', block - 1, block)
+		// 	if (transferEvents.length == 2)
+		// 		addressTournament = transferEvents[1].args.tournamentAddress;
+		// 	else
+		// 		addressTournament = transferEvents[0].args.tournamentAddress;
+		// 	console.log("Tournament created with the address:", addressTournament);
+		// }
 
 		// Soumission du formulaire
 		formTournament.addEventListener("submit", async (e) => {
@@ -612,18 +612,17 @@ export class Play extends Component {
 				});
 
 				// Prépare les données pour l'API
-				console.log(provider, signer, contract);
-				await createTournament();
+				// console.log(provider, signer, contract);
+				// await createTournament();
 				const apiData = {
 					duration: durationTournament === "" ? null : parseInt(durationTournament),
-					maxScore: maxScoreTournament === "" ? null : parseInt(maxScoreTournament),
+					max_score: maxScoreTournament === "" ? null : parseInt(maxScoreTournament),
 					name: tournamentName,
 					pseudo: pseudoCreatorTournament,
-					address_tournament: addressTournament,
 				};
 				const { data, error } = await api.tournament.create(apiData);
 				if (error) throw error;
-				Toast.success("Tournament created successfully with the address: " + addressTournament);
+				Toast.success("Tournament created successfully with the address: ");
 				const modalElement = document.querySelector("#createTournamentModal");
 				const modalInstance = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
 				modalInstance.hide();

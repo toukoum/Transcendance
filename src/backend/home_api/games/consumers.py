@@ -30,9 +30,19 @@ class GameConsumer(AsyncWebsocketConsumer):
 		print("========> END PRINT <========")
 
 		game = await GAMES.get(self.game_id)
-		if game is None or not self.user.is_authenticated or not await self.is_player_in_game(self.user.id, self.game_id):
+		if game is None:
+			logger.warning(f"Game with id {self.game_id} not found.")
 			return await self.close()
-		
+
+		if not self.user.is_authenticated:
+			logger.warning(f"Unauthenticated user {self.user.id} tried to connect.")
+			return await self.close()
+
+		if not await self.is_player_in_game(self.user.id, self.game_id):
+			logger.warning(f"User {self.user} is not a player in game {self.game_id}.")
+			return await self.close()
+
+
 		await self.accept()
 
 		# Save the user channel

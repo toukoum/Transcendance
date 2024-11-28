@@ -13,17 +13,17 @@ contract Tournament {
 	event RoundUpdated(uint8 indexed round, address[] players);
 	event WinnerDeclared(address indexed winner);
 
-	modifier validPlayer(address player) {
-		bool isValid = false;
+    function checkIfIsAlreadyInside(address player) external view returns(bool) {
+        bool isValid = false;
 		for (uint8 i = 0; i < players.length; i++) {
-			if (players[i] == player) {
-				isValid = true;
-				break;
-			}
+            if (players[i] == player)
+            {
+                isValid = true;
+                break;
+            }
 		}
-		require(isValid, "Not a valid player");
-		_;
-	}
+        return (isValid);
+    }
 
 	function register() external {
 		require(players.length < 4, "Tournament is full");
