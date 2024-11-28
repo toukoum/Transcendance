@@ -715,6 +715,11 @@ export class Play extends Component {
 				if (difficultyLocal) params.append("difficulty", difficultyLocal);
 				if (pseudoPlayer1) params.append("player1", pseudoPlayer1);
 				if (pseudoPlayer2) params.append("player2", pseudoPlayer2);
+				// close the modal
+				const modalElement = document.querySelector("#createLocalModal");
+				const modalInstance = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+				modalInstance.hide();
+				// redirect to the game
 				window.router.push(`/play-local?${params.toString()}`);
 			} catch (error) {
 				console.error(error);

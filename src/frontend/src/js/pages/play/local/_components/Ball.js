@@ -10,7 +10,7 @@ export class Ball {
 		this.acceleration_factor = acceleration_factor;
 		this.max_speed = max_speed;
 		this.vx = Math.random() > 0.5 ? 1 : -1;
-		this.vy = Math.random() > 0.5 ? 1 : -1;
+		this.vy = Math.random() * 2 - 1;
 
 		this.previous_side = this.vx;
 	}
@@ -24,7 +24,7 @@ export class Ball {
 		this.x = 0;
 		this.y = 0;
 		this.speed = BALL_SPEED;
-		this.vy = Math.random() > 0.5 ? 1 : -1;
+		this.vy = Math.random() * 2 - 1;
 		this.previous_side = -this.previous_side;
 		this.vx = this.previous_side;
 	}

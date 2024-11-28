@@ -20,6 +20,9 @@ export class Client {
 		});
 		this.ws.on("close", () => {
 			console.log("[Game Client] WebSocket closed");
+			if (this.game.pingManager) {
+				this.game.pingManager.stop();
+			}
 		});
 		this.ws.on("error", (error) => {
 			console.error("[Game Client] WebSocket error", error);
@@ -48,6 +51,9 @@ export class Client {
 	connect() {
 		this.ws = api.game.connect(this.game.settings.gameId);
 		this.initListeners();
+		if (this.ws.connected && this.game.pingManager) {
+			this.game.pingManager.start();
+		}
 	}
 
 	handleEvent(message) {
