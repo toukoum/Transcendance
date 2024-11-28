@@ -331,27 +331,27 @@ export class TournamentsLobby extends Component {
 			existingPlayerIds.add(parseInt(player.dataset.id));
 		});
 
-		let contract;
-		try {
-			const { data, error } = await api.request.get(
-				`tournaments/${tournamentId}/`
-			);
-			console.log(data);
-			contract = new ethers.Contract(data.address_tournament, ABITournament, signer);
-			console.log(contract);
-		} catch (error) {
-			console.error(error);
-		}
+		// let contract;
+		// try {
+		// 	const { data, error } = await api.request.get(
+		// 		`tournaments/${tournamentId}/`
+		// 	);
+		// 	console.log(data);
+		// 	contract = new ethers.Contract(data.address_tournament, ABITournament, signer);
+		// 	console.log(contract);
+		// } catch (error) {
+		// 	console.error(error);
+		// }
 
-		const nbPlayerRegistered = await contract.getPlayers();
+		// const nbPlayerRegistered = await contract.getPlayers();
 
-		console.log(nbPlayerRegistered.length);
+		// console.log(nbPlayerRegistered.length);
 
-		if (await contract.checkIfIsAlreadyInside(window.auth.profile.publicKey)) {
-			console.log("salut");
-			buttonRegister.setAttribute("disabled", "disabled");
-		}
-		if (existingPlayerIds.size === 4 && nbPlayerRegistered.length === 4) {
+		// if (await contract.checkIfIsAlreadyInside(window.auth.profile.publicKey)) {
+		// 	console.log("salut");
+		// 	buttonRegister.setAttribute("disabled", "disabled");
+		// }
+		if (existingPlayerIds.size === 4) {
 			status.isReady = true;
 		}
 
@@ -433,59 +433,59 @@ export class TournamentsLobby extends Component {
 
 	script() {
 
-		let provider;
-		let signer;
-		let contract;
-		const tounamentId = parseInt(this.getAttribute("id"));
-		const buttonRegister = document.getElementById("btnRegister");
+		// let provider;
+		// let signer;
+		// let contract;
+		// const tounamentId = parseInt(this.getAttribute("id"));
+		// const buttonRegister = document.getElementById("btnRegister");
 
-		const getValues = async () => {
-			try {
-				const { data, error } = await api.request.get(
-					`tournaments/${tounamentId}/`
-				);
-				console.log(data);
-				contract = new ethers.Contract(data.address_tournament, ABITournament, signer);
-				console.log(contract);
-			} catch (error) {
-				console.error(error);
-			}
-		};
+		// const getValues = async () => {
+		// 	try {
+		// 		const { data, error } = await api.request.get(
+		// 			`tournaments/${tounamentId}/`
+		// 		);
+		// 		console.log(data);
+		// 		contract = new ethers.Contract(data.address_tournament, ABITournament, signer);
+		// 		console.log(contract);
+		// 	} catch (error) {
+		// 		console.error(error);
+		// 	}
+		// };
 
-		const connectWallet = async () => {
-			try {
-				if (typeof window.ethereum === 'undefined') {
-					alert("MetaMask n'est pas installé !");
-					return;
-				}
-				console.log("Connexion au portefeuille en cours...");
-				const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-				console.log("Connecté avec le compte:", accounts[0]);
-				provider = new ethers.providers.Web3Provider(window.ethereum);
-				const balance = await provider.getBalance(accounts[0]);
-				console.log("Balance:", ethers.utils.formatEther(balance), "ETH");
-				signer = provider.getSigner();
-				getValues();
-			} catch (error) {
-				console.error("Erreur lors de la connexion au portefeuille:", error);
-			}
-		};
+		// const connectWallet = async () => {
+		// 	try {
+		// 		if (typeof window.ethereum === 'undefined') {
+		// 			alert("MetaMask n'est pas installé !");
+		// 			return;
+		// 		}
+		// 		console.log("Connexion au portefeuille en cours...");
+		// 		const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+		// 		console.log("Connecté avec le compte:", accounts[0]);
+		// 		provider = new ethers.providers.Web3Provider(window.ethereum);
+		// 		const balance = await provider.getBalance(accounts[0]);
+		// 		console.log("Balance:", ethers.utils.formatEther(balance), "ETH");
+		// 		signer = provider.getSigner();
+		// 		getValues();
+		// 	} catch (error) {
+		// 		console.error("Erreur lors de la connexion au portefeuille:", error);
+		// 	}
+		// };
 
-		if (window.auth.profile.publicKey !== "") {
-			connectWallet();
-		}
+		// if (window.auth.profile.publicKey !== "") {
+		// 	connectWallet();
+		// }
 
-		buttonRegister.addEventListener("click", async () => {
-			try {
-				const contractWithWallet = contract.connect(signer);
-				const tx = await contractWithWallet.register();
-				await tx.wait();
-				console.log(tx);
-			}
-			catch (error) {
-				Toast.error("Revert: Player already registered");
-			}
-		});
+		// buttonRegister.addEventListener("click", async () => {
+		// 	try {
+		// 		const contractWithWallet = contract.connect(signer);
+		// 		const tx = await contractWithWallet.register();
+		// 		await tx.wait();
+		// 		console.log(tx);
+		// 	}
+		// 	catch (error) {
+		// 		Toast.error("Revert: Player already registered");
+		// 	}
+		// });
 
 		const tournamentId = parseInt(this.getAttribute("id"));
 
