@@ -159,7 +159,7 @@ export class Tournaments extends Component {
 
     // Informations du tournoi (par exemple, date de création)
     const createdAt = new Date(data.created_at).toLocaleString();
-    tournamentInfo.textContent = `Créé le : ${createdAt}`;
+    tournamentInfo.textContent = `Create the : ${createdAt}`;
 
     // Affichage du Winner du tournoi
     if (data.winner) {
@@ -186,7 +186,7 @@ export class Tournaments extends Component {
       if (match.winner) {
         matchStatus.textContent = `Winner : ${match.winner_username}`;
       } else {
-        matchStatus.textContent = 'Non terminé';
+        matchStatus.textContent = 'In progress';
       }
 
       matchHeader.appendChild(matchRound);

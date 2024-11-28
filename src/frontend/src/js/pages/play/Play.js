@@ -616,7 +616,7 @@ export class Play extends Component {
 				// await createTournament();
 				const apiData = {
 					duration: durationTournament === "" ? null : parseInt(durationTournament),
-					maxScore: maxScoreTournament === "" ? null : parseInt(maxScoreTournament),
+					max_score: maxScoreTournament === "" ? null : parseInt(maxScoreTournament),
 					name: tournamentName,
 					pseudo: pseudoCreatorTournament,
 				};

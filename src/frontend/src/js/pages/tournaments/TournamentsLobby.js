@@ -322,8 +322,8 @@ export class TournamentsLobby extends Component {
 		const existingPlayerIds = new Set();
 		const buttonRegister = document.getElementById("btnRegister");
 
-		const provider = new ethers.providers.Web3Provider(window.ethereum);
-		const signer = provider.getSigner();
+		//const provider = new ethers.providers.Web3Provider(window.ethereum);
+		//const signer = provider.getSigner();
 
 		if (!connectedPlayers) return;
 
@@ -415,11 +415,12 @@ export class TournamentsLobby extends Component {
 				if (error) throw error;
 
 				if (data.matches.length > 0) {
-					const { data, error } = await api.request.get(`game/check/`);
-					if (error) throw error;
-					console.log("ID GAME :", data.id);
-					window.location.href = `/play/${data.id}`;
-					status = true;
+					window.location.href = `/tournaments/${tournamentId}/`;
+					//const { data, error } = await api.request.get(`game/check/`);
+					//if (error) throw error;
+					//console.log("ID GAME :", data.id);
+					//window.location.href = `/tournaments/${data.id}`;
+					//status = true;
 				}
 
 			} catch (error) {
