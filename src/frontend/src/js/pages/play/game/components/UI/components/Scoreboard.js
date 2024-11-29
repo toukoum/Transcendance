@@ -1,6 +1,12 @@
+import Game from "../../../Game.js";
+import GameLocal from "../../../../local/GameLocal.js";
+
 export class ScoreboardComponent {
-    constructor(container) {
-        this.container = container;
+    constructor(game) {
+        if (!game || (!(game instanceof Game) && !(game instanceof GameLocal))) {
+            throw new Error('ScoreboardComponent requires a Game instance');
+        }
+        this.game = game;
         this.element = null;
     }
 

@@ -191,7 +191,6 @@ export class Dashboard extends Component {
       const gameInfoDiv = document.createElement('div');
       gameInfoDiv.classList.add('game-info');
 
-      console.log(`game`, game);
       const opponent = game.match_players.find(player => player.username !== window.auth.username);
       const opponentName = opponent ? opponent.username : 'Unknown';
 

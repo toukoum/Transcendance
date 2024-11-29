@@ -11,7 +11,7 @@ export class InProgressScreen extends BaseScreen {
         this.countdown = new CountdownComponent(this.game.container)
         this.roundWinner = new RoundWinnerComponent(this.game.container)
         this.networkStatus = game instanceof Game ? new NetworkStatusComponent(this.game.container) : null;
-        this.scoreboard = new ScoreboardComponent(this.game.container);
+        this.scoreboard = new ScoreboardComponent(this.game);
 
         if (game instanceof Game) {
             this.game.pingManager.subscribe((ping) => {

@@ -35,7 +35,11 @@ export class FinishedScreen extends BaseScreen {
 							<div>${this.game.serverData.player_2.score}</div>
 						</div>
 					</div>
-					<link-component href="/play" type="button" class="btn btn-primary">Play Again</link-component>
+					${this.game.serverData.match.tournament ? /*html*/`
+						<link-component href="/tournaments/${this.game.serverData.match.tournament}" type="button" class="btn btn-primary">Continue Tournament</link-component>
+					` : /*html*/`
+						<link-component href="/play" type="button" class="btn btn-primary">Play Again</link-component>
+					`}
 				</div>
 			</div>
 		`);

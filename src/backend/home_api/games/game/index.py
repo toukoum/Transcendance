@@ -358,6 +358,8 @@ class Game:
 				'max_players': self.match.max_players,
 				'max_score': self.match.max_score,
 				'map': self.match.map,
+				'difficulty': self.match.difficulty,
+				'tournament': self.match.tournament,
 			},
 			# 'players': [player.to_dict() for player in self.players],
 			'player_1': self.player_1.to_dict() if self.player_1 else None,

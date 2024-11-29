@@ -24,7 +24,7 @@ class MatchViewSet(BaseViewSet):
 	
 	def get_queryset(self):
 		user_id = self.request.user.id
-		return Match.objects.filter(match_players__user=user_id)
+		return Match.objects.filter(match_players__user=user_id).order_by('-created_at')
 	
 
 class MatchLocalViewSet(BaseViewSet):
