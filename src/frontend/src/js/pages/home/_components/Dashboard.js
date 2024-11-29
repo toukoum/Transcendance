@@ -254,77 +254,94 @@ export class Dashboard extends Component {
     });
   }
 
-  renderTournamentInfo(tournamentInfo){
-    const tournamentListElement = document.querySelector(".tournaments-list");
+  async getUrlTournament(tournamentID){
+    let isInTournament = false;
+    try {
+      const { data, error } = await api.request.get(`/tournaments/${tournamentID}/`);
+      const participants = data.participants;
+      console.log("PARTICIPANT:", participants);
+      participants.forEach(participant => {
+        if (participant.player == window.auth.id){
+          isInTournament = true;
+        }
+      })
+    } catch (error){
+      console.log(error);
+    }
 
+    return (isInTournament ? 
+      `/tournaments/lobby/${tournamentID}` :
+      `/tournaments/join/${tournamentID}`
+    )
+  }
+
+  async renderTournamentInfo(tournamentInfo) {
+    const tournamentListElement = document.querySelector(".tournaments-list");
+  
     if (!tournamentInfo || tournamentInfo.length === 0) {
       tournamentListElement.innerHTML = '<p>No tournaments found.</p>';
       return;
     }
-
-    tournamentInfo.forEach(tournament => {
+  
+    for (const tournament of tournamentInfo) {
       const tournamentItem = document.createElement('div');
       tournamentItem.classList.add('tournament-item');
-
+  
       const tournamentInfoDiv = document.createElement('div');
       tournamentInfoDiv.classList.add('game-info');
-
-      // const opponent = tournament.match_players.find(player => player.username !== window.auth.username);
-      // const opponentName = opponent ? opponent.username : 'Unknown';
-
+  
       const tournamentTitle = document.createElement('div');
       tournamentTitle.classList.add('game-title');
       tournamentTitle.textContent = `${tournament.name}`;
-
+  
       const tournamentDate = document.createElement('div');
       tournamentDate.classList.add('game-date');
       const date = new Date(tournament.created_at);
       tournamentDate.textContent = `The ${date.toLocaleDateString()} at ${date.toLocaleTimeString()}`;
-
+  
       tournamentInfoDiv.appendChild(tournamentTitle);
       tournamentInfoDiv.appendChild(tournamentDate);
-
+  
       const tournamentWinner = document.createElement('div');
       tournamentWinner.classList.add('game-status');
-
-
-      // Déterminer le statut du tournoi
+  
       if (tournament.winner === null) {
         tournamentWinner.textContent = "No Winner";
-        tournamentWinner.classList.add('in-progress')
+        tournamentWinner.classList.add('in-progress');
       } else {
-        tournamentWinner.textContent = tournament.winner;
-
+        tournamentWinner.textContent = `Winner: ${tournament.winner}`;
       }
-
+  
       const tournamentStatus = document.createElement('div');
       tournamentStatus.classList.add('tournament-state', 'btn-tournament-state');
-
-      if (tournament.state == 'waiting'){
+  
+      if (tournament.state === 'waiting') {
         tournamentStatus.textContent = "Join Lobby";
-        tournamentItem.setAttribute("data-url", `/tournaments/join/${tournament.id}/`);
+          const url = await this.getUrlTournament(tournament.id);
+        tournamentItem.setAttribute("data-url", url);
       } else {
         tournamentStatus.textContent = "View";
         tournamentItem.setAttribute("data-url", `/tournaments/${tournament.id}/`);
       }
-
+  
       const tournamentEnd = document.createElement('div');
-      tournamentEnd.classList.add("d-flex", "gap-2", "align-items-center")
-
+      tournamentEnd.classList.add("d-flex", "gap-2", "align-items-center");
+  
       tournamentItem.appendChild(tournamentInfoDiv);
       tournamentEnd.appendChild(tournamentWinner);
       tournamentEnd.appendChild(tournamentStatus);
-      
+  
       tournamentItem.appendChild(tournamentEnd);
       tournamentListElement.appendChild(tournamentItem);
-    });
+    }
   }
+  
 
   async script() {
     const userInfo = await this.getInfo("me/");
     const gameInfo = await this.getInfo("games/");
     const tournamentInfo = await this.getInfo("tournaments/")
-    
+
     if (userInfo) {
       this.renderUserInfo(userInfo);
     }
@@ -332,9 +349,10 @@ export class Dashboard extends Component {
     if (gameInfo) {
       this.renderGameInfo(gameInfo);
     }
-
+    
     if (tournamentInfo){
-      this.renderTournamentInfo(tournamentInfo);
+      console.log("TOURNAMENT", tournamentInfo);
+      await this.renderTournamentInfo(tournamentInfo)
       document.querySelectorAll(".tournament-item").forEach(item => {
         item.addEventListener("click", () => {
           const url = item.getAttribute("data-url")
