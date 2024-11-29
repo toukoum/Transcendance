@@ -24,7 +24,7 @@ class MatchViewSet(BaseViewSet):
 	
 	def get_queryset(self):
 		user_id = self.request.user.id
-		return Match.objects.filter(match_players__user=user_id)
+		return Match.objects.filter(match_players__user=user_id).order_by('-created_at')
 	
 
 class MatchLocalViewSet(BaseViewSet):
@@ -75,11 +75,6 @@ class MatchView(APIView):
 				user=request.user
 			)
 
-			# # Create Game in consumer
-			from games.consumers import GAMES
-			from games.game.index import Game
-			async_to_sync(GAMES.set)(match.id, Game(match))
-
 			return format_response(data=MatchSerializer(match).data, status=201)
 		return format_response(error=serializer.errors, status=400)
 	
@@ -125,19 +120,15 @@ class MatchCheckView(APIView):
 		"""
 		player = MatchPlayer.objects.filter(
 			Q(user=request.user) &
+			~Q(state=MatchPlayer.State.LEFT) &
 			~Q(match__state__in=[Match.State.FINISHED, Match.State.CANCELLED])
 		).first()
 
 		if player is None:
 			return format_response(data=None)
-			# return Response({ "data": None, "error": None })
-		
-		# Here match as None isnt an error, it just means the player is not in a match
-		# if match is None:
-		#     return Reponse({ "data": None, "error": "Player is not in a match" })
+
 	
 		serializer = MatchSerializer(player.match)
-		# return Response({ "data": serializer.data, "error": None })
 		return format_response(data=serializer.data)
 
 

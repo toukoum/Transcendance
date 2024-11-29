@@ -159,6 +159,11 @@ class MatchPlayer(models.Model):
 			return f'{self.user} in match {self.match}'
 	
 	def clean(self):
+		if self.pk is not None:  # Si l'objet existe déjà
+			current_state = MatchPlayer.objects.filter(pk=self.pk).values_list('state', flat=True).first()
+			if current_state == MatchPlayer.State.LEFT and self.state != MatchPlayer.State.LEFT:
+				raise ValidationError('Cannot change state from LEFT to any other state.')
+		
 		# Check if the player already connected to another match
 		if self.state == MatchPlayer.State.CONNECTED:
 			if MatchPlayer.objects.filter(

@@ -97,10 +97,6 @@ class Tournament(models.Model):
           MatchPlayer.objects.create(match=match, user=participants[i].player)
           MatchPlayer.objects.create(match=match, user=participants[i + 1].player)
 
-          from games.consumers import GAMES
-          from games.game.index import Game
-          async_to_sync(GAMES.set)(match.id, Game(match))
-
 
 class TournamentParticipant(models.Model):
     class Meta:

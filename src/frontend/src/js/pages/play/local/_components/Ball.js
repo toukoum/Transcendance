@@ -10,7 +10,7 @@ export class Ball {
 		this.acceleration_factor = acceleration_factor;
 		this.max_speed = max_speed;
 		this.vx = Math.random() > 0.5 ? 1 : -1;
-		this.vy = Math.random() > 0.5 ? 1 : -1;
+		this.vy = this.generate_vy();
 
 		this.previous_side = this.vx;
 	}
@@ -24,7 +24,7 @@ export class Ball {
 		this.x = 0;
 		this.y = 0;
 		this.speed = BALL_SPEED;
-		this.vy = Math.random() > 0.5 ? 1 : -1;
+		this.vy = this.generate_vy();
 		this.previous_side = -this.previous_side;
 		this.vx = this.previous_side;
 	}
@@ -75,5 +75,11 @@ export class Ball {
 
 	is_out_of_field() {
 		return this.x + this.radius < -FIELD_WIDTH / 2 || this.x - this.radius > FIELD_WIDTH / 2;
+	}
+
+	generate_vy() {
+		return Math.random() < 0.5 
+    		? Math.random() * 0.5 + 0.5
+    		: Math.random() * -0.5 - 0.5;
 	}
 }
