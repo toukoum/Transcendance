@@ -86,18 +86,6 @@ class GameConsumer(AsyncWebsocketConsumer):
 			Q(user=user) &
 			~Q(state=MatchPlayer.State.LEFT)
 		).exists()
-	
-	async def init_games(self):
-		"""
-		Initialize the games in the GAMES dict
-		"""
-		matches = await database_sync_to_async(list)(
-			Match.objects.filter(
-				~Q(state__in=[Match.State.FINISHED, Match.State.CANCELLED])
-			)
-		)
-		for match in matches:
-			await GAMES.set(match.id, Game(match))
 
 
 # ---------------------------------------------------------------------------- #

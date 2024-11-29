@@ -19,9 +19,10 @@ from games.game.constants import FIELD_WIDTH, FIELD_HEIGHT, PADDLE_HEIGHT, PADDL
 logger = logging.getLogger('django')
 
 class Game:
-	def __init__(self, match: Match):
+	def __init__(self, match: Match, tournament=None):
 		logger.info(f'Game created for match {match.id}')
 		self.match = match
+		self.tournament = tournament
 		# Websocket
 		self.group_name = f'game_{self.match.id}'
 		self.channel_layer = get_channel_layer()
@@ -359,7 +360,7 @@ class Game:
 				'max_score': self.match.max_score,
 				'map': self.match.map,
 				'difficulty': self.match.difficulty,
-				'tournament': self.match.tournament,
+				'tournament': self.tournament.id if self.tournament else None,
 			},
 			# 'players': [player.to_dict() for player in self.players],
 			'player_1': self.player_1.to_dict() if self.player_1 else None,
@@ -409,7 +410,15 @@ class Game:
 	def __str__(self):
 		return f"""
 		========================
-		Match: {self.match.id}
+		Match:
+			id: {self.match.id}
+			state: {self.match.state}
+			max_players: {self.match.max_players}
+			max_score: {self.match.max_score}
+			map: {self.match.map}
+			difficulty: {self.match.difficulty}
+			tournament: {self.tournament.id if self.tournament else None}
+			
 		Players: {self.players}
 		========================
 		"""

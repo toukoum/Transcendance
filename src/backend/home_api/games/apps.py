@@ -23,9 +23,11 @@ class GamesConfig(AppConfig):
 
         # Get all games in CREATED state
         games = await database_sync_to_async(list)(
-            Match.objects.filter(
-                ~Q(state__in=[Match.State.FINISHED, Match.State.CANCELLED])
-            )
+            Match.objects
+                .select_related('tournament')
+                .filter(
+                    ~Q(state__in=[Match.State.FINISHED, Match.State.CANCELLED])
+                )
         )
         for game in games:
             if game.state in [Match.State.READY, Match.State.INITIALIZING, Match.State.IN_PROGRESS]:
@@ -33,7 +35,7 @@ class GamesConfig(AppConfig):
                 await database_sync_to_async(game.save)()
                 
             if game.state in [Match.State.WAITING, Match.State.READY]:
-                await GAMES.set(game.id, Game(game))
+                await GAMES.set(game.id, Game(game, game.tournament))
             
         await GAMES.print()
         return True

@@ -75,11 +75,6 @@ class MatchView(APIView):
 				user=request.user
 			)
 
-			# # # Create Game in consumer
-			# from games.consumers import GAMES
-			# from games.game.index import Game
-			# async_to_sync(GAMES.set)(match.id, Game(match))
-
 			return format_response(data=MatchSerializer(match).data, status=201)
 		return format_response(error=serializer.errors, status=400)
 	

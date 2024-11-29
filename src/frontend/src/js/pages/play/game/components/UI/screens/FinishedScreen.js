@@ -7,6 +7,8 @@ export class FinishedScreen extends BaseScreen {
 		this.element.id = "finished-screen";
 		this.game.container.appendChild(this.element);
 
+		console.log('FINISHED SCREEEN', this.data);
+
 		this.element.innerHTML = (/*html*/`
 			<div class="finished-screen position-absolute top-50 start-50 translate-middle p-2 border rounded bg-background w-50">
 				<div class="finished-screen__content d-flex flex-column gap-2 align-items-center">

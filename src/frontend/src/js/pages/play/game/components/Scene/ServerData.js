@@ -83,6 +83,8 @@ export class ServerData {
 				max_players: data.match.max_players,
 				max_score: data.match.max_score,
 				map: data.match.map,
+				difficulty: data.match.difficulty,
+				tournament: data.match.tournament,
 			};
 		}
 

@@ -10,11 +10,12 @@ def handle_match_update(sender, instance, **kwargs):
 
 	if instance.state in [Match.State.FINISHED, Match.State.CANCELLED]:
 		instance.match_players.update(state=MatchPlayer.State.LEFT)
-	elif instance.state == Match.State.CREATED:
+	elif instance.state in [Match.State.CREATED, Match.State.WAITING]:
 		if not async_to_sync(GAMES.get)(instance.id):
-			async_to_sync(GAMES.set)(instance.id, Game(instance))
+			# async_to_sync(GAMES.set)(instance.id, Game(instance))
+			# add tournament
+			async_to_sync(GAMES.set)(instance.id, Game(instance, instance.tournament))
 
-	# sync the game state
 	game = async_to_sync(GAMES.get)(instance.id)
 	if game:
 		async_to_sync(game.sync_from)()
@@ -37,11 +38,6 @@ def handle_match_player_update(sender, instance, **kwargs):
 		elif match.state in [Match.State.CREATED, Match.State.WAITING, Match.State.READY, Match.State.INITIALIZING]:
 			match.state = Match.State.CANCELLED
 			match.save()
-	# else:
-	# 	if match.state == Match.State.WAITING:
-	# 		if match.match_players.count() == match.max_players:
-	# 			match.state = Match.State.READY
-	# 			match.save()
 
 	from games.consumers import GAMES
 	game = async_to_sync(GAMES.get)(instance.match_id)
