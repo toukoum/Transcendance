@@ -1,4 +1,3 @@
-import { images } from "../../../config/images.js";
 import { Toast } from "../../provider/toast-provider.js";
 import { api } from "../../utils/api/Api.js";
 import { ApiRequestError } from "../../utils/api/parser/ApiRequestError.js";
@@ -107,16 +106,11 @@ export class Signup extends Component {
 					password,
 					passwordConfirm,
 				})
-				if (error) throw error;
+				if (error) throw (error);
 				Toast.success("Signup successful. Please login to continue");
 			} catch (error) {
-				if (error instanceof ApiRequestError) {
-					console.error(error.message);
-					Toast.error(error.message);
-				} else {
-					Toast.error("An error occurred");
-					console.error("An error occurred");
-				}
+				console.error(error.message);
+				Toast.error(error.message);
 			}
 		});
 

@@ -1,7 +1,7 @@
-import { Auth } from "./Auth.js";
-import { Me } from "./Me.js";
 import { ApiRequest } from "./ApiRequest.js";
+import { Auth } from "./Auth.js";
 import { Game } from "./Game.js";
+import { Me } from "./Me.js";
 // import { ApiWebSocket } from "./ApiWebSocket.js";
 import { Tournament } from "./Tournament.js";
 

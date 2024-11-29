@@ -3,8 +3,8 @@ from django.db import models
 from django.contrib.auth.models import User
 
 from django.core.exceptions import ValidationError
+from asgiref.sync import async_to_sync
 
-    
 class Tournament(models.Model):
     class State(models.TextChoices):
         CREATED = 'created', 'Tournament created'
@@ -29,8 +29,8 @@ class Tournament(models.Model):
     number_players = models.IntegerField(default=4)
     max_score = models.IntegerField(default=None, blank=True, null=True) # max score to win the match
     connected_players = models.IntegerField(default=0)
-    address_tournament = models.CharField(max_length=255, blank=False, null=True)
-    winner = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
+    address_tournament = models.CharField(max_length=255, blank=True, null=True)
+    winner = models.CharField(null=True, blank=True)
 
     def clean(self):
       if self.max_players_game < 2:
@@ -63,19 +63,24 @@ class Tournament(models.Model):
 
 
     def create_round(self, round_number):
-      """
-      Once a round is finished, the next round can be created.
-      """
-      from games.models import Match
-      matches = list(Match.objects.filter(tournament=self, round=round_number))
-      if matches.filter(winner__isnull=True).exists():
-        raise ValueError("All matches must be finished before creating the next round.")
-      
-      participant_next_round = list(matches.filter(winner__isnull=False).values_list('winner', flat=True))
+        from games.models import Match
+        """
+        Once a round is finished, the next round can be created.
+        """
+        print("ON CREER LA FINAL CAR LES MATCH SONT FINI")
 
+        matches = Match.objects.filter(tournament=self, round=round_number - 1)
+        if matches.filter(winner__isnull=True).exists():
+            raise ValueError("All matches must be finished before creating the next round.")
 
-      self.create_matches(participant_next_round, round_number)
+        winner_ids = matches.filter(winner__isnull=False).values_list('winner', flat=True)
+        
+        participant_next_round = list(TournamentParticipant.objects.filter(player_id__in=winner_ids, tournament=self))
 
+        for participant in participant_next_round:
+            print("Participant: ", participant.player.username, " - ", participant.pseudo)
+
+        self.create_matches(participant_next_round, round_number)
 
     def create_matches(self, participants, round_number):
       from games.models import Match, MatchPlayer
@@ -87,9 +92,14 @@ class Tournament(models.Model):
               max_score=self.max_score,
               duration=self.duration,
               round=round_number,
+              state=Match.State.WAITING
           )
-          MatchPlayer.objects.create(match_id=match, player_id=participants[i].player)
-          MatchPlayer.objects.create(match_id=match, player_id=participants[i + 1].player)
+          MatchPlayer.objects.create(match=match, user=participants[i].player)
+          MatchPlayer.objects.create(match=match, user=participants[i + 1].player)
+
+          from games.consumers import GAMES
+          from games.game.index import Game
+          async_to_sync(GAMES.set)(match.id, Game(match))
 
 
 class TournamentParticipant(models.Model):
@@ -100,7 +110,7 @@ class TournamentParticipant(models.Model):
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name='participants')
     player = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
-    pseudo = models.CharField(max_length=255, blank=True, null=True, unique=True)
+    pseudo = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return f'{self.tournament} - {self.player}'

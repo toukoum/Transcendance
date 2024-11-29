@@ -11,8 +11,11 @@ class TournamentSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Tournament
-        fields = ['id', 'name', 'max_score', 'duration', 'created_at', 'updated_at', 'pseudo', 'address_tournament']
-        read_only_fields = ['created_at', 'updated_at']
+        # REMETTRE
+        # fields = ['id', 'name', 'max_score', 'duration', 'created_at', 'updated_at', 'pseudo', 'address_tournament']
+        fields = ['id', 'name', 'max_score', 'duration', 'created_at', 'updated_at', 'pseudo', 'winner', 'state']
+        
+        read_only_fields = ['created_at', 'updated_at', 'winner', 'state']
 
     def create(self, validated_data):
         pseudo = validated_data.pop('pseudo', None)

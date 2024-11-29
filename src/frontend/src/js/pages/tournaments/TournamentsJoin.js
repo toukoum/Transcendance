@@ -14,7 +14,7 @@ export class TournamentsJoin extends Component {
                 <label for="pseudo" class="form-label">Enter your Pseudo</label>
                 <input type="text" id="pseudo" class="form-control" required />
               </div>
-              <button type="submit" class="btn btn-primary">Rejoindre</button>
+              <button type="submit" class="btn btn-primary">Join</button>
             </form>
           </div>
         </div>
@@ -109,11 +109,11 @@ export class TournamentsJoin extends Component {
         );
         if (error) throw error;
 
-        Toast.success("Vous avez rejoint le tournoi avec succès !");
+        Toast.success("You have successfully joined the tournament.");
 				window.router.push(`/tournaments/lobby/${tournamentId}`);
         
       } catch (error) {
-        Toast.error(error.message || "Une erreur s'est produite.");
+        Toast.error(error.message || "An error occurred while joining the tournament.");
       }
     });
   }

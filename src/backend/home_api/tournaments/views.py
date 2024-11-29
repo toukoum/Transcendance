@@ -50,6 +50,8 @@ class TournamentViewSet(BaseViewSet):
     @action (detail=True, methods=['post'])
     def start(self, request, pk=None):
         tournament = self.get_object()
+        if (tournament.state == Tournament.State.IN_PROGRESS):
+            return format_response(data={'message': 'Tournament already started'}, status=200)
         if (tournament.state != Tournament.State.WAITING):
             return format_response(error='Tournament must be waiting to start', status=400)
         if (tournament.connected_players < tournament.number_players):
@@ -180,6 +182,13 @@ class TournamentViewSet(BaseViewSet):
                     round=instance.round
                 )
                 
+                if matches_in_round.count() == 1:
+                    match = matches_in_round.first()
+                    print("LE TOURNOI EST FINI, LE winner est: ", match.winner.username)
+                    tournament.winner = match.winner
+                    tournament.save()
+                    return
+                            
                 if all(match.state == Match.State.FINISHED for match in matches_in_round):
                     # If all matches are finished, generate the next round
                     tournament.create_round(instance.round + 1)

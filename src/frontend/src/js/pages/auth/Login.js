@@ -1,4 +1,3 @@
-import { images } from "../../../config/images.js";
 import { Toast } from "../../provider/toast-provider.js";
 import { api } from "../../utils/api/Api.js";
 import { ApiRequestError } from "../../utils/api/parser/ApiRequestError.js";
