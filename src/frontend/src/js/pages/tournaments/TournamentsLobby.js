@@ -79,11 +79,13 @@ export class TournamentsLobby extends Component {
 
 				.wrapper-lobby {
 					display: flex;
-					justify-content: space-between;
+					justify-content: center;
 					flex-grow: 1;
 					padding: 20px;
 					overflow: hidden;
 					flex-wrap: wrap;
+					gap: 2rem;
+
 				}
 
 				.bottom-right {
@@ -98,10 +100,20 @@ export class TournamentsLobby extends Component {
 					display: flex;
 					flex-direction: column;
 					width: 48%;
+					max-width: 600px;
 					overflow: hidden;
 					background-color: #2C2C2E;
 					border-radius: 10px;
 					padding: 20px;
+				}
+
+
+        @media (max-width: 800px) {
+          .left-part,
+					.right-part {
+						width: 100%;
+            
+          }
 				}
 
 				.invite-player-list {

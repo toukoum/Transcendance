@@ -185,6 +185,8 @@ export class Tournaments extends Component {
       matchStatus.classList.add('match-status');
       if (match.winner) {
         matchStatus.textContent = `Winner : ${match.winner_username}`;
+      } else if (match.state == 'cancelled'){
+        matchStatus.textContent = 'Cancelled'
       } else {
         matchStatus.textContent = 'In progress';
       }
