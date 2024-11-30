@@ -22,6 +22,7 @@ export class ServerData {
 	static matchSchema = zod.object({
 		'id': zod.number(),
 		'state': zod.string(),
+		'duration': zod.number(),
 		'max_players': zod.number(),
 		'max_score': zod.number(),
 		'map': zod.string(),
@@ -80,6 +81,7 @@ export class ServerData {
 			this.match = {
 				id: data.match.id,
 				state: data.match.state,
+				duration: data.match.duration,
 				max_players: data.match.max_players,
 				max_score: data.match.max_score,
 				map: data.match.map,

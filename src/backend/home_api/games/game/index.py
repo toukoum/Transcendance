@@ -356,6 +356,7 @@ class Game:
 			'match': {
 				'id': self.match.id,
 				'state': self.match.state,
+				'duration': self.match.duration,
 				'max_players': self.match.max_players,
 				'max_score': self.match.max_score,
 				'map': self.match.map,
