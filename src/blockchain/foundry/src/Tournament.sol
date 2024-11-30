@@ -42,22 +42,22 @@ contract Tournament {
 		}
 	}
 
-	function setWinner(address roundWinner) external {
+	function setWinner() external {
 		require(currentRound >= 0 && currentRound <= 2, "Invalid round");
 		require(rounds[currentRound].length > 0, "Current round has no players");
-		require(!hasWonInRound[currentRound][roundWinner], "Player has already won in this round");
+		require(!hasWonInRound[currentRound][msg.sender], "Player has already won in this round");
 
 		bool isValidWinner = false;
 		for (uint8 i = 0; i < rounds[currentRound].length; i++) {
-			if (rounds[currentRound][i] == roundWinner) {
+			if (rounds[currentRound][i] == msg.sender) {
 				isValidWinner = true;
 				break;
 			}
 		}
 		require(isValidWinner, "Invalid winner");
 
-		rounds[currentRound + 1].push(roundWinner);
-		hasWonInRound[currentRound][roundWinner] = true;
+		rounds[currentRound + 1].push(msg.sender);
+		hasWonInRound[currentRound][msg.sender] = true;
 
 		uint8 maxWinners = uint8(rounds[currentRound].length / 2);
 		if (rounds[currentRound + 1].length == maxWinners) {

@@ -29,6 +29,7 @@ export class TournamentsLobby extends Component {
 							<div id="titleRegister">
 								<h2>Players in Tournament</h2>
 								<button class="btn btn-primary" id="btnRegister">Register</button>
+								<button class="btn btn-primary" id="btnWin">Win</button>
 							</div>
 							<div class="connected-players"></div>
 							<div class="bottom-right">
