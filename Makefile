@@ -28,4 +28,6 @@ migrate:
 down:
 	@$(DOCKER_COMPOSE) down
 
-.PHONY: all build logs migrate down
+re: down all
+
+.PHONY: all build logs migrate down re

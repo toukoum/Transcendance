@@ -187,15 +187,6 @@ export class Scene {
 
 	/* ---------------------------------- Utils --------------------------------- */
 
-	// handleServerData(data) {
-	// 	if (this.serverData) {
-	// 		this.serverData.update(data);
-	// 	}
-	// 	this.syncWithServer();
-	// 	if (!this.game.controller.player && this.player_1 && this.player_2) {
-	// 		this.game.controller.assignPlayer();
-	// 	}
-	// }
 
 	/* ---------------------------------- Size ---------------------------------- */
 
@@ -203,8 +194,7 @@ export class Scene {
 		const container = document.getElementById(this.game.settings.container);
 		if (container) {
 			const width = container.clientWidth;
-			// const height = container.clientHeight;
-			const height = 1000;
+			const height = container.clientHeight;
 
 			this.renderer.setSize(width, height);
 			this.camera.aspect = width / height;
