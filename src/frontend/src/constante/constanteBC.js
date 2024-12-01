@@ -1,4 +1,4 @@
-export const contractAddressFactory = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+export const contractAddressFactory = "0x5dc3EDbd95369CEd28F7826d434a1747b8175bBB";
 export const contractAddressTournament = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 export const ABIFactory = `[
 		{
