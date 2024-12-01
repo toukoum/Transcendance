@@ -349,7 +349,6 @@ export class TournamentsLobby extends Component {
 		console.log(nbPlayerRegistered.length);
 
 		if (await contract.checkIfIsAlreadyInside(window.auth.profile.publicKey)) {
-			console.log("salut");
 			buttonRegister.setAttribute("disabled", "disabled");
 		}
 		if (existingPlayerIds.size === 4 && nbPlayerRegistered.length === 4) {
@@ -439,6 +438,7 @@ export class TournamentsLobby extends Component {
 		let contract;
 		const tounamentId = parseInt(this.getAttribute("id"));
 		const buttonRegister = document.getElementById("btnRegister");
+		const buttonWin = document.getElementById("btnWin");
 
 		const getValues = async () => {
 			try {
@@ -482,11 +482,28 @@ export class TournamentsLobby extends Component {
 				const tx = await contractWithWallet.register();
 				await tx.wait();
 				console.log(tx);
+				Toast.success("Player registered:\n" + tx.hash);
 			}
 			catch (error) {
 				Toast.error("Revert: Player already registered");
 			}
 		});
+
+		buttonWin.addEventListener("click", async () => {
+			try {
+				const contractWithWallet = contract.connect(signer);
+				const tx = await contractWithWallet.setWinner();
+				await tx.wait();
+				console.log(tx);
+				Toast.success("Transaction passed:\n" + tx.hash);
+			}
+			catch (error) {
+				console.log(error);
+				Toast.error("Revert: Player already win or not enought player");
+			}
+		});
+
+
 
 		const tournamentId = parseInt(this.getAttribute("id"));
 

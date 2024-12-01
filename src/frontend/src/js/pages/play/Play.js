@@ -570,7 +570,7 @@ export class Play extends Component {
 			});
 			document.querySelector("#createBtn").disabled = true;
 		}
-
+		
 
 		let addressTournament;
 

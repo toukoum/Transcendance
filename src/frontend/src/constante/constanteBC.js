@@ -203,13 +203,7 @@ export const ABITournament = `[
 		{
 			"type": "function",
 			"name": "setWinner",
-			"inputs": [
-				{
-					"name": "roundWinner",
-					"type": "address",
-					"internalType": "address"
-				}
-			],
+			"inputs": [],
 			"outputs": [],
 			"stateMutability": "nonpayable"
 		},
