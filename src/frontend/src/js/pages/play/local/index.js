@@ -5,13 +5,22 @@ export class PlayLocal extends Component {
 	content() {
 		return (/*html*/`
 		<main-layout>
-			<div id="game" class="h-100 position-relative d-flex justify-content-center align-items-center">
+			<div id="game" class="position-relative d-flex justify-content-center align-items-center">
 			</div>
 		</main-layout>
 		`);
 	}
 
 	script() {
+		const header = document.querySelector("header");
+		const gameContainer = document.getElementById("game");
+		const headerHeight = header ? header.offsetHeight : 0;
+		gameContainer.style.height = `${window.innerHeight - headerHeight}px`;
+		window.addEventListener("resize", () => {
+			const newAvailableHeight = window.innerHeight - (header ? header.offsetHeight : 0);
+			gameContainer.style.height = `${newAvailableHeight}px`;
+		});
+
 		const urlParams = new URLSearchParams(window.location.search);
 
 		const duration = urlParams.get("duration") || 60;
