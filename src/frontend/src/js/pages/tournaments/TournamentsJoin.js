@@ -97,15 +97,14 @@ export class TournamentsJoin extends Component {
   async script() {
     const canJoin = !!window.auth.profile.publicKey;
 	if (!canJoin) {
-		const feur = document.body;
-		feur.innerHTML = `<main-layout><div class="wrapper"></div></main-layout>`;
+		const feur = document.querySelector(".wrapper");
+		feur.innerHTML = "";
 		Toast.error("Connect your Wallet in setting first");
-		const wrapper = document.querySelector(".wrapper");
 		const settings = document.createElement("button");
-		wrapper.classList.add("d-flex", "justify-content-center", "align-items-center", "h-100");
+		feur.classList.add("d-flex", "justify-content-center", "align-items-center", "h-100");
 		settings.textContent = "Add your account in settings tab";
 		settings.classList.add("btn", "btn-primary");
-		wrapper.appendChild(settings);
+		feur.appendChild(settings);
 		settings.addEventListener("click", () => {
 			window.location.href = "/settings/web3";
 		});
