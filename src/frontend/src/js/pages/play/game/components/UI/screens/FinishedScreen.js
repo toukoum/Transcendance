@@ -47,10 +47,6 @@ export class FinishedScreen extends BaseScreen {
 		const diCondition = document.getElementById("winCondition");
 		const tournamentId = this.game.serverData.match.tournament;
 
-		console.log("TOURNAMENT:::::::::", this.game.serverData.match.tournament);
-
-		console.log("TOurnament ID: ", tournamentId);
-
 		const buttonWin = document.createElement("button");
 		buttonWin.classList.add("btn", "btn-primary");
 		buttonWin.textContent = "Continue the tournament";
@@ -72,9 +68,7 @@ export class FinishedScreen extends BaseScreen {
 				const { data, error } = await api.request.get(
 					`tournaments/${tournamentId}/`
 				);
-				console.log(data);
 				contract = new ethers.Contract(data.address_tournament, ABITournament, signer);
-				console.log(contract);
 			} catch (error) {
 				console.error(error);
 			}
@@ -120,7 +114,7 @@ export class FinishedScreen extends BaseScreen {
 					window.location.href = '/tournaments/' + this.game.serverData.match.tournament;
 				}
 				catch (error) {
-					console.log(error);
+					// console.log(error);
 					Toast.error("Revert: Player already win or not enought player");
 				}
 			});

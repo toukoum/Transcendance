@@ -98,8 +98,6 @@ export class Signup extends Component {
 					"password-confirm": passwordConfirm,
 				} = Object.fromEntries(formData.entries());
 
-				console.log(username, email, password, passwordConfirm);
-				
 				const { data, error } = await api.auth.register({
 					username,
 					email,

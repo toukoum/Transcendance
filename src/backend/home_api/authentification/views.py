@@ -105,9 +105,6 @@ def oauth_callback(request):
     email = user_data.get('email')
     username = user_data.get('login')  # Or use another unique identifier if needed
 
-    print("=====> Email: " + email)
-    print("=====> Username: " + username)
-
     user, created = User.objects.get_or_create(email=email, defaults={'username': username})
     
     if created:
@@ -174,10 +171,8 @@ class LoginViewCustom(LoginView):
                     .filter(is_primary=True, is_active=True)
                     .first()
             )
-            print("Méthodes MFA de l'utilisateur:", user.mfa_methods.all())
 
             if auth_method:
-                print("===> Le 2fa est activé pour cet utilisateur yo")
                 conf = settings.TRENCH_AUTH["MFA_METHODS"][auth_method.name]
                 handler_class = conf['HANDLER']
 
@@ -187,8 +182,6 @@ class LoginViewCustom(LoginView):
                 )
                 handler.dispatch_message()
                 return self.handle_mfa_response(user, auth_method)
-            else:
-                print("===> Le 2fa n'est pas activé pour cet utilisateur yo")
         self.login()
 
         access_token, refresh_token = jwt_encode(user)

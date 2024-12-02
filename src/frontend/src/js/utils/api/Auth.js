@@ -43,7 +43,6 @@ export class Auth {
 			});
 		}
 
-		console.log("Login response", response);
 
 		if (response.data.user) {
 			window.auth = response.data.user;
@@ -55,7 +54,7 @@ export class Auth {
 	 * @brief Logout the user
 	 */
 	async logout() {
-		console.log("Logging out");
+		// console.log("Logging out");
 		return await this.api.request.post("auth/logout/");
 	}
 

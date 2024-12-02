@@ -293,12 +293,10 @@ class Game:
 		"""
 		paddle = self.get_paddle(user)
 		if paddle is None:
-			print("Paddle not found")
 			return
 		
 		direction = data.get('direction')
 		if direction is None:
-			print("Paddle direction not found")
 			return
 
 		paddle.move_up(direction.get('up') if 'up' in direction else False)

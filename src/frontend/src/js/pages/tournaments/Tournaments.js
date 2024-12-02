@@ -228,7 +228,6 @@ export class Tournaments extends Component {
     const tournamentId = parseInt(this.getAttribute("id"));
     const data = await this.getDetailTournament(tournamentId);
     
-    console.log("data", data)
     if (data) {
       this.renderTournament(data);
     }

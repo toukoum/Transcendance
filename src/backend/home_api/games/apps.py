@@ -37,5 +37,5 @@ class GamesConfig(AppConfig):
             if game.state in [Match.State.WAITING, Match.State.READY]:
                 await GAMES.set(game.id, Game(game, game.tournament))
             
-        await GAMES.print()
+        # await GAMES.print()
         return True

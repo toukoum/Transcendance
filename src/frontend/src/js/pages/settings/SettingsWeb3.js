@@ -35,7 +35,6 @@ export class SettingsWeb3 extends Component {
 
 		document.getElementById("savePubKey").addEventListener("click", async () => {
 			const user = window.auth;
-			console.log("username " + user.username, "public_key " + accounts[0]);
 			try {
 				const { data, error } = await api.request.patch("me/", {
 					"username": user.username,
@@ -44,7 +43,6 @@ export class SettingsWeb3 extends Component {
 					}
 				});
 				if (error) throw error;
-				console.log(data);
 				Toast.success("Profile updated");
 				document.getElementById("savePubKey").style.display = "none";
 			} catch (error) {
