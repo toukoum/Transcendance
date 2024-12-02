@@ -11,10 +11,7 @@ export class Client {
 			throw new Error("[Game Client] Game ID is required");
 		}
 		this.game = game;
-		// this.ws = api.game.connect(gameId);
 		this.ws = null;
-
-		// this.initListeners();
 	}
 
 	initListeners() {
@@ -23,6 +20,9 @@ export class Client {
 		});
 		this.ws.on("close", () => {
 			console.log("[Game Client] WebSocket closed");
+			if (this.game.pingManager) {
+				this.game.pingManager.stop();
+			}
 		});
 		this.ws.on("error", (error) => {
 			console.error("[Game Client] WebSocket error", error);
@@ -51,6 +51,9 @@ export class Client {
 	connect() {
 		this.ws = api.game.connect(this.game.settings.gameId);
 		this.initListeners();
+		if (this.ws && this.game.pingManager) {
+			this.game.pingManager.start();
+		}
 	}
 
 	handleEvent(message) {
@@ -76,5 +79,13 @@ export class Client {
 				console.log("[Game: Client] Unknown message type", type);
 				break;
 		}
+	}
+
+	leave() {
+		this.ws.send({
+			type: "game.leave"
+		});
+		this.ws.close();
+		window.router.push("/play");
 	}
 }

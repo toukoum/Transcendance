@@ -40,26 +40,16 @@ class FriendshipSerializer(serializers.ModelSerializer):
         return Friendship.objects.create(**validated_data)
 
     def get_user1_avatar(self, obj):
-        request = self.context.get('request')
-        try:
-            avatar = obj.user1.profile.avatar
-            if not str(avatar).startswith('http'):
-                return request.build_absolute_uri(avatar.url)
-            else:
-                return settings.DEFAULT_AVATAR
-        except Profile.DoesNotExist:
-            return None
+      request = self.context.get('request')
+      if obj.user1.profile.avatar:
+          return request.build_absolute_uri(obj.user1.profile.avatar.url)
+      return None
 
     def get_user2_avatar(self, obj):
         request = self.context.get('request')
-        try:
-            avatar = obj.user2.profile.avatar
-            if not str(avatar).startswith('http'):
-                return request.build_absolute_uri(avatar.url)
-            else:
-                return settings.DEFAULT_AVATAR
-        except Profile.DoesNotExist:
-            return None
+        if obj.user2.profile.avatar:
+            return request.build_absolute_uri(obj.user2.profile.avatar.url)
+        return None
         
     def get_is_online_user1(self, obj):
         try:

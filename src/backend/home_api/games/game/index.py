@@ -19,9 +19,10 @@ from games.game.constants import FIELD_WIDTH, FIELD_HEIGHT, PADDLE_HEIGHT, PADDL
 logger = logging.getLogger('django')
 
 class Game:
-	def __init__(self, match: Match):
+	def __init__(self, match: Match, tournament=None):
 		logger.info(f'Game created for match {match.id}')
 		self.match = match
+		self.tournament = tournament
 		# Websocket
 		self.group_name = f'game_{self.match.id}'
 		self.channel_layer = get_channel_layer()
@@ -58,17 +59,12 @@ class Game:
 		await self.send_state()
 	
 	async def start(self):
-		# Initialize the game
 		await self.initialize()
 
-		# Start the game
-		logger.info(f'Game started for match {self.match.id}')
 		self.match.started_at = datetime.now()
 		await self.update_state(Match.State.IN_PROGRESS)
 
-		# while self.game_running():
 		while not self.is_game_over():
-			# reset
 			self.ball.reset()
 			self.player_1.paddle.reset()
 			self.player_2.paddle.reset()
@@ -82,28 +78,35 @@ class Game:
 				'round_winner': round_winner.to_dict()
 			})
 			await asyncio.sleep(2)
-		
-		self.winner = self.player_1 if self.player_1.player.score > self.player_2.player.score else self.player_2
 
-		# End the game
 		await self.end()
 
 	async def end(self):
 		logger.info(f'Game ended for match {self.match.id}')
-		self.match.winner = self.winner.player.user
-		self.match.finished_at = datetime.now()
-		await self.update_state(Match.State.FINISHED)
 
-		await self.send_state()
+		winner = None
+		if self.match.state not in [Match.State.FINISHED, Match.State.CANCELLED]:
+			self.match.winner = self.player_1.player.user if self.player_1.player.score > self.player_2.player.score else self.player_2.player.user
+			self.match.finished_at = datetime.now()
+			await self.update_state(Match.State.FINISHED)
+		
+		winner = await self.get_winner()
+
+		await self.send_state({
+			'winner': {
+				'id': winner.id,
+				'username': winner.username
+			}
+		} if winner else None)
   
 		# Remove the game from the GAMES
-		from games.consumers import GAMES
-		await GAMES.delete(self.match.id)
+		# Now id done in signals.py
+		# from games.consumers import GAMES
+		# await GAMES.delete(self.match.id)
 
 		# close socket for all player
 		from games.consumers import USER_CHANNELS
 		for player in self.players:
-			await player.update_state(MatchPlayer.State.LEFT)
 			player_channel_name = await USER_CHANNELS.get(player.player.user.id)
 			if player_channel_name:
 				await self.channel_layer.group_discard(self.group_name, player_channel_name)
@@ -235,16 +238,12 @@ class Game:
 					'data': player.to_dict()
 				}
 			)
-
-		print(f"There is {len(self.players)} players / {self.match.max_players} players in the game")
-			
 		# Check if the game is ready to start (only if the game is waiting)
 		if self.match.state == Match.State.WAITING and len(self.players) == self.match.max_players:
 			await self.update_state(Match.State.READY)
-			print(f"======> Game {self.match.id} is {self.match.state}")
-
-		# Send the game state
+		
 		await self.send_state()
+
 
 
 	async def handle_player_disconnect(self, user: User):
@@ -262,7 +261,21 @@ class Game:
 				}
 			}
 		)
-
+	
+	async def handle_player_leave(self, user: User):
+		logger.info(f'User {user.id} left the game {self.match.id}')
+		await self.update_player_state(user, MatchPlayer.State.LEFT)
+		await self.channel_layer.group_send(
+			self.group_name,
+			{
+				'type': 'game.player',
+				'action': 'left',
+				'message': f'{user.username} left',
+				'data': {
+					'user': user.id
+				}
+			}
+		)
 
 	async def update_player_state(self, user: User, state: MatchPlayer.State) -> Player:
 		for player in self.players:
@@ -306,11 +319,11 @@ class Game:
 		"""
 		Handle the message from the player
 		"""
-		logger.info(f'Message from user {user.id} in game {self.match.id}')
-
 		type = data.get('type')
 		if type == 'paddle.move':
 			await self.move_paddle(user, data)
+		if type == 'game.leave':
+			await self.handle_player_leave(user)
 		
 
 
@@ -320,45 +333,11 @@ class Game:
 		"""
 		if (self.match.state == Match.State.WAITING):
 			data['players'] = [player.to_dict() for player in self.players]
-		if (self.match.state == Match.State.FINISHED):
-			data['winner'] = self.winner.to_dict()
 		await self.channel_layer.group_send(
 			self.group_name,
 			{
 				'type': 'game.state',
 				'message': f'Game state: {self.match.state}',
-				'data': data,
-				'dataMatch': self.to_dict(),
-				'state': self.match.state
-			}
-		)
-	
-	async def send_waiting_state(self, data):
-		"""
-		Send the game state to the group
-		"""
-		await self.channel_layer.group_send(
-			self.group_name,
-			{
-				'type': 'game.state',
-				'message': 'Waiting for players',
-				'data': {
-					'players': [player.to_dict() for player in self.players],
-				},
-				'dataMatch': self.to_dict(),
-				'state': self.match.state
-			}
-		)
-	
-	async def send_finished_state(self, data):
-		"""
-		Send the game state to the group
-		"""
-		await self.channel_layer.group_send(
-			self.group_name,
-			{
-				'type': 'game.state',
-				'message': 'Game finished',
 				'data': data,
 				'dataMatch': self.to_dict(),
 				'state': self.match.state
@@ -377,9 +356,12 @@ class Game:
 			'match': {
 				'id': self.match.id,
 				'state': self.match.state,
+				'duration': self.match.duration,
 				'max_players': self.match.max_players,
 				'max_score': self.match.max_score,
 				'map': self.match.map,
+				'difficulty': self.match.difficulty,
+				'tournament': self.tournament.id if self.tournament else None,
 			},
 			# 'players': [player.to_dict() for player in self.players],
 			'player_1': self.player_1.to_dict() if self.player_1 else None,
@@ -396,7 +378,8 @@ class Game:
 
 	@database_sync_to_async
 	def get_match(self):
-		return Match.objects.get(id=self.match.id)
+		# return Match.objects.get(id=self.match.id)
+		return Match.objects.select_related('winner').get(id=self.match.id)
 	
 	@database_sync_to_async
 	def get_player(self, user_id):
@@ -404,6 +387,10 @@ class Game:
 			match=self.match,
 			user=user_id,
 		)
+
+	@database_sync_to_async
+	def get_winner(self):
+		return Match.objects.select_related('winner').get(id=self.match.id).winner
 	
 	@database_sync_to_async
 	def sync_to(self):
@@ -411,14 +398,28 @@ class Game:
 
 	@database_sync_to_async
 	def sync_from(self):
+		# include winner
 		self.match.refresh_from_db()
 
+	def sync_player_from(self, id):
+		for player in self.players:
+			if player.player.id == id:
+				player.sync_from()
+				return
 
-	# add str method to print the game state
+
 	def __str__(self):
 		return f"""
 		========================
-		Match: {self.match.id}
+		Match:
+			id: {self.match.id}
+			state: {self.match.state}
+			max_players: {self.match.max_players}
+			max_score: {self.match.max_score}
+			map: {self.match.map}
+			difficulty: {self.match.difficulty}
+			tournament: {self.tournament.id if self.tournament else None}
+			
 		Players: {self.players}
 		========================
 		"""

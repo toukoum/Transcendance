@@ -52,14 +52,13 @@ class NotificationConsumer(AsyncWebsocketConsumer):
 
     async def send_notification(self, event):
         # Méthode pour envoyer une notification
-        print("NOTIF DATA: ", event['data'])
         data = event['data']
 
         await self.send(text_data=json.dumps(data))
                                 
-        notification_id = data.get('notification_id')
-        if notification_id:
-            await self.mark_notification_as_read(notification_id)
+        # notification_id = data.get('notification_id')
+        # if notification_id:
+        #     await self.mark_notification_as_read(notification_id)
 
     
     @sync_to_async

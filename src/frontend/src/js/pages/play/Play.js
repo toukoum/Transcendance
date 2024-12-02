@@ -296,7 +296,7 @@ export class Play extends Component {
 							<!-- Max Score -->
 							<div class="form-group">
 								<label for="maxScoreTournament">Max Score</label>
-								<input type="number" id="maxScoreTournament" class="form-control" name="maxScoreTournament" value="" placeholder="Max Score" readonly>
+								<input type="number" id="maxScoreTournament" class="form-control" name="maxScoreTournament" value="" placeholder="Max Score">
 								<small id="maxScoreTournament-error" class="form-text text-danger" style="display: none;"></small>
 							</div>
 							<!-- Pseudo Creator -->
@@ -616,14 +616,13 @@ export class Play extends Component {
 				await createTournament();
 				const apiData = {
 					duration: durationTournament === "" ? null : parseInt(durationTournament),
-					maxScore: maxScoreTournament === "" ? null : parseInt(maxScoreTournament),
+					max_score: maxScoreTournament === "" ? null : parseInt(maxScoreTournament),
 					name: tournamentName,
 					pseudo: pseudoCreatorTournament,
-					address_tournament: addressTournament,
 				};
 				const { data, error } = await api.tournament.create(apiData);
 				if (error) throw error;
-				Toast.success("Tournament created successfully with the address: " + addressTournament);
+				Toast.success("Tournament created successfully with the address: ");
 				const modalElement = document.querySelector("#createTournamentModal");
 				const modalInstance = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
 				modalInstance.hide();
@@ -715,6 +714,11 @@ export class Play extends Component {
 				if (difficultyLocal) params.append("difficulty", difficultyLocal);
 				if (pseudoPlayer1) params.append("player1", pseudoPlayer1);
 				if (pseudoPlayer2) params.append("player2", pseudoPlayer2);
+				// close the modal
+				const modalElement = document.querySelector("#createLocalModal");
+				const modalInstance = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+				modalInstance.hide();
+				// redirect to the game
 				window.router.push(`/play-local?${params.toString()}`);
 			} catch (error) {
 				console.error(error);

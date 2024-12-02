@@ -39,9 +39,9 @@ export class LocalRunner {
 		this.match = {
 			id: null,
 			state: "created",
+			duration: this.game.settings.duration,
 			maxScore: this.game.settings.maxScore,
 			map: this.game.settings.map,
-
 			started_at: null,
 		}
 	
@@ -101,7 +101,7 @@ export class LocalRunner {
 			await this.sleep(2);
 		}
 
-		this.winner = this.player_1.player.score > this.player_2.player.score ? this.player_1 : this.player_2;
+		this.winner = this.player_1.player.score > this.player_2.player.score ? this.player_1.player.user : this.player_2.player.user;
 		await this.end();
 	}
 
@@ -151,9 +151,8 @@ export class LocalRunner {
 
 	async end() {
 		this.match.finished_at = new Date();
-		this.update_state("finished");
-		this.send_state({
-			winner: this.winner.to_json(),
+		this.update_state("finished", {
+			winner: this.winner,
 		});
 	}
 
@@ -163,14 +162,12 @@ export class LocalRunner {
 	send_state(data = null) {
 		this.game.serverData.update(this.to_json());
 
-		if (data) {
-			this.game.ui.activateScreen(this.match.state, data);
-		}
+		this.game.ui.activateScreen(this.match.state, data);
 	}
 
-	update_state(state) {
+	update_state(state, data = null) {
 		this.match.state = state;
-		this.send_state();
+		this.send_state(data);
 	}
 
 
@@ -179,6 +176,7 @@ export class LocalRunner {
 			match: {
 				id: null,
 				state: this.match.state,
+				duration: this.game.settings.duration,
 				maxScore: this.game.settings.maxScore,
 				map: this.game.settings.map,
 			},

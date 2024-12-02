@@ -10,7 +10,7 @@ class Ball:
 		self.acceleration_factor = acceleration_factor
 		self.max_speed = max_speed
 		self.vx = random.choice([-1, 1])
-		self.vy = random.choice([-1, 1])
+		self.vy = self.generate_vy()
 
 		# Backup previous side
 		self.previous_side = self.vx
@@ -83,7 +83,8 @@ class Ball:
 	def reset(self):
 		self.x = 0
 		self.y = 0
-		self.vy = random.choice([-1, 1])
+		self.speed = BALL_SPEED
+		self.vy = self.generate_vy()
 		self.previous_side = -self.previous_side
 		self.vx = self.previous_side
 
@@ -95,3 +96,6 @@ class Ball:
 			'vx': self.vx,
 			'vy': self.vy,
 		}
+	
+	def generate_vy(self):
+		return random.uniform(0.5, 1) if random.random() < 0.5 else random.uniform(-1, -0.5)

@@ -31,7 +31,7 @@ export default class Game {
     
     start() {
         this.client.connect();
-        this.pingManager.start();
+        // this.pingManager.start();
         this.scene.start();
     }
 }

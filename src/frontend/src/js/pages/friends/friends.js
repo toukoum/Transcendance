@@ -322,6 +322,8 @@ export class Friends extends Component {
 
     const acceptBtn = friendComponent.querySelector(".accept-friend-btn");
     acceptBtn.addEventListener("click", async (e) => {
+			e.stopPropagation();
+			e.preventDefault();
       const friendId = e.target.getAttribute("accept-friends");
       try {
         const { data, error } = await api.request.post(`friends/${friendId}/accept/`);
@@ -335,6 +337,8 @@ export class Friends extends Component {
 
     const declineBtn = friendComponent.querySelector(".decline-friend-btn");
     declineBtn.addEventListener("click", async (e) => {
+			e.stopPropagation();
+			e.preventDefault();
       const friendId = e.target.getAttribute("decline-friends");
       try {
         const { data, error } = await api.request.post(`friends/${friendId}/reject/`);
@@ -378,6 +382,7 @@ export class Friends extends Component {
     const sentRequestForm = document.querySelector("#sent-request-form");
     sentRequestForm.addEventListener("submit", async (e) => {
       e.preventDefault();
+			e.stopPropagation();
       const username = document.querySelector("#username").value;
       try {
         const { data, error } = await api.request.post("friends/", { user2: username });

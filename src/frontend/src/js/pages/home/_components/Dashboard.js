@@ -21,6 +21,11 @@ export class Dashboard extends Component {
           <h2>Last Games</h2>
           <div class="games-list"></div>
         </div>
+
+        <div class="recent-games-section">
+          <h2>Tournaments</h2>
+          <div class="tournaments-list"></div>
+        </div>
       </div>
     `;
   }
@@ -93,6 +98,27 @@ export class Dashboard extends Component {
           align-items: center;
         }
 
+        .tournament-item {
+          background-color: #3A3A3C;
+          padding: 15px;
+          border-radius: 8px;
+          cursor: pointer;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 1rem;
+        }
+
+        .tournament-item:hover{
+          opacity: .8;
+        }
+
+        .tournament-state{
+          padding: 10px 15px;
+          background-color: #0a84ff;
+          border-radius: 8px;
+        }
+
         .game-info {
           display: flex;
           flex-direction: column;
@@ -121,6 +147,15 @@ export class Dashboard extends Component {
 
         .game-status.in-progress {
           color: #FFD60A;
+        }
+        .game-status.waiting {
+          color: #0A84FF;
+        }
+        .game-status.cancelled {
+          color: #8E8E93;
+        }
+        .game-status.ready {
+          color: #30D158;
         }
 
         @media (max-width: 600px) {
@@ -182,7 +217,6 @@ export class Dashboard extends Component {
       const gameInfoDiv = document.createElement('div');
       gameInfoDiv.classList.add('game-info');
 
-      console.log(`game`, game);
       const opponent = game.match_players.find(player => player.username !== window.auth.username);
       const opponentName = opponent ? opponent.username : 'Unknown';
 
@@ -218,9 +252,15 @@ export class Dashboard extends Component {
       } else if (game.state === 'in_progress') {
         gameStatus.textContent = 'In progress';
         gameStatus.classList.add('in-progress');
-      } else {
+      } else if (game.state === 'cancelled') {
+        gameStatus.textContent = 'Cancelled';
+        gameStatus.classList.add('cancelled');
+      } else if (game.state === 'ready') {
+        gameStatus.textContent = 'Ready';
+        gameStatus.classList.add('ready');
+      } else if (game.state === 'waiting') {
         gameStatus.textContent = 'Waiting';
-        gameStatus.classList.add('in-progress');
+        gameStatus.classList.add('waiting');
       }
 
       gameItem.appendChild(gameInfoDiv);
@@ -229,10 +269,94 @@ export class Dashboard extends Component {
     });
   }
 
+  async getUrlTournament(tournamentID){
+    let isInTournament = false;
+    try {
+      const { data, error } = await api.request.get(`/tournaments/${tournamentID}/`);
+      const participants = data.participants;
+      console.log("PARTICIPANT:", participants);
+      participants.forEach(participant => {
+        if (participant.player == window.auth.id){
+          isInTournament = true;
+        }
+      })
+    } catch (error){
+      console.log(error);
+    }
+
+    return (isInTournament ? 
+      `/tournaments/lobby/${tournamentID}` :
+      `/tournaments/join/${tournamentID}`
+    )
+  }
+
+  async renderTournamentInfo(tournamentInfo) {
+    const tournamentListElement = document.querySelector(".tournaments-list");
+  
+    if (!tournamentInfo || tournamentInfo.length === 0) {
+      tournamentListElement.innerHTML = '<p>No tournaments found.</p>';
+      return;
+    }
+  
+    for (const tournament of tournamentInfo) {
+      const tournamentItem = document.createElement('div');
+      tournamentItem.classList.add('tournament-item');
+  
+      const tournamentInfoDiv = document.createElement('div');
+      tournamentInfoDiv.classList.add('game-info');
+  
+      const tournamentTitle = document.createElement('div');
+      tournamentTitle.classList.add('game-title');
+      tournamentTitle.textContent = `${tournament.name}`;
+  
+      const tournamentDate = document.createElement('div');
+      tournamentDate.classList.add('game-date');
+      const date = new Date(tournament.created_at);
+      tournamentDate.textContent = `The ${date.toLocaleDateString()} at ${date.toLocaleTimeString()}`;
+  
+      tournamentInfoDiv.appendChild(tournamentTitle);
+      tournamentInfoDiv.appendChild(tournamentDate);
+  
+      const tournamentWinner = document.createElement('div');
+      tournamentWinner.classList.add('game-status');
+  
+      if (tournament.winner === null) {
+        tournamentWinner.textContent = "No Winner";
+        tournamentWinner.classList.add('in-progress');
+      } else {
+        tournamentWinner.textContent = `Winner: ${tournament.winner}`;
+      }
+  
+      const tournamentStatus = document.createElement('div');
+      tournamentStatus.classList.add('tournament-state', 'btn-tournament-state');
+  
+      if (tournament.state === 'waiting') {
+        tournamentStatus.textContent = "Join Lobby";
+          const url = await this.getUrlTournament(tournament.id);
+        tournamentItem.setAttribute("data-url", url);
+      } else {
+        tournamentStatus.textContent = "View";
+        tournamentItem.setAttribute("data-url", `/tournaments/${tournament.id}/`);
+      }
+  
+      const tournamentEnd = document.createElement('div');
+      tournamentEnd.classList.add("d-flex", "gap-2", "align-items-center");
+  
+      tournamentItem.appendChild(tournamentInfoDiv);
+      tournamentEnd.appendChild(tournamentWinner);
+      tournamentEnd.appendChild(tournamentStatus);
+  
+      tournamentItem.appendChild(tournamentEnd);
+      tournamentListElement.appendChild(tournamentItem);
+    }
+  }
+  
+
   async script() {
     const userInfo = await this.getInfo("me/");
     const gameInfo = await this.getInfo("games/");
-    
+    const tournamentInfo = await this.getInfo("tournaments/")
+
     if (userInfo) {
       this.renderUserInfo(userInfo);
     }
@@ -240,6 +364,19 @@ export class Dashboard extends Component {
     if (gameInfo) {
       this.renderGameInfo(gameInfo);
     }
+    
+    if (tournamentInfo){
+      console.log("TOURNAMENT", tournamentInfo);
+      await this.renderTournamentInfo(tournamentInfo)
+      document.querySelectorAll(".tournament-item").forEach(item => {
+        item.addEventListener("click", () => {
+          const url = item.getAttribute("data-url")
+          window.router.push(url);
+        })
+      })
+    }
+
+
   }
 }
 

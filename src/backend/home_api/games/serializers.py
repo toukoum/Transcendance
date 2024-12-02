@@ -13,10 +13,15 @@ class MatchPlayerSerializer(serializers.ModelSerializer):
 
 class MatchSerializer(serializers.ModelSerializer):    
     match_players = MatchPlayerSerializer(many=True, read_only=True)
+    winner_username = serializers.SerializerMethodField()
+
     class Meta:
         model = Match
         fields = '__all__'
-        
+        extra_fields = ['winner_username']
+
+    def get_winner_username(self, obj):
+        return obj.winner.username if obj.winner else None
 
 
 class MatchCreateSerializer(serializers.ModelSerializer):

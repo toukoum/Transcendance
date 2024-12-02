@@ -22,13 +22,6 @@ class GameConsumer(AsyncWebsocketConsumer):
 		self.game_id = self.scope['url_route']['kwargs']['game_id']
 		self.user = self.scope['user']
 
-		if (await GAMES.size()) == 0:
-			await self.init_games()
-
-		print("==========> PRINT <==========")
-		await GAMES.print()
-		print("========> END PRINT <========")
-
 		game = await GAMES.get(self.game_id)
 		if game is None:
 			logger.warning(f"Game with id {self.game_id} not found.")
@@ -52,7 +45,6 @@ class GameConsumer(AsyncWebsocketConsumer):
 
 		# If the game is ready, start it
 		if game.match.state == Match.State.READY:
-			print("Game is ready")
 			asyncio.create_task(game.start())
 	
 	async def disconnect(self, close_code):
@@ -94,18 +86,6 @@ class GameConsumer(AsyncWebsocketConsumer):
 			Q(user=user) &
 			~Q(state=MatchPlayer.State.LEFT)
 		).exists()
-	
-	async def init_games(self):
-		"""
-		Initialize the games in the GAMES dict
-		"""
-		matches = await database_sync_to_async(list)(
-			Match.objects.filter(
-				~Q(state__in=[Match.State.FINISHED, Match.State.CANCELLED])
-			)
-		)
-		for match in matches:
-			await GAMES.set(str(match.id), Game(match))
 
 
 # ---------------------------------------------------------------------------- #

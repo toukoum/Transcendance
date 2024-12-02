@@ -80,11 +80,13 @@ export class TournamentsLobby extends Component {
 
 				.wrapper-lobby {
 					display: flex;
-					justify-content: space-between;
+					justify-content: center;
 					flex-grow: 1;
 					padding: 20px;
 					overflow: hidden;
 					flex-wrap: wrap;
+					gap: 2rem;
+
 				}
 
 				.bottom-right {
@@ -99,10 +101,20 @@ export class TournamentsLobby extends Component {
 					display: flex;
 					flex-direction: column;
 					width: 48%;
+					max-width: 600px;
 					overflow: hidden;
 					background-color: #2C2C2E;
 					border-radius: 10px;
 					padding: 20px;
+				}
+
+
+        @media (max-width: 800px) {
+          .left-part,
+					.right-part {
+						width: 100%;
+            
+          }
 				}
 
 				.invite-player-list {
@@ -323,8 +335,8 @@ export class TournamentsLobby extends Component {
 		const existingPlayerIds = new Set();
 		const buttonRegister = document.getElementById("btnRegister");
 
-		const provider = new ethers.providers.Web3Provider(window.ethereum);
-		const signer = provider.getSigner();
+		//const provider = new ethers.providers.Web3Provider(window.ethereum);
+		//const signer = provider.getSigner();
 
 		if (!connectedPlayers) return;
 
@@ -415,11 +427,12 @@ export class TournamentsLobby extends Component {
 				if (error) throw error;
 
 				if (data.matches.length > 0) {
-					const { data, error } = await api.request.get(`game/check/`);
-					if (error) throw error;
-					console.log("ID GAME :", data.id);
-					window.location.href = `/play/${data.id}`;
-					status = true;
+					window.location.href = `/tournaments/${tournamentId}/`;
+					//const { data, error } = await api.request.get(`game/check/`);
+					//if (error) throw error;
+					//console.log("ID GAME :", data.id);
+					//window.location.href = `/tournaments/${data.id}`;
+					//status = true;
 				}
 
 			} catch (error) {

@@ -70,65 +70,74 @@ export class Sidebar extends Component {
     style() {
         return (/*css*/`
         <style>
-						.sidebar {
-								width: min(600px, 100vw);
-								height: 100vh;
-								background-color: #000;
-								color: #f2f2f7;
-								padding: 24px;
-								box-sizing: border-box;
-								overflow: hidden;
-								overflow-y: auto;
-								display: flex;
-								flex-direction: column;
-						}
+            .sidebar {
+                    width: min(600px, 100vw);
+                    height: 100vh;
+                    background-color: #000;
+                    color: #f2f2f7;
+                    padding: 24px;
+                    box-sizing: border-box;
+                    overflow: hidden;
+                    overflow-y: auto;
+                    display: flex;
+                    flex-direction: column;
+            }
 						
-						.close-btn {
-							background: none;
-							border: none;
-							color: #f2f2f7;
-							cursor: pointer;
-							font-size: 24px;
-							padding: 0;
-							display: flex;
-							align-items: center;
-						}
+            @media (max-width: 600px) {
+                .sidebar {
+                    position:absolute;
+                    z-index: 20000;
+                    top: 0;
+                    left:0;
+                }
+            }
+                            
+            .close-btn {
+                background: none;
+                border: none;
+                color: #f2f2f7;
+                cursor: pointer;
+                font-size: 24px;
+                padding: 0;
+                display: flex;
+                align-items: center;
+            }
 
-						.close-btn i {
-							width: 24px;
-							height: 24px;
-						}
-						
-						.cross-delete-notif{
-							height: 20px;
-						}
+            .close-btn i {
+                width: 24px;
+                height: 24px;
+            }
+            
+            .cross-delete-notif{
+                height: 20px;
+            }
 
 
 
-						.sidebar-header {
-							display: flex;
-							justify-content: space-between;
-							align-items: center;
-							margin-bottom: 24px;
-						}
+            .sidebar-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 24px;
+            }
 
-						.sidebar-header h2 {
-								margin: 0;
-								font-size: 24px;
-								font-weight: 700;
-						}
+            .sidebar-header h2 {
+                    margin: 0;
+                    font-size: 24px;
+                    font-weight: 700;
+            }
 
-						/* Notification Wrapper */
-						#wrapper-notif {
-								flex: 1;
-								overflow-y: scroll;
-								-ms-overflow-style: none;
-								scrollbar-width: none;
-						}
+            /* Notification Wrapper */
+            #wrapper-notif {
+                    flex: 1;
+                    overflow-y: scroll;
+                    -ms-overflow-style: none;
+                    scrollbar-width: none;
+            }
 
-						.sidebar::-webkit-scrollbar {
-								display: none;
-						}
+            .sidebar::-webkit-scrollbar {
+                    display: none;
+            }
 
 
             /* Notification Styles */

@@ -26,9 +26,16 @@ def main():
         if not User.objects.filter(username='toukoum').exists():
             User.objects.create_user('toukoum', 'toukoumcode@gmail.com', 'ekb.UGU0kyr*xaj_tup')
         
-
         if not User.objects.filter(username='raph').exists():
             User.objects.create_user('raph', 'raphaelgiraud12@gmail.com', 'ekb.UGU0kyr*xaj_tup')
+        
+        if not User.objects.filter(username='raph2').exists():
+            User.objects.create_user('raph2', 'raphaelgiraud13@gmail.com', 'ekb.UGU0kyr*xaj_tup')
+
+        
+        if not User.objects.filter(username='raph3').exists():
+            User.objects.create_user('raph3', 'raphaelgiraud14@gmail.com', 'ekb.UGU0kyr*xaj_tup')
+
 
 
 

@@ -8,6 +8,7 @@ export class WaitingScreen extends BaseScreen {
     showWaitingScreen() {
 		this.element = document.createElement("game-waiting-screen");
 		this.element.id = "waiting-screen";
+		this.element.setAttribute("game-id", this.game.serverData.match.id);
 		this.game.container.appendChild(this.element);
 		this.element = document.querySelector("#waiting-screen");
 		

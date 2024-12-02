@@ -17,6 +17,10 @@ class Player:
         asyncio.create_task(self.sync_to())
 
     async def update_state(self, state):
+        if state == self.player.state:
+            return
+        if self.player.state == MatchPlayer.State.LEFT:
+            return
         self.player.state = state
         await self.sync_to()
 
