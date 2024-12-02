@@ -31,6 +31,7 @@ export class Scene {
 		
 		this.camera.position.set(this.game.settings.camera.position.x, this.game.settings.camera.position.y, this.game.settings.camera.position.z);
 		this.renderer.setPixelRatio(window.devicePixelRatio);
+		this.renderer.setClearColor(0x000029, 0.25);
 		// this.renderer.setSize(500, 500);
 		// this.renderer.setSize(window.innerWidth, window.innerHeight);
 		// this.renderer.setSize(this.game.settings.scene.width, this.game.settings.scene.height);
@@ -47,6 +48,9 @@ export class Scene {
 		const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
 		directionalLight.position.set(5, 10, 2);
 		this.scene.add(directionalLight);
+
+		// Fog
+		this.scene.fog = new THREE.FogExp2(0x000029, 0.02);
 		/* -------------------------------------------------------------------------- */
 
 		/* --------------------------------- Helpers -------------------------------- */
@@ -207,9 +211,11 @@ export class Scene {
 		switch (map) {
 			case "water":
 				this.map = new WaterMap(this.game);
+				this.map.addTo(this.scene);
 				break;
 			default:
 				this.map = new SynthwaveMap(this.game);
+				this.map.addTo(this.scene);
 				break;
 		}
 	}

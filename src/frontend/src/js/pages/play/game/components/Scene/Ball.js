@@ -9,7 +9,9 @@ export class Ball {
 		// }
 		this.mesh = new window.THREE.Mesh(
 			new window.THREE.SphereGeometry(data.radius, 32, 32),
-			new window.THREE.MeshStandardMaterial({ color: 0x007700 })
+			new window.THREE.MeshStandardMaterial({
+				color: 0xFF3B30
+			})
 		);
 		this.mesh.position.set(data.x, data.radius, data.y);
 		this.mesh.velocity = new window.THREE.Vector3(data.vx, 0, data.vy);

@@ -23,7 +23,7 @@ export class WaitingScreen extends BaseScreen {
 					<div class="player-waiting__user d-flex gap-2 align-items-center">
 						<!-- AVATAR -->
 						<div class="player-waiting__avatar">
-							<img src="${player.user.avatar}" alt="Avatar" class=" rounded-circle" style="width: 50px; height: 50px;">
+							<img src="${player.user.avatar}" alt="Avatar" class=" rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
 						</div>
 						<!-- NAME -->
 						<div class="player-waiting__name">

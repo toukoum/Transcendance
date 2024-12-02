@@ -6,7 +6,9 @@ export class Player {
 		this.paddleHeight = 1;
 		this.paddle = new window.THREE.Mesh(
 			new window.THREE.BoxGeometry(data.paddle.width, this.paddleHeight, data.paddle.height),
-			new window.THREE.MeshStandardMaterial({ color: 0x007700 })
+			new window.THREE.MeshStandardMaterial({
+				color: 0x0071e3
+			})
 		);
 		// this.paddle.position.set(data.paddle.x, 0, data.paddle.y);
 		this.paddle.position.set(data.paddle.x, this.paddleHeight / 2, data.paddle.y);

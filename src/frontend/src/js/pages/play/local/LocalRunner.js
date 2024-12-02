@@ -4,25 +4,25 @@ import { Paddle } from "./_components/Paddle.js";
 import GameLocal from "./GameLocal.js";
 
 export const FIELD_WIDTH = 40
-export const FIELD_HEIGHT = 24
+export const FIELD_HEIGHT = 18
 export const BALL_RADIUS = 1
-export const BALL_SPEED = 4
+export const BALL_SPEED = 10
 export const BALL_MAX_SPEED = {
 	'easy': 15,
 	'medium': 30,
-	'hard': 50
+	'hard': 40
 }
 export const BALL_ACCELERATION_FACTOR = {
-	'easy': 1.1,
-	'medium': 1.2,
-	'hard': 1.3
+	'easy': 1.025,
+	'medium': 1.05,
+	'hard': 1.1
 }
 export const PADDLE_WIDTH = 1
 export const PADDLE_HEIGHT = 4
 export const PADDLE_SPEED = {
-	'easy': 10,
-	'medium': 12,
-	'hard': 14
+	'easy': 14,
+	'medium': 16,
+	'hard': 20
 }
 export const COUNTDOWN_DURATION = 3
 export const TICK_RATE = 60

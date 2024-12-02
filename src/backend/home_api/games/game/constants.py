@@ -1,23 +1,23 @@
-FIELD_WIDTH = 80
-FIELD_HEIGHT = 24
-BALL_RADIUS = 2
-BALL_SPEED = 15
+FIELD_WIDTH = 40
+FIELD_HEIGHT = 18
+BALL_RADIUS = 1
+BALL_SPEED = 10
 BALL_MAX_SPEED = {
 	'easy': 15,
 	'medium': 30,
-	'hard': 50
+	'hard': 40
 }
 BALL_ACCELERATION_FACTOR = {
-	'easy': 1.1,
-	'medium': 1.2,
-	'hard': 1.3
+	'easy': 1.025,
+	'medium': 1.05,
+	'hard': 1.1
 }
 PADDLE_WIDTH = 1
 PADDLE_HEIGHT = 4
 PADDLE_SPEED = {
-	'easy': 10,
-	'medium': 12,
-	'hard': 14
+	'easy': 14,
+	'medium': 16,
+	'hard': 20
 }
 COUNTDOWN_DURATION = 3
 TICK_RATE = 60

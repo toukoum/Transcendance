@@ -5,7 +5,7 @@ export class Field {
 
 		this.mesh = new THREE.Mesh(
 			new window.THREE.BoxGeometry(width, 1, height),
-			new window.THREE.MeshBasicMaterial( {color: 0x0077ff, side: THREE.DoubleSide })
+			new window.THREE.MeshBasicMaterial( {color: 0x00FFFFFF, side: THREE.DoubleSide })
 		);
 		this.mesh.position.set(0, -(this.mesh.geometry.parameters.height / 2), 0);
 	}

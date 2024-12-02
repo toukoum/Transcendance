@@ -21,8 +21,8 @@ export class Controller {
 	}
 
 	init() {
-		document.addEventListener('keydown', this.onKeyDown.bind(this));
-		document.addEventListener('keyup', this.onKeyUp.bind(this));
+		window.router.addListener(document, 'keydown', this.onKeyDown.bind(this));
+		window.router.addListener(document, 'keyup', this.onKeyUp.bind(this));
 	}
 
 	assignPlayer() {
