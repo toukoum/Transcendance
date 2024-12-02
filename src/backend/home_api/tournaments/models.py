@@ -52,10 +52,6 @@ class Tournament(models.Model):
       """
       participants = list(TournamentParticipant.objects.filter(tournament=self))
       
-      print("DEBUT DU TOURNOIS: ")
-      for participant in participants:
-         print("Participant: ", participant.player, " - ", participant.pseudo)
-
       if (len(participants) != self.number_players):
         raise ValidationError("The number of participants does not match the number of players.")
 
@@ -67,7 +63,6 @@ class Tournament(models.Model):
         """
         Once a round is finished, the next round can be created.
         """
-        print("ON CREER LA FINAL CAR LES MATCH SONT FINI")
 
         matches = Match.objects.filter(tournament=self, round=round_number - 1)
         if matches.filter(winner__isnull=True).exists():
@@ -76,9 +71,6 @@ class Tournament(models.Model):
         winner_ids = matches.filter(winner__isnull=False).values_list('winner', flat=True)
         
         participant_next_round = list(TournamentParticipant.objects.filter(player_id__in=winner_ids, tournament=self))
-
-        for participant in participant_next_round:
-            print("Participant: ", participant.player.username, " - ", participant.pseudo)
 
         self.create_matches(participant_next_round, round_number)
 

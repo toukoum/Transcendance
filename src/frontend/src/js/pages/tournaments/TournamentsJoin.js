@@ -113,8 +113,6 @@ export class TournamentsJoin extends Component {
     const tournamentId = parseInt(this.getAttribute("id"));
     const joinForm = document.getElementById("join-form");
     
-    console.log("LE user peut join: ", canJoin);
-
     joinForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const pseudo = document.getElementById("pseudo").value;

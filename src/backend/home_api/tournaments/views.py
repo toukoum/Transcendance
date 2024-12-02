@@ -184,7 +184,6 @@ class TournamentViewSet(BaseViewSet):
                 
                 if matches_in_round.count() == 1:
                     match = matches_in_round.first()
-                    print("LE TOURNOI EST FINI, LE winner est: ", match.winner.username)
                     tournament.winner = match.winner
                     tournament.save()
                     return

@@ -6,7 +6,6 @@ from rest_framework import status, viewsets
 def custom_exception_handler(exc, context):
     response = exception_handler(exc, context)
     if response is not None:
-        print("ERROR d'un serializer: ", response.data)
         message = None
         if isinstance(response.data, dict):
             if 'detail' in response.data:

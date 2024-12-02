@@ -17,7 +17,7 @@ export class Object3D {
 		return meshBox.intersectsBox(objectBox);
 	}
 	onCollision(object) {
-		console.log(`[Object3D] Collision between ${this.constructor.name} and ${object.constructor.name}`);
+		// console.log(`[Object3D] Collision between ${this.constructor.name} and ${object.constructor.name}`);
 	}
 
 	destroy() {

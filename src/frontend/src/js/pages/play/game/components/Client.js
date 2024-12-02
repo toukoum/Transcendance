@@ -16,16 +16,16 @@ export class Client {
 
 	initListeners() {
 		this.ws.on("open", () => {
-			console.log("[Game Client] WebSocket connected");
+			// console.log("[Game Client] WebSocket connected");
 		});
 		this.ws.on("close", () => {
-			console.log("[Game Client] WebSocket closed");
+			// console.log("[Game Client] WebSocket closed");
 			if (this.game.pingManager) {
 				this.game.pingManager.stop();
 			}
 		});
 		this.ws.on("error", (error) => {
-			console.error("[Game Client] WebSocket error", error);
+			// console.error("[Game Client] WebSocket error", error);
 		});
 		this.ws.on("message", (data) => {
 			// console.log("[Game Client] Received message", data);
@@ -43,7 +43,7 @@ export class Client {
 				this.game.pingManager.handlePong(message.timestamp);
 				break;
 			default:
-				console.log("[Game Client] Unknown message type", message.type);
+				// console.log("[Game Client] Unknown message type", message.type);
 				break;
 		}
 	}
@@ -76,7 +76,7 @@ export class Client {
 				Toast.info(message.message);
 				break;
 			default:
-				console.log("[Game: Client] Unknown message type", type);
+				// console.log("[Game: Client] Unknown message type", type);
 				break;
 		}
 	}

@@ -424,7 +424,6 @@ export class Play extends Component {
 					map,
 					difficulty
 				} = Object.fromEntries(formData.entries());
-				console.log(duration, maxPlayers, maxScore);
 
 				schemaGame.parse({
 					duration: duration === "" ? null : parseInt(duration),

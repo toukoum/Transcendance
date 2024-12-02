@@ -28,7 +28,7 @@ export class ApiWebSocket {
 			this.emit("message", JSON.parse(event.data));
 		}
 		this.socket.onclose = () => {
-			console.log(`WebSocket closed`);
+			// console.log(`WebSocket closed`);
 			this.isConnected = false;
 			this.emit("close");
 		}

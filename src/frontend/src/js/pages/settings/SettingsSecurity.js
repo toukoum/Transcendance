@@ -219,7 +219,6 @@ export class SettingsSecurity extends Component {
 
 				const response = await api.auth.loginWithIdentifier(window.auth.username, currentPassword);
 
-				console.log("RESPONSE", response)
 				if (response.error) throw new ApiRequestError("Current password is incorrect");
 
 				const { data, error } = await api.request.post('auth/password/change/', {
