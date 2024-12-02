@@ -157,26 +157,26 @@ export class Play extends Component {
 		return (/*html*/`
 		<main-layout>
 			<div class="container container-md bg-background rounded rounded-3 p-4 my-4 d-flex flex-column gap-2">
-				<div>
-					<h2 class="text-center">Play</h2>
-				</div>
-				<separator-component></separator-component>
-				<div class="d-flex flex-column gap-2">
-					<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createGameModal">
-						Create Game
-					</button>
-					<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#joinGameModal">
-						Join Game
-					</button>
-					<div id="createDiv" style="display: flex; justify-content: center; width: 100%;">
-						<button type="button" id="createBtn" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#createTournamentModal">
-							Create Tournament
-						</button>
+			<h2>Play</h2>
+			<div class="card-grid">
+					<div class="game-card" data-bs-toggle="modal" data-bs-target="#createGameModal">
+							<i class="bi bi-controller"></i>
+							<h5>Create Game</h5>
 					</div>
-					<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createLocalModal">
-						Play Pong Local
-					</button>
-				</div>
+					<div class="game-card" data-bs-toggle="modal" data-bs-target="#joinGameModal">
+							<i class="bi bi-people"></i>
+							<h5>Join Game</h5>
+					</div>
+					<div id="createDiv">
+							<div id="createBtn" class="disablee game-card" data-bs-toggle="modal" data-bs-target="#createTournamentModal">
+									<i class="bi bi-trophy"></i>
+									<h5>Create Tournament</h5>
+							</div>
+					</div>
+					<div class="game-card" data-bs-toggle="modal" data-bs-target="#createLocalModal">
+							<i class="bi bi-joystick"></i>
+							<h5>Play Pong Local</h5>
+					</div>
 			</div>
 		
 			<!-- MODALS -->
@@ -392,6 +392,76 @@ export class Play extends Component {
 	`);
 	}
 
+	style() {
+		return (/*css*/`
+			<style>
+					h2 {
+							font-size: 3rem;
+							margin-bottom: 2rem;
+							text-align: center;
+					}
+
+					.card-grid {
+							display: grid;
+							grid-template-columns: repeat(2, 1fr);
+							gap: 1rem;
+							width: 100%;
+							margin: 0 auto;
+							height: 600px;
+					}
+
+					.disablee{
+						opacity: 0.5;
+						pointer-events: none;
+					}
+
+
+					.game-card {
+							background-color: rgba(255, 255, 255, 0.1);
+							border: none;
+							border-radius: 10px;
+							padding: 2rem;
+							text-align: center;
+							color: #fff;
+							transition: transform 0.2s, background-color 0.2s;
+							cursor: pointer;
+							display: flex;
+							justify-content: center;
+							align-items: center;
+							flex-direction: column;
+							height: 100%;
+							position: relative;
+							box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+							box-sizing: border-box;
+					}
+
+					.game-card:hover {
+							background-color: rgba(255, 255, 255, 0.15);
+							-webkit-box-shadow:inset 0px 0px 0px 1px #0071e3;
+							-moz-box-shadow:inset 0px 0px 0px 1px #0071e3;
+							box-shadow:inset 0px 0px 0px 1px #0071e3;
+					}
+							
+					.game-card i {
+							font-size: 3rem;
+							margin-bottom: 1rem;
+					}
+					.game-card h5 {
+							font-size: 1.5rem;
+							margin-bottom: 0;
+					}
+					@media (max-width: 576px) {
+							.card-grid {
+									grid-template-columns: 1fr;
+							}
+							h2 {
+									font-size: 2.5rem;
+							}
+					}
+    </style>
+		`)
+	}
+
 	script() {
 		/* ------------------------------- CREATE GAME ------------------------------ */
 		const form = document.querySelector("#create-game-form");
@@ -561,13 +631,13 @@ export class Play extends Component {
 		};
 		if (window.auth.profile.publicKey !== "") {
 			connectWallet();
-			document.querySelector("#createBtn").disabled = false;
+			document.querySelector("#createBtn").classList.remove('disablee');
 		}
 		else {
 			document.querySelector("#createDiv").addEventListener("click", async () => {
 				Toast.error("Connect your wallet in setting");
 			});
-			document.querySelector("#createBtn").disabled = true;
+			document.querySelector("#createBtn").classList.add('disablee');
 		}
 		
 

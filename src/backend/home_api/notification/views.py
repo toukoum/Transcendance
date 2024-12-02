@@ -46,7 +46,7 @@ def testNotifUser(request):
 			},
 			action={
 				'primary': {
-					'url': 'http://10.32.7.12:8000/v1/me/',
+					'url': 'http://192.168.1.81:8000/v1/me/',
 					'label': 'User profile'
 				}
 			},

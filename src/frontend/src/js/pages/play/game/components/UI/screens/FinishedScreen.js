@@ -77,7 +77,7 @@ export class FinishedScreen extends BaseScreen {
 		const connectWallet = async () => {
 			try {
 				if (typeof window.ethereum === 'undefined') {
-					alert("MetaMask n'est pas installé !");
+					alert("Your wallet is not installed !");
 					return;
 				}
 				console.log("Connexion au portefeuille en cours...");

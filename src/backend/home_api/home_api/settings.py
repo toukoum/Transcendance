@@ -220,7 +220,7 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = True
 
 # CORS_ALLOWED_ORIGINS = [
-#     "http://10.32.7.12:5500"
+#     "http://192.168.1.81:5500"
 # ]
 
 # 42 OAUTH ==================================================

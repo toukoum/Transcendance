@@ -61,7 +61,7 @@ export class Header extends Component {
 
 					.btn-play{
 						color: #fff;
-						background-color: #0067ff47;
+						background: linear-gradient(to right, #2196f3, #9c27b0);
 						border-radius: 10px;
 						padding: .5rem 1rem;
 						margin: 10px 0;

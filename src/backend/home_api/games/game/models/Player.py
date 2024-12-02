@@ -51,7 +51,7 @@ class Player:
                 'id': self.player.user.id,
                 'username': self.player.user.username,
                 'email': self.player.user.email,
-                # 'avatar': f'http://10.32.7.12:8000{self.player.user.profile.avatar.url}' if self.player.user.profile.avatar else None
+                # 'avatar': f'http://192.168.1.81:8000{self.player.user.profile.avatar.url}' if self.player.user.profile.avatar else None
                 'avatar': self.player.user.profile.avatar.url if self.player.user.profile.avatar else None
             },
             'state': self.player.state,
