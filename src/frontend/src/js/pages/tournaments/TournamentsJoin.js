@@ -4,14 +4,9 @@ import { Toast } from "../../provider/toast-provider.js";
 
 export class TournamentsJoin extends Component {
   content() {
-
-    const canJoin = !!window.auth.profile.publicKey;
-
     return /*html*/ `
       <main-layout>
-
-        ${canJoin ? 
-        `<div class="wrapper">
+        <div class="wrapper">
           <div class="join-container">
             <h1 class="title">Join Tournament</h1>
             <form id="join-form" class="join-form">
@@ -22,10 +17,7 @@ export class TournamentsJoin extends Component {
               <button type="submit" class="btn btn-primary">Join</button>
             </form>
           </div>
-        </div>`
-        :
-        `<div> Connect your Wallet in setting First </div>`
-        }
+        </div>
       </main-layout>
     `;
   }
@@ -103,6 +95,22 @@ export class TournamentsJoin extends Component {
   }
 
   async script() {
+    const canJoin = !!window.auth.profile.publicKey;
+	if (!canJoin) {
+		const feur = document.body;
+		feur.innerHTML = `<main-layout><div class="wrapper"></div></main-layout>`;
+		Toast.error("Connect your Wallet in setting first");
+		const wrapper = document.querySelector(".wrapper");
+		const settings = document.createElement("button");
+		wrapper.classList.add("d-flex", "justify-content-center", "align-items-center", "h-100");
+		settings.textContent = "Add your account in settings tab";
+		settings.classList.add("btn", "btn-primary");
+		wrapper.appendChild(settings);
+		settings.addEventListener("click", () => {
+			window.location.href = "/settings/web3";
+		});
+		return;
+	}
     const tournamentId = parseInt(this.getAttribute("id"));
     const joinForm = document.getElementById("join-form");
     
