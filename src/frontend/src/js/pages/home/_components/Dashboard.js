@@ -274,7 +274,6 @@ export class Dashboard extends Component {
     try {
       const { data, error } = await api.request.get(`/tournaments/${tournamentID}/`);
       const participants = data.participants;
-      console.log("PARTICIPANT:", participants);
       participants.forEach(participant => {
         if (participant.player == window.auth.id){
           isInTournament = true;
@@ -366,7 +365,6 @@ export class Dashboard extends Component {
     }
     
     if (tournamentInfo){
-      console.log("TOURNAMENT", tournamentInfo);
       await this.renderTournamentInfo(tournamentInfo)
       document.querySelectorAll(".tournament-item").forEach(item => {
         item.addEventListener("click", () => {

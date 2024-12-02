@@ -40,19 +40,19 @@ export const authMiddleware = async (route, next) => {
 	if (window.auth){
 		if (!window.notif) {
 			window.notif = new ApiWebSocket('notification/');
+			window.notif.on('message', (data) => {
+				console.log("===========>> Notification", data);
+				document.dispatchEvent(new Event('notification'));
+				if (data.action != null){
+					Toast.notificationAction(data)
+				}else{
+					if (data.data.message != null)
+						Toast.info(data.data.message, data.event_type)
+					else if (data.message != null)
+						Toast.info(data.message)
+				}
+			});
 		}
-		window.notif.on('message', (data) => {
-			console.log("===========>> Notification", data);
-			document.dispatchEvent(new Event('notification'));
-			if (data.action != null){
-				Toast.notificationAction(data)
-			}else{
-				if (data.data.message != null)
-					Toast.info(data.data.message, data.event_type)
-				else if (data.message != null)
-					Toast.info(data.message)
-			}
-		});
 	}
 
 

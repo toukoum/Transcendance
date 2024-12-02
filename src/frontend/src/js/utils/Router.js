@@ -20,6 +20,7 @@ export class Router {
 	 * @param {Object} app - The app object
 	 * @param {Array} routes - The routes for the router
 	 */
+	#listeners = [];
 	constructor(app, {
 		routes = [],
 		middlewares = []
@@ -176,6 +177,8 @@ export class Router {
 		if (!(route instanceof Route)) {
 			throw new TypeError("Route must be an instance of Route");
 		}
+		// Clean up listeners
+		this.cleanupListeners();
 		const component = document.createElement(route.component);
 		Router.#setParams(component, route);
 		this.#app.innerHTML = "";
@@ -256,6 +259,43 @@ export class Router {
 		}
 
 		this.#routes.push(new Route(path, component));
+	}
+
+	/* -------------------------------- Listeners ------------------------------- */
+	addListener(target, event, handler, persistRoute = false) {
+		if (!(target instanceof EventTarget)) {
+			throw new TypeError("Target must be an EventTarget");
+		}
+	
+		const exists = this.#listeners.some(
+			(listener) => listener.target === target &&
+						  listener.event === event &&
+						  listener.handler === handler
+		);
+		if (!exists) {
+			target.addEventListener(event, handler);
+			this.#listeners.push({ target, event, handler, persistRoute });
+		}
+	}
+
+	cleanupListeners(force = false) {
+		this.#listeners = this.#listeners.filter(({ target, event, handler, persistRoute }) => {
+			if (force || !persistRoute) {
+				target.removeEventListener(event, handler);
+				return false;
+			}
+			return true;
+		});
+	}
+
+	removeListener(target, event, handler) {
+		this.#listeners = this.#listeners.filter((listener) => {
+			if (listener.target === target && listener.event === event && listener.handler === handler) {
+				target.removeEventListener(event, handler);
+				return false;
+			}
+			return true;
+		});
 	}
 }
 

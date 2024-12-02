@@ -341,13 +341,13 @@ export class Sidebar extends Component {
     script() {
 				const sidebar = document.querySelector('.sidebar');
 				lucide.createIcons();
-				document.addEventListener('toggleSidebar', () => {
-					if (sidebar.style.display === 'none') {
-						sidebar.style.display = 'block';
-					} else {
-						sidebar.style.display = 'none';
-					}
-				});
+                window.router.addListener(document,'toggleSidebar', () => {
+                    if (sidebar.style.display === 'none') {
+                        sidebar.style.display = 'block';
+                    } else {
+                        sidebar.style.display = 'none';
+                    }
+                }, true);
 
 				const closeBtn = document.querySelector('.close-btn');
 
@@ -371,9 +371,9 @@ export class Sidebar extends Component {
 
 				this.fill_notif();
 
-				document.addEventListener('notification', () => {
-					this.fill_notif();
-				});
+                window.router.addListener(document,'notification', () => {
+                    this.fill_notif();
+                }, true);
 							
 		}
 }

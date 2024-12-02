@@ -16,7 +16,8 @@ export class PlayLocal extends Component {
 		const gameContainer = document.getElementById("game");
 		const headerHeight = header ? header.offsetHeight : 0;
 		gameContainer.style.height = `${window.innerHeight - headerHeight}px`;
-		window.addEventListener("resize", () => {
+
+		window.router.addListener(window, "resize", () => {
 			const newAvailableHeight = window.innerHeight - (header ? header.offsetHeight : 0);
 			gameContainer.style.height = `${newAvailableHeight}px`;
 		});

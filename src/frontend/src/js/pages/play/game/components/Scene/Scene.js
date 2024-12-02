@@ -66,13 +66,10 @@ export class Scene {
 		/* -------------------------------------------------------------------------- */
 
 		/* ---------------------------------- World --------------------------------- */
-		// this.world = new World();
-		// this.world.add(this.scene);
 		this.map = undefined;
 		/* -------------------------------------------------------------------------- */
 
-		window.addEventListener("resize", () => this.resize());
-
+		window.router.addListener(window, "resize", () => this.resize());
 
 		document.getElementById(this.game.settings.container).appendChild(this.renderer.domElement);
 	}

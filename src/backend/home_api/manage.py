@@ -31,13 +31,9 @@ def main():
         
         if not User.objects.filter(username='3').exists():
             User.objects.create_user('3', 'raphaelgiraud13@gmail.com', 'Loul')
-
         
         if not User.objects.filter(username='4').exists():
             User.objects.create_user('4', 'raphaelgiraud14@gmail.com', 'Loul')
-
-
-
 
 
 if __name__ == '__main__':

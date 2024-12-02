@@ -374,10 +374,10 @@ export class Friends extends Component {
     this.fillFriends();
     this.fillFriendsReceive();
 
-		document.addEventListener('notification', () => {
-			this.fillFriends();
-			this.fillFriendsReceive();
-		});
+    window.router.addListener(document, "notification", () => {
+      this.fillFriends();
+      this.fillFriendsReceive();
+    });
 
     const sentRequestForm = document.querySelector("#sent-request-form");
     sentRequestForm.addEventListener("submit", async (e) => {
