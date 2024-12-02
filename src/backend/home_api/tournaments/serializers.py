@@ -13,7 +13,7 @@ class TournamentSerializer(serializers.ModelSerializer):
         model = Tournament
         # REMETTRE
         # fields = ['id', 'name', 'max_score', 'duration', 'created_at', 'updated_at', 'pseudo', 'address_tournament']
-        fields = ['id', 'name', 'max_score', 'duration', 'created_at', 'updated_at', 'pseudo', 'winner', 'state']
+        fields = ['id', 'name', 'max_score', 'duration', 'created_at', 'updated_at', 'pseudo', 'winner', 'state', 'address_tournament']
         
         read_only_fields = ['created_at', 'updated_at', 'winner', 'state']
 

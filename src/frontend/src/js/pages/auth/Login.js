@@ -140,7 +140,7 @@ export class Login extends Component {
 
 		const handleLoginOAuth = async () => {
 			try {
-				window.location.href = "https://localhost:3000/api/v1/auth/42/authorize/";
+				window.location.href = "https://10.32.7.12:3000/api/v1/auth/42/authorize/";
 				if (error) throw error;
 			} catch (error) {
 				if (error instanceof ApiRequestError) {

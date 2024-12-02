@@ -54,7 +54,6 @@ export class TournamentsLobby extends Component {
 				}
 
 				.wrapper-all {
-					overflow-x: hidden;
 					display: flex;
 					flex-direction: column;
 					justify-content: center;
@@ -335,8 +334,8 @@ export class TournamentsLobby extends Component {
 		const existingPlayerIds = new Set();
 		const buttonRegister = document.getElementById("btnRegister");
 
-		//const provider = new ethers.providers.Web3Provider(window.ethereum);
-		//const signer = provider.getSigner();
+		const provider = new ethers.providers.Web3Provider(window.ethereum);
+		const signer = provider.getSigner();
 
 		if (!connectedPlayers) return;
 

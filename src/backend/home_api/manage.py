@@ -23,18 +23,18 @@ def main():
         if not User.objects.filter(username='jul').exists():
             User.objects.create_superuser('jul', 'jul@gmail.com', 'jul')
 
-        if not User.objects.filter(username='toukoum').exists():
-            User.objects.create_user('toukoum', 'toukoumcode@gmail.com', 'ekb.UGU0kyr*xaj_tup')
+        if not User.objects.filter(username='1').exists():
+            User.objects.create_user('1', 'toukoumcode@gmail.com', 'Loul')
         
-        if not User.objects.filter(username='raph').exists():
-            User.objects.create_user('raph', 'raphaelgiraud12@gmail.com', 'ekb.UGU0kyr*xaj_tup')
+        if not User.objects.filter(username='2').exists():
+            User.objects.create_user('2', 'raphaelgiraud12@gmail.com', 'Loul')
         
-        if not User.objects.filter(username='raph2').exists():
-            User.objects.create_user('raph2', 'raphaelgiraud13@gmail.com', 'ekb.UGU0kyr*xaj_tup')
+        if not User.objects.filter(username='3').exists():
+            User.objects.create_user('3', 'raphaelgiraud13@gmail.com', 'Loul')
 
         
-        if not User.objects.filter(username='raph3').exists():
-            User.objects.create_user('raph3', 'raphaelgiraud14@gmail.com', 'ekb.UGU0kyr*xaj_tup')
+        if not User.objects.filter(username='4').exists():
+            User.objects.create_user('4', 'raphaelgiraud14@gmail.com', 'Loul')
 
 
 

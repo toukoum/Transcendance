@@ -1,8 +1,10 @@
 import { BaseScreen } from "./BaseScreen.js";
-
+import { Toast } from "../../../../../../provider/toast-provider.js";
+import { ABITournament } from "../../../../../../../constante/constanteBC.js";
+import { api } from "../../../../../../utils/api/Api.js";
 export class FinishedScreen extends BaseScreen {
-    enter() {
-        // add modals 
+	enter() {
+		// add modals 
 		this.element = document.createElement("div");
 		this.element.id = "finished-screen";
 		this.game.container.appendChild(this.element);
@@ -35,13 +37,95 @@ export class FinishedScreen extends BaseScreen {
 							<div>${this.game.serverData.player_2.score}</div>
 						</div>
 					</div>
-					${this.game.serverData.match.tournament ? /*html*/`
-						<button onclick="(() => window.location.href='/tournaments/' + ${this.game.serverData.match.tournament})()" type="button" class="btn btn-primary">Continue Tournament</button>
-					` : /*html*/`
-						<link-component href="/play" type="button" class="btn btn-primary">Play Again</link-component>
-					`}
+					<div id="winCondition">
+
+					</div>
 				</div>
 			</div>
 		`);
-    }
+
+		const diCondition = document.getElementById("winCondition");
+		const tournamentId = this.game.serverData.match.tournament;
+
+		console.log("TOURNAMENT:::::::::", this.game.serverData.match.tournament);
+
+		console.log("TOurnament ID: ", tournamentId);
+
+		const buttonWin = document.createElement("button");
+		buttonWin.classList.add("btn", "btn-primary");
+		buttonWin.textContent = "Continue the tournament";
+
+
+		const getUsernameWinner = () => {
+			if (this.game.serverData.player_1.score > this.game.serverData.player_2.score) {
+				return this.game.serverData.player_1.user.username;
+			}
+			return this.game.serverData.player_2.user.username;
+		}
+
+
+		let provider;
+		let signer;
+		let contract;
+		const getValues = async () => {
+			try {
+				const { data, error } = await api.request.get(
+					`tournaments/${tournamentId}/`
+				);
+				console.log(data);
+				contract = new ethers.Contract(data.address_tournament, ABITournament, signer);
+				console.log(contract);
+			} catch (error) {
+				console.error(error);
+			}
+		};
+
+		const connectWallet = async () => {
+			try {
+				if (typeof window.ethereum === 'undefined') {
+					alert("MetaMask n'est pas installé !");
+					return;
+				}
+				console.log("Connexion au portefeuille en cours...");
+				const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+				console.log("Connecté avec le compte:", accounts[0]);
+				provider = new ethers.providers.Web3Provider(window.ethereum);
+				const balance = await provider.getBalance(accounts[0]);
+				console.log("Balance:", ethers.utils.formatEther(balance), "ETH");
+				signer = provider.getSigner();
+				getValues();
+			} catch (error) {
+				console.error("Erreur lors de la connexion au portefeuille:", error);
+			}
+		};
+
+		if (window.auth.profile.publicKey !== "") {
+			connectWallet();
+		}
+
+		const winTT = async () => {
+			const contractWithWallet = contract.connect(signer);
+			const tx = await contractWithWallet.setWinner();
+			await tx.wait();
+			console.log(tx);
+			Toast.success("Transaction passed:\n" + tx.hash);
+		}
+		if (!this.game.serverData.match.tournament)
+			diCondition.innerHTML = `<link-component href="/play" type="button" class="btn btn-primary">Play Again</link-component>`;
+		else if (getUsernameWinner() === window.auth.username) {
+			diCondition.appendChild(buttonWin);
+			diCondition.addEventListener("click", async () => {
+				try {
+					await winTT();
+					window.location.href = '/tournaments/' + this.game.serverData.match.tournament;
+				}
+				catch (error) {
+					console.log(error);
+					Toast.error("Revert: Player already win or not enought player");
+				}
+			});
+		}
+		else
+			window.location.href = '/tournaments/' + this.game.serverData.match.tournament;
+	}
 }

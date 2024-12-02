@@ -4,9 +4,14 @@ import { Toast } from "../../provider/toast-provider.js";
 
 export class TournamentsJoin extends Component {
   content() {
+
+    const canJoin = !!window.auth.profile.publicKey;
+
     return /*html*/ `
       <main-layout>
-        <div class="wrapper">
+
+        ${canJoin ? 
+        `<div class="wrapper">
           <div class="join-container">
             <h1 class="title">Join Tournament</h1>
             <form id="join-form" class="join-form">
@@ -17,7 +22,10 @@ export class TournamentsJoin extends Component {
               <button type="submit" class="btn btn-primary">Join</button>
             </form>
           </div>
-        </div>
+        </div>`
+        :
+        `<div> Connect your Wallet in setting First </div>`
+        }
       </main-layout>
     `;
   }
@@ -97,6 +105,8 @@ export class TournamentsJoin extends Component {
   async script() {
     const tournamentId = parseInt(this.getAttribute("id"));
     const joinForm = document.getElementById("join-form");
+    
+    console.log("LE user peut join: ", canJoin);
 
     joinForm.addEventListener("submit", async (e) => {
       e.preventDefault();

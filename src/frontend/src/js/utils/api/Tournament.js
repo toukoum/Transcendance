@@ -17,8 +17,9 @@ export class Tournament {
 	async create(config = {
 		duration,
 		maxScore,
-		tournamentName,
-		pseudoCreator
+		name,
+		pseudoCreator,
+		address_tournament
 	}) {
 		return await this.api.request.post("tournaments/", config);
 	}
