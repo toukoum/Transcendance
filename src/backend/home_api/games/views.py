@@ -5,9 +5,9 @@ from asgiref.sync import async_to_sync
 
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
-from games.models import Match, MatchPlayer, MatchLocal
+from games.models import Match, MatchPlayer
 
-from games.serializers import MatchSerializer, MatchCreateSerializer, MatchLocalSerializer
+from games.serializers import MatchSerializer, MatchCreateSerializer
 
 from django.contrib.auth.models import User
 from rest_framework.views import APIView
@@ -25,26 +25,6 @@ class MatchViewSet(BaseViewSet):
 	def get_queryset(self):
 		user_id = self.request.user.id
 		return Match.objects.filter(match_players__user=user_id).order_by('-created_at')
-	
-
-class MatchLocalViewSet(BaseViewSet):
-	serializer_class = MatchLocalSerializer
-	
-	permission_classes = [IsAuthenticated]
-	
-	def get_queryset(self):
-		user_id = self.request.user.id
-		return MatchLocal.objects.filter(user=user_id)
-
-	def create(self, request, *args, **kwargs):
-			serializer = self.get_serializer(data=request.data)
-			serializer.is_valid(raise_exception=True)
-
-			# Appelle la méthode de création sur le serializer
-			match = serializer.save(user=request.user)
-
-			# Personnalise la réponse si nécessaire
-			return format_response(data=MatchLocalSerializer(match).data, status=201)
 
 
 

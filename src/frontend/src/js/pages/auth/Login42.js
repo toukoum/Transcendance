@@ -15,9 +15,7 @@ export class Login42 extends Component {
 	async redirect42(state, code){
 		try{
 			const { data, error } = await api.request.get(`auth/42/callback/?state=${state}&code=${code}`);
-			console.log("DATAAA", data)
 			if (error) throw error;
-
 			window.auth = data;
 			window.router.redirect("/");
 		}catch(error){

@@ -23,7 +23,7 @@ from rest_framework.routers import DefaultRouter
 
 from users.views import UserViewSet
 from friends.views import FriendshipViewSet
-from games.views import MatchViewSet, MatchLocalViewSet
+from games.views import MatchViewSet
 from tournaments.views import TournamentViewSet
 
 router = DefaultRouter()
@@ -31,7 +31,6 @@ router = DefaultRouter()
 router.register(r'users', UserViewSet, basename='users')
 router.register(r'friends', FriendshipViewSet, basename='friends')
 router.register(r'games', MatchViewSet, basename='games')
-router.register(r'local_games', MatchLocalViewSet, basename='local_games')
 router.register(r'tournaments', TournamentViewSet, basename='tournaments')
 
 urlpatterns = [

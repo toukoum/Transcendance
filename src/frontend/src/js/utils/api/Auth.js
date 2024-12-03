@@ -54,7 +54,6 @@ export class Auth {
 	 * @brief Logout the user
 	 */
 	async logout() {
-		// console.log("Logging out");
 		return await this.api.request.post("auth/logout/");
 	}
 
