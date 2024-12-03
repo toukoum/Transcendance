@@ -33,6 +33,7 @@ export class LocalRunner {
 			throw new Error("[Game: Local] Game instance is required");
 		}
 		this.game = game;
+		this.isRunning = false;
 		this.duration = this.game.settings.duration || 60;
 		this.difficulty = this.game.settings.difficulty || 'medium';
 
@@ -83,6 +84,7 @@ export class LocalRunner {
 	}
 
 	async run() {
+		this.isRunning = true;
 		while (!this.isGameOver()) {
 			this.ball.reset();
 			this.player_1.paddle.reset();
@@ -90,6 +92,9 @@ export class LocalRunner {
 
 
 			const round_winner = await this.playRound();
+			if (!this.isRunning) {
+				return;
+			}
 			if (!round_winner) {
 				break;
 			}
@@ -115,6 +120,9 @@ export class LocalRunner {
 		let last_time = this.getTime();
 
 		while (!winner) {
+			if (!this.isRunning) {
+				return null;
+			}
 			if (this.isGameOver()) {
 				return null;
 			}
@@ -223,6 +231,7 @@ export class LocalRunner {
 	}
 
 	stop() {
+		this.isRunning = false;
 		// Stop the game
 	}
 }
