@@ -111,7 +111,7 @@ export class FinishedScreen extends BaseScreen {
 			diCondition.addEventListener("click", async () => {
 				try {
 					await winTT();
-					window.location.href = '/tournaments/' + this.game.serverData.match.tournament;
+					window.location.href = `/tournaments/${this.game.serverData.match.tournament}`
 				}
 				catch (error) {
 					// console.log(error);
@@ -120,6 +120,6 @@ export class FinishedScreen extends BaseScreen {
 			});
 		}
 		else
-			window.location.href = '/tournaments/' + this.game.serverData.match.tournament;
+			window.location.href = `/tournaments/${this.game.serverData.match.tournament}`;
 	}
 }

@@ -107,7 +107,7 @@ export class TournamentsJoin extends Component {
 		settings.classList.add("btn", "btn-primary");
 		feur.appendChild(settings);
 		settings.addEventListener("click", () => {
-			window.location.href = "/settings/web3";
+			window.router.push("/settings/web3");
 		});
 		return;
 	}

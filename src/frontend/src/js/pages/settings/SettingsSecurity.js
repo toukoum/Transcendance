@@ -142,6 +142,7 @@ export class SettingsSecurity extends Component {
 				if (error) throw error;
 				Toast.success(data.message);
 				Toast.success("2FA activated successfully");
+				window.location.reload();
 			} catch (error) {
 				console.error(error);
 				Toast.error("An error occurred while activating 2FA");

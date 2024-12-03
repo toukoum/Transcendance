@@ -65,7 +65,7 @@ export class Login extends Component {
 		 			</div>
 		 			<!-- Signup -->
 					<div class="d-flex justify-content-center">
-		 				Don't have an account? <a href="/auth/signup" class="text-decoration-none"> Signup</a>
+		 				Don't have an account? <link-component href="/auth/signup" class="text-decoration-none"> Signup</link-component>
 		 			</div>
 				</div>
 			</div>
@@ -97,7 +97,7 @@ export class Login extends Component {
 					code: otp,
 				});
 				if (error) throw error;
-				window.location.href = redirectTo || "/";
+				window.router.push(redirectTo || "/");
 			} catch (error) {
 				if (error instanceof ApiRequestError) {
 					console.error(error.message);

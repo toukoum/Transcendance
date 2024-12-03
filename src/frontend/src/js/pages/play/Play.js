@@ -515,7 +515,7 @@ export class Play extends Component {
 				Toast.success("Game created successfully");
 				window.router.push(`/play/${data.id}`);
 			} catch (error) {
-				console.error(error);
+				// console.error(error);
 				if (error instanceof ApiRequestError) {
 					Toast.error(error.message);
 				} else if (error instanceof zod.ZodError) {
@@ -567,7 +567,7 @@ export class Play extends Component {
 				Toast.success("Game joined successfully");
 				window.router.push(`/play/${data.id}`);
 			} catch (error) {
-				console.error(error);
+				// console.error(error);
 				if (error instanceof ApiRequestError) {
 					Toast.error(error.message);
 				} else if (error instanceof zod.ZodError) {
@@ -699,7 +699,7 @@ export class Play extends Component {
 				modalInstance.hide();
 				window.router.push(`/tournaments/lobby/${data.id}`);
 			} catch (error) {
-				console.error(error);
+				// console.error(error);
 				if (error instanceof ApiRequestError) {
 					Toast.error(error.message);
 				} else if (error instanceof zod.ZodError) {
@@ -791,7 +791,7 @@ export class Play extends Component {
 				// redirect to the game
 				window.router.push(`/play-local?${params.toString()}`);
 			} catch (error) {
-				console.error(error);
+				// console.error(error);
 				if (error instanceof zod.ZodError) {
 					error.errors.forEach(err => {
 						err.path.forEach(path => {

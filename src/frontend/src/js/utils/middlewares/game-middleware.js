@@ -7,7 +7,6 @@ export const gameMiddleware = async (route, next) => {
 		if (error) return console.error(error);
 		if (data) {
 			window.isInGame = data;
-			console.log("User is in a game");
 			if (route.path !== `/play/:id`) {
 				window.router.redirect(`/play/${data.id}`);
 			}

@@ -427,11 +427,6 @@ export class TournamentsLobby extends Component {
 
 				if (data.matches.length > 0) {
 					window.location.href = `/tournaments/${tournamentId}/`;
-					//const { data, error } = await api.request.get(`game/check/`);
-					//if (error) throw error;
-					//console.log("ID GAME :", data.id);
-					//window.location.href = `/tournaments/${data.id}`;
-					//status = true;
 				}
 
 			} catch (error) {

@@ -61,7 +61,7 @@ export class Signup extends Component {
 		 			</div>
 				<!-- Login -->
 				<div class="d-flex justify-content-center">
-					Already have an account? <a href="/auth/login" class="text-decoration-none"> Login</a>
+					Already have an account? <link-component href="/auth/login" class="text-decoration-none"> Login</link-component>
 				</div>
 			</div>
 		</div>
@@ -107,6 +107,7 @@ export class Signup extends Component {
 				})
 				if (error) throw (error);
 				Toast.success("Signup successful. Please login to continue");
+				window.router.push("/auth/login")
 			} catch (error) {
 				console.error(error.message);
 				Toast.error(error.message);

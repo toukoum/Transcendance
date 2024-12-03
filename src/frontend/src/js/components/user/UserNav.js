@@ -13,9 +13,9 @@ export class UserNav extends Component {
 				<li><hr class="dropdown-divider"></li>
 				<li><span id="logout" class="dropdown-item">Sign out</span></li>
 			</ul>
-			<a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+			<link-component href="/user/${user.username}" class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
 				<img src="${user.profile.avatar}" alt="mdo" class="pdp">
-			</a>
+			</link-component>
 		</div>
 		`);
 	}
