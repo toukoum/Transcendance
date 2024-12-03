@@ -30,7 +30,6 @@ export class TournamentsLobby extends Component {
 						<div id="titleRegister">
 							<h2>Players in Tournament</h2>
 							<button class="btn btn-primary" id="btnRegister">Register</button>
-							<button class="btn btn-primary" id="btnWin">Win</button>
 						</div>
 						<div class="connected-players"></div>
 						<div class="bottom-right">
@@ -451,7 +450,6 @@ export class TournamentsLobby extends Component {
 		let contract;
 		const tounamentId = parseInt(this.getAttribute("id"));
 		const buttonRegister = document.getElementById("btnRegister");
-		const buttonWin = document.getElementById("btnWin");
 
 		const getValues = async () => {
 			try {
@@ -501,22 +499,6 @@ export class TournamentsLobby extends Component {
 				Toast.error("Revert: Player already registered");
 			}
 		});
-
-		buttonWin.addEventListener("click", async () => {
-			try {
-				const contractWithWallet = contract.connect(signer);
-				const tx = await contractWithWallet.setWinner();
-				await tx.wait();
-				console.log(tx);
-				Toast.success("Transaction passed:\n" + tx.hash);
-			}
-			catch (error) {
-				console.log(error);
-				Toast.error("Revert: Player already win or not enought player");
-			}
-		});
-
-
 
 		const tournamentId = parseInt(this.getAttribute("id"));
 

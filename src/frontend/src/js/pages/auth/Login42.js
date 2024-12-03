@@ -32,7 +32,7 @@ export class Login42 extends Component {
 				window.router.redirect("/");
 			}catch(error){
 				console.error(error);
-				Toast.error("An error occurred");
+				Toast.error("Unable to log you with 42.");
 			}
 	});
 

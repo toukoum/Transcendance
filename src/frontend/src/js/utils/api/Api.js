@@ -6,7 +6,7 @@ import { Tournament } from "./Tournament.js";
 
 export class Api {
 	constructor() {
-		this.baseUrl = "https://10.32.7.12:3000/api/v1";
+		this.baseUrl = "https://10.32.8.13:3000/api/v1";
 		this.auth = new Auth(this);
 		this.request = new ApiRequest(this);
 		this.me = new Me(this);

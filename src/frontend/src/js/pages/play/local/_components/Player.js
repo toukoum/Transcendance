@@ -5,7 +5,7 @@ export class Player {
 				id: Math.floor(Math.random() * 1000),
 				username: pseudo,
 				email: null,
-				avatar: 'https://10.32.7.12:3000/media/avatars/defaultPicture.jpg'
+				avatar: 'https://10.32.8.13:3000/media/avatars/defaultPicture.jpg'
 			},
 			state: "connected",
 			score: 0,
