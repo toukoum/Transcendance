@@ -21,7 +21,7 @@ export class RoundWinnerComponent {
         if (!this.element) this.init();
 
         this.element.innerHTML = `
-            <span style="display: block; font-size: 2rem;">${winner.user.username} a marqué !</span>
+            <span style="display: block; font-size: 2rem;">${winner.user.username} a marqué</span>
             <span style="font-size: 5rem; font-weight: bold;">GOAL!</span>
         `;
 

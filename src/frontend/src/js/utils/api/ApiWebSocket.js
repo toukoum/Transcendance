@@ -19,21 +19,18 @@ export class ApiWebSocket {
 		}
 		this.socket = new WebSocket(`${this.baseUrl}/${endpoint}`);
 		this.socket.onopen = () => {
-			console.log(`WebSocket connected to ${this.baseUrl}/${endpoint}`);
+			// console.log(`WebSocket connected to ${this.baseUrl}/${endpoint}`);
 			this.isConnected = true;
 			this.emit("open");
 		}
 		this.socket.onmessage = (event) => {
-			// console.log(`WebSocket message`, event.data);
 			this.emit("message", JSON.parse(event.data));
 		}
 		this.socket.onclose = () => {
-			// console.log(`WebSocket closed`);
 			this.isConnected = false;
 			this.emit("close");
 		}
 		this.socket.onerror = (error) => {
-			console.error(`WebSocket error`, error);
 			this.emit("error", error);
 		}
 	}

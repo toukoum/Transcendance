@@ -45,7 +45,7 @@ export class App {
 				new Route("/tournaments/join/:id", "tournaments-join-page"),
 
 				// Secret
-				new Route("/e139rj19ns93r1p9s9m48m98se93183r2m989fsefm398", "secret-page"),
+				new Route("/7NGjdgKWmo7bQpSgdRN5ADNjAPQpJm5l1vRqzKP4lt8=", "secret-page"),
         
 				// 404
 				new Route("", "not-found-page"),

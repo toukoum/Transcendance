@@ -1,13 +1,6 @@
 import { Component } from "../utils/Component.js";
 
-export class MainLayout extends Component {
-	// constructor() {
-	// 	super();
-	// 	// this.classList.add("container-fluid", "d-flex", "flex-row", "h-100", "p-0");
-	// 	// this.classList.add("h-100");
-	// 	// this.classList.add("overflow-hidden");
-	// }
-	
+export class MainLayout extends Component {	
 	content() {
 		const isLogged = !!window.auth;
 
@@ -22,8 +15,6 @@ export class MainLayout extends Component {
 		<toast-provider/>
 		`);
 	}
-
-
 }
 
 customElements.define("main-layout", MainLayout);

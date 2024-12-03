@@ -4,6 +4,11 @@ import { Dashboard } from "./_components/Dashboard.js";
 export class Home extends Component {
   constructor() {
     super("main-layout");
+
+    this.sequence = [];
+    this.expectedSequence = ["s", "e", "c", "r", "e", "t"];
+    this.maxDelay = 10000;
+    this.timeout = null;
   }
 
   content() {
@@ -89,6 +94,50 @@ export class Home extends Component {
         }
       </style>
     `;
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    this.startListeningForSecret();
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.stopListeningForSecret();
+  }
+
+  startListeningForSecret() {
+    this.onKeyPress = this.handleKeyPress.bind(this);
+    window.addEventListener("keydown", this.onKeyPress);
+  }
+
+  stopListeningForSecret() {
+    window.removeEventListener("keydown", this.onKeyPress);
+    this.resetSequence();
+  }
+
+  handleKeyPress(event) {
+    const key = event.key.toLowerCase();
+    this.sequence.push(key);
+
+    if (this.timeout) clearTimeout(this.timeout);
+
+    this.timeout = setTimeout(() => {
+      this.resetSequence();
+    }, this.maxDelay);
+
+    if (this.sequence.join("") === this.expectedSequence.join("")) {
+      this.resetSequence();
+      window.router.push("/7NGjdgKWmo7bQpSgdRN5ADNjAPQpJm5l1vRqzKP4lt8=");
+    } else if (!this.expectedSequence.slice(0, this.sequence.length).every((k, i) => k === this.sequence[i])) {
+      this.resetSequence();
+    }
+  }
+
+  resetSequence() {
+    this.sequence = [];
+    if (this.timeout) clearTimeout(this.timeout);
+    this.timeout = null;
   }
 }
 

@@ -766,7 +766,6 @@ export class Play extends Component {
 					pseudoPlayer1,
 					pseudoPlayer2
 				} = Object.fromEntries(formData.entries());
-				console.log(durationLocal, maxScoreLocal, pseudoPlayer1, pseudoPlayer2);
 
 				schemaLocal.parse({
 					durationLocal: durationLocal === "" ? null : parseInt(durationLocal),
