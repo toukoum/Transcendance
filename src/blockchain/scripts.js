@@ -70,7 +70,7 @@ const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3'
 const connectWallet = async () => {
 	try {
 		if (typeof window.ethereum === 'undefined') {
-			alert("MetaMask n'est pas installé !");
+			alert("Your wallet is not installed !");
 			return;
 		}
 		if (sessionStorage.getItem("isConnected")) {

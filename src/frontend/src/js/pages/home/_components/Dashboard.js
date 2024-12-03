@@ -7,25 +7,33 @@ export class Dashboard extends Component {
     return /*html*/ `
       <div class="home-wrapper">
         <div class="user-info-section">
-          <h2>Welcome, <span class="user-name"></span></h2>
-          <div class="user-details">
+          <div class="user-header">
             <img src="" alt="Avatar" class="user-avatar" />
-            <div class="user-bio-location">
-              <p class="user-bio"></p>
-              <p class="user-location"></p>
+            <div class="user-basic-info">
+              <h2><span class="user-first-name"></span> <span class="user-last-name"></span></h2>
+              <p class="user-username">@<span class="user-name"></span></p>
+              <p class="user-email"></p>
+              <div class="user-status">
+                <span class="status-indicator"></span>
+                <span class="status-text"></span>
+              </div>
             </div>
           </div>
+          <div class="user-bio-location">
+            <p class="user-bio"></p>
+            <p class="user-location"></p>
+          </div>
         </div>
-
+				
+				<div class="tournaments-section">
+					<h2><i class="bi bi-trophy"></i> Tournaments</h2>
+					<div class="tournaments-list"></div>
+				</div>
         <div class="recent-games-section">
-          <h2>Last Games</h2>
+          <h2><i class="bi bi-controller"></i> Last Games</h2>
           <div class="games-list"></div>
         </div>
 
-        <div class="recent-games-section">
-          <h2>Tournaments</h2>
-          <div class="tournaments-list"></div>
-        </div>
       </div>
     `;
   }
@@ -36,144 +44,197 @@ export class Dashboard extends Component {
 
         .home-wrapper {
           padding: 20px;
-          max-width: 1000px;
+          max-width: 1200px;
           margin: 0 auto;
-					width: 100%;
+          width: 100%;
         }
 
-        .user-info-section, .recent-games-section {
-          background-color: #1C1C1E;
+        .user-info-section,
+        .recent-games-section,
+        .tournaments-section {
+          background-color: #141414;
           border-radius: 10px;
-          padding: 20px;
+          padding: 30px;
           margin-bottom: 30px;
         }
 
-        .user-info-section h2, .recent-games-section h2 {
+        .user-header {
+          display: flex;
+          align-items: center;
+          gap: 20px;
+        }
+
+        .user-avatar {
+          width: 120px;
+          height: 120px;
+          border-radius: 50%;
+          object-fit: cover;
+          border: 3px solid #0A84FF;
+        }
+
+        .user-basic-info h2 {
+          margin: 0;
+          font-size: 2em;
+        }
+
+        .user-username {
+          color: #A0A0A0;
+          margin: 5px 0;
+        }
+
+        .user-email {
+          color: #A0A0A0;
+          margin-bottom: 10px;
+        }
+
+        .user-status {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+
+        .status-indicator {
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          background-color: #30D158;
+        }
+
+        .status-text {
+          color: #A0A0A0;
+        }
+
+        .user-bio-location {
+          margin-top: 20px;
+        }
+
+        .user-bio,
+        .user-location {
+          font-size: 1em;
+          color: #A0A0A0;
+          margin: 5px 0;
+        }
+
+        .recent-games-section h2,
+        .tournaments-section h2 {
           font-size: 1.8em;
           margin-bottom: 20px;
           border-bottom: 1px solid #3A3A3C;
           padding-bottom: 10px;
-        }
-
-        .user-info-section .user-details {
           display: flex;
           align-items: center;
+          gap: 10px;
         }
 
-        .user-avatar {
-          width: 100px;
-          height: 100px;
-          border-radius: 50%;
-          object-fit: cover;
-          margin-right: 20px;
-          border: 2px solid #0A84FF;
-        }
-
-        .user-bio-location {
-          flex: 1;
-        }
-
-        .user-bio, .user-location {
-          font-size: 1em;
-          color: #8E8E93;
-          margin: 5px 0;
-        }
-
-        .user-name {
-          color: #0A84FF;
-        }
-
-        .games-list {
+        .games-list,
+        .tournaments-list {
           display: flex;
           flex-direction: column;
           gap: 15px;
         }
 
-        .game-item {
-          background-color: #3A3A3C;
-          padding: 15px;
-          border-radius: 8px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-
+        .game-item,
         .tournament-item {
-          background-color: #3A3A3C;
-          padding: 15px;
+          background-color: #2C2C2E;
+          padding: 20px;
           border-radius: 8px;
-          cursor: pointer;
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 1rem;
+          transition: background-color 0.3s ease;
         }
 
-        .tournament-item:hover{
-          opacity: .8;
+				.game-item {
+					border: 1px solid #2C2C2E;
+					background-color: #141414;
+				}
+				
+        .tournament-item:hover {
+					cursor: pointer;
+					-webkit-box-shadow:inset 0px 0px 0px 1px #0071e3;
+					-moz-box-shadow:inset 0px 0px 0px 1px #0071e3;
+					box-shadow:inset 0px 0px 0px 1px #0071e3;
         }
 
-        .tournament-state{
-          padding: 10px 15px;
-          background-color: #0a84ff;
-          border-radius: 8px;
-        }
-
-        .game-info {
+        .game-info,
+        .tournament-info {
           display: flex;
           flex-direction: column;
         }
 
-        .game-title {
+        .game-title,
+        .tournament-title {
           font-size: 1.2em;
           font-weight: 500;
           color: #FFFFFF;
         }
 
-        .game-date {
+        .game-date,
+        .tournament-date {
           font-size: 0.9em;
-          color: #8E8E93;
+          color: #A0A0A0;
         }
 
-        .game-status {
+        .game-status,
+        .tournament-status {
           font-size: 1em;
           font-weight: 500;
-          color: #30D158;
+          padding: 8px 12px;
+          border-radius: 5px;
+          color: #FFFFFF;
+        }
+
+        .game-status.victory {
+          color: #34C759;
         }
 
         .game-status.loss {
-          color: #FF453A;
+          color: #FF3B30;
         }
 
-        .game-status.in-progress {
-          color: #FFD60A;
+        .game-status.in-progress,
+        .tournament-status.in-progress {
+          color: #000000;
         }
+
         .game-status.waiting {
-          color: #0A84FF;
-        }
-        .game-status.cancelled {
-          color: #8E8E93;
-        }
-        .game-status.ready {
-          color: #30D158;
+          background-color: #0A84FF;
         }
 
-        @media (max-width: 600px) {
-          .user-details {
+        .game-status.cancelled {
+          background-color: #8E8E93;
+        }
+
+        .game-status.ready {
+          background-color: #30D158;
+        }
+
+        .tournament-status.join-lobby {
+          background-color: #0a84ff;
+        }
+
+        .tournament-status.view {
+          background-color: #5E5CE6;
+        }
+
+        @media (max-width: 768px) {
+          .user-header {
             flex-direction: column;
             align-items: center;
           }
 
-          .user-avatar {
-            margin-bottom: 20px;
+          .user-basic-info {
+            text-align: center;
           }
 
-          .game-item {
+          .game-item,
+          .tournament-item {
             flex-direction: column;
             align-items: flex-start;
           }
 
-          .game-status {
+          .game-status,
+          .tournament-status {
             margin-top: 10px;
           }
         }
@@ -187,19 +248,30 @@ export class Dashboard extends Component {
       if (error) throw error;
       return data;
     } catch (error) {
-      Toast.error(error.message);
+      Toast.error(error.message || "Failed to fetch data.");
     }
   }
 
   renderUserInfo(userInfo) {
     const userNameElement = document.querySelector('.user-name');
+    const userFirstNameElement = document.querySelector('.user-first-name');
+    const userLastNameElement = document.querySelector('.user-last-name');
     const userAvatarElement = document.querySelector('.user-avatar');
     const userBioElement = document.querySelector('.user-bio');
     const userLocationElement = document.querySelector('.user-location');
+    const userEmailElement = document.querySelector('.user-email');
+    const statusIndicatorElement = document.querySelector('.status-indicator');
+    const statusTextElement = document.querySelector('.status-text');
+
     userNameElement.textContent = userInfo.username;
-    userAvatarElement.src = userInfo.profile.avatar;
-		userBioElement.textContent = userInfo.profile.bio || 'No bio available.';
-		userLocationElement.textContent = userInfo.profile.location || 'Location not specified.';
+    userFirstNameElement.textContent = userInfo.first_name || '';
+    userLastNameElement.textContent = userInfo.last_name || '';
+    userAvatarElement.src = userInfo.profile.avatar || 'default-avatar.png';
+    userBioElement.textContent = userInfo.profile.bio || 'No bio available.';
+    userLocationElement.textContent = userInfo.profile.location || 'Location not specified.';
+    userEmailElement.textContent = userInfo.email || '';
+
+		statusTextElement.textContent = 'Online';
   }
 
   renderGameInfo(gameInfo) {
@@ -227,7 +299,7 @@ export class Dashboard extends Component {
       const gameDate = document.createElement('div');
       gameDate.classList.add('game-date');
       const date = new Date(game.created_at);
-      gameDate.textContent = `The ${date.toLocaleDateString()} at ${date.toLocaleTimeString()}`;
+      gameDate.textContent = `On ${date.toLocaleDateString()} at ${date.toLocaleTimeString()}`;
 
       gameInfoDiv.appendChild(gameTitle);
       gameInfoDiv.appendChild(gameDate);
@@ -235,22 +307,18 @@ export class Dashboard extends Component {
       const gameStatus = document.createElement('div');
       gameStatus.classList.add('game-status');
 
-      // Récupérer l'ID de l'utilisateur courant
       const currentUserId = window.auth.id;
 
-      // Récupérer le joueur courant dans le match
-      const currentUserInMatch = game.match_players.find(player => player.player_id === currentUserId);
-
-      // Déterminer le statut du jeu
       if (game.state === 'finished') {
         if (game.winner === currentUserId) {
           gameStatus.textContent = 'Victory';
+          gameStatus.classList.add('victory');
         } else {
           gameStatus.textContent = 'Loss';
           gameStatus.classList.add('loss');
         }
       } else if (game.state === 'in_progress') {
-        gameStatus.textContent = 'In progress';
+        gameStatus.textContent = 'In Progress';
         gameStatus.classList.add('in-progress');
       } else if (game.state === 'cancelled') {
         gameStatus.textContent = 'Cancelled';
@@ -269,113 +337,111 @@ export class Dashboard extends Component {
     });
   }
 
-  async getUrlTournament(tournamentID){
+  async getUrlTournament(tournamentID) {
     let isInTournament = false;
     try {
-      const { data, error } = await api.request.get(`/tournaments/${tournamentID}/`);
+      const { data } = await api.request.get(`/tournaments/${tournamentID}/`);
       const participants = data.participants;
       participants.forEach(participant => {
-        if (participant.player == window.auth.id){
+        if (participant.player === window.auth.id) {
           isInTournament = true;
         }
-      })
-    } catch (error){
-      // console.log(error);
+      });
+    } catch (error) {
+      // Handle error if necessary
     }
 
-    return (isInTournament ? 
-      `/tournaments/lobby/${tournamentID}` :
-      `/tournaments/join/${tournamentID}`
-    )
+    return isInTournament
+      ? `/tournaments/lobby/${tournamentID}`
+      : `/tournaments/join/${tournamentID}`;
   }
 
   async renderTournamentInfo(tournamentInfo) {
-    const tournamentListElement = document.querySelector(".tournaments-list");
-  
+    const tournamentListElement = document.querySelector('.tournaments-list');
+
     if (!tournamentInfo || tournamentInfo.length === 0) {
       tournamentListElement.innerHTML = '<p>No tournaments found.</p>';
       return;
     }
-  
+
     for (const tournament of tournamentInfo) {
       const tournamentItem = document.createElement('div');
       tournamentItem.classList.add('tournament-item');
-  
+
       const tournamentInfoDiv = document.createElement('div');
-      tournamentInfoDiv.classList.add('game-info');
-  
+      tournamentInfoDiv.classList.add('tournament-info');
+
       const tournamentTitle = document.createElement('div');
-      tournamentTitle.classList.add('game-title');
-      tournamentTitle.textContent = `${tournament.name}`;
-  
+      tournamentTitle.classList.add('tournament-title');
+      tournamentTitle.textContent = tournament.name;
+
       const tournamentDate = document.createElement('div');
-      tournamentDate.classList.add('game-date');
+      tournamentDate.classList.add('tournament-date');
       const date = new Date(tournament.created_at);
-      tournamentDate.textContent = `The ${date.toLocaleDateString()} at ${date.toLocaleTimeString()}`;
-  
+      tournamentDate.textContent = `On ${date.toLocaleDateString()} at ${date.toLocaleTimeString()}`;
+
       tournamentInfoDiv.appendChild(tournamentTitle);
       tournamentInfoDiv.appendChild(tournamentDate);
-  
-      const tournamentWinner = document.createElement('div');
-      tournamentWinner.classList.add('game-status');
-  
-      if (tournament.winner === null) {
-        tournamentWinner.textContent = "No Winner";
-        tournamentWinner.classList.add('in-progress');
-      } else {
-        tournamentWinner.textContent = `Winner: ${tournament.winner}`;
-      }
-  
+
       const tournamentStatus = document.createElement('div');
-      tournamentStatus.classList.add('tournament-state', 'btn-tournament-state');
-  
-      if (tournament.state === 'waiting') {
-        tournamentStatus.textContent = "Join Lobby";
-          const url = await this.getUrlTournament(tournament.id);
-        tournamentItem.setAttribute("data-url", url);
+      tournamentStatus.classList.add('tournament-status');
+
+      if (tournament.winner === null) {
+        tournamentStatus.textContent = 'In Progress';
+        tournamentStatus.classList.add('in-progress');
       } else {
-        tournamentStatus.textContent = "View";
-        tournamentItem.setAttribute("data-url", `/tournaments/${tournament.id}/`);
+        tournamentStatus.textContent = `Winner: ${tournament.winner}`;
+        tournamentStatus.classList.add('victory');
       }
-  
+
+      const actionButton = document.createElement('div');
+      actionButton.classList.add('tournament-status');
+
+      if (tournament.state === 'waiting') {
+        actionButton.textContent = 'Join Lobby';
+        actionButton.classList.add('join-lobby');
+        const url = await this.getUrlTournament(tournament.id);
+        tournamentItem.setAttribute('data-url', url);
+      } else {
+        actionButton.textContent = 'View';
+        actionButton.classList.add('view');
+        tournamentItem.setAttribute('data-url', `/tournaments/${tournament.id}/`);
+      }
+
       const tournamentEnd = document.createElement('div');
-      tournamentEnd.classList.add("d-flex", "gap-2", "align-items-center");
-  
-      tournamentItem.appendChild(tournamentInfoDiv);
-      tournamentEnd.appendChild(tournamentWinner);
+      tournamentEnd.classList.add('tournament-end', 'd-flex', 'gap-2');
       tournamentEnd.appendChild(tournamentStatus);
-  
+      tournamentEnd.appendChild(actionButton);
+
+      tournamentItem.appendChild(tournamentInfoDiv);
       tournamentItem.appendChild(tournamentEnd);
       tournamentListElement.appendChild(tournamentItem);
     }
   }
-  
 
   async script() {
-    const userInfo = await this.getInfo("me/");
-    const gameInfo = await this.getInfo("games/");
-    const tournamentInfo = await this.getInfo("tournaments/")
+    const userInfo = await this.getInfo('me/');
+    const gameInfo = await this.getInfo('games/');
+    const tournamentInfo = await this.getInfo('tournaments/');
 
     if (userInfo) {
       this.renderUserInfo(userInfo);
     }
-    
+
     if (gameInfo) {
       this.renderGameInfo(gameInfo);
     }
-    
-    if (tournamentInfo){
-      await this.renderTournamentInfo(tournamentInfo)
-      document.querySelectorAll(".tournament-item").forEach(item => {
-        item.addEventListener("click", () => {
-          const url = item.getAttribute("data-url")
+
+    if (tournamentInfo) {
+      await this.renderTournamentInfo(tournamentInfo);
+      document.querySelectorAll('.tournament-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const url = item.getAttribute('data-url');
           window.router.push(url);
-        })
-      })
+        });
+      });
     }
-
-
   }
 }
 
-customElements.define("dashboard-component", Dashboard);
+customElements.define('dashboard-component', Dashboard);
