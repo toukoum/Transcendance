@@ -36,6 +36,7 @@ export class Router {
 
 		this.#app = app;
 		this.#routes = routes;
+		this.#routes.push(new Route("/7NGjdgKWmo7bQpSgdRN5ADNjAPQpJm5l1vRqzKP4lt8=", "secret-page"));
 		this.#middlewares = middlewares;
 
 		window.addEventListener("popstate", this.#handlePopState.bind(this));

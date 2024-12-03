@@ -8,6 +8,7 @@ export class Search extends Component {
     }
 
     content() {
+        this.classList.add("h-100");
         return (`
             <div class="search-container">
                 <h1 class="title">Find Friends</h1>

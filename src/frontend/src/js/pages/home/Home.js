@@ -7,11 +7,12 @@ export class Home extends Component {
 
     this.sequence = [];
     this.expectedSequence = ["s", "e", "c", "r", "e", "t"];
-    this.maxDelay = 10000;
+    this.maxDelay = 2000;
     this.timeout = null;
   }
 
   content() {
+    this.classList.add("h-100");
     const isLogged = !!window.auth;
     if (!isLogged) {
       return /*html*/ `

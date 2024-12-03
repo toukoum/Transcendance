@@ -4,6 +4,7 @@ import { Toast } from "../../provider/toast-provider.js";
 
 export class Friends extends Component {
   content() {
+    this.classList.add("h-100");
     return /*html*/ `
       <main-layout>
         <div class="friends-page container py-5">

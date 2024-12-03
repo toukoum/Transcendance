@@ -5,41 +5,42 @@ import { ABITournament } from "../../../constante/constanteBC.js";
 
 export class TournamentsLobby extends Component {
 	content() {
+		this.classList.add("h-100");
 		const tournamentId = parseInt(this.getAttribute("id"));
 
 		return /*html*/ `
-      <main-layout>
-				<div class="wrapper-all">
-					<h1 class="text-center">Tournament Lobby</h1>
-					<div class="wrapper-lobby">
-						<div class="left-part">
-							<div class="invite-player-list">
-								<h2>Invite Players</h2>
-								<div class="list-users"></div>
-							</div>
-							<form id="invite-player" class="invite-form">
-								<div class="form-group">
-									<label for="username" class="form-label">Username</label>
-									<input type="text" id="username" class="form-control" required />
-								</div>
-								<button type="submit" class="btn btn-success mt-2">Invite Player</button>
-							</form>
+      	<main-layout>
+			<div class="wrapper-all">
+				<h1 class="text-center">Tournament Lobby</h1>
+				<div class="wrapper-lobby">
+					<div class="left-part">
+						<div class="invite-player-list">
+							<h2>Invite Players</h2>
+							<div class="list-users"></div>
 						</div>
-						<div class="right-part">
-							<div id="titleRegister">
-								<h2>Players in Tournament</h2>
-								<button class="btn btn-primary" id="btnRegister">Register</button>
-								<button class="btn btn-primary" id="btnWin">Win</button>
+						<form id="invite-player" class="invite-form">
+							<div class="form-group">
+								<label for="username" class="form-label">Username</label>
+								<input type="text" id="username" class="form-control" required />
 							</div>
-							<div class="connected-players"></div>
-							<div class="bottom-right">
-								<div class="waiting-text">Waiting for other players<span class="dot1">.</span><span class="dot2">.</span><span class="dot3">.</span> <span id="numbers-players-connected"></span></div>
-								<button class="start-btn btn px-2 text-center" disabled>Start Tournament</button>
-							</div>
-							</div>
+							<button type="submit" class="btn btn-success mt-2">Invite Player</button>
+						</form>
 					</div>
+					<div class="right-part">
+						<div id="titleRegister">
+							<h2>Players in Tournament</h2>
+							<button class="btn btn-primary" id="btnRegister">Register</button>
+							<button class="btn btn-primary" id="btnWin">Win</button>
+						</div>
+						<div class="connected-players"></div>
+						<div class="bottom-right">
+							<div class="waiting-text">Waiting for other players<span class="dot1">.</span><span class="dot2">.</span><span class="dot3">.</span> <span id="numbers-players-connected"></span></div>
+							<button class="start-btn btn px-2 text-center" disabled>Start Tournament</button>
+						</div>
+						</div>
 				</div>
-      </main-layout>
+			</div>
+      	</main-layout>
     `;
 	}
 

@@ -5,10 +5,7 @@ export class NotFound extends Component {
 		super("main-layout");
 	}
 	content() {
-		// this.classList.add("d-flex");
-		// this.classList.add("h-100");
-		// this.classList.add("justify-content-center");
-		// this.classList.add("align-items-center");
+		this.classList.add("h-100");
 		return (`
 			<div class="d-flex flex-column justify-content-center align-items-center h-100">
 				<h1>ERROR 404</h1>

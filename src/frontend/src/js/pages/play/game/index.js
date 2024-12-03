@@ -3,6 +3,7 @@ import GameTHREE from "./Game.js";
 
 export class Game extends Component {
 	content() {
+		this.classList.add("h-100");
 		return (/*html*/`
 		<main-layout>
 			<div id="game" class="position-relative d-flex justify-content-center align-items-center">

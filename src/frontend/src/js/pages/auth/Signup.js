@@ -8,6 +8,7 @@ export class Signup extends Component {
 		super("main-layout");
 	}
 	content() {
+		this.classList.add("h-100");
 		return (/*html*/`
 		<div
 		class="h-100 d-flex p-2 justify-content-center align-items-center"

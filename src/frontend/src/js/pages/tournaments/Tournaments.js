@@ -4,6 +4,7 @@ import { Toast } from "../../provider/toast-provider.js";
 
 export class Tournaments extends Component {
   content() {
+    this.classList.add("h-100");
     return /*html*/ `
       <main-layout>
         <div class="wrapper">

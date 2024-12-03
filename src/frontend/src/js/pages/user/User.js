@@ -8,6 +8,7 @@ export class User extends Component {
   }
 
   content() {
+    this.classList.add("h-100");
     return /*html*/ `
       <div class="user-page container py-5">
         <!-- User Information Section -->

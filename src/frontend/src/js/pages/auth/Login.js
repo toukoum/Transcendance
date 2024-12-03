@@ -4,6 +4,7 @@ import { ApiRequestError } from "../../utils/api/parser/ApiRequestError.js";
 import { Component } from "../../utils/Component.js";
 export class Login extends Component {
 	content() {
+		this.classList.add("h-100");
 		return (/*html*/`
 			<main-layout>
 

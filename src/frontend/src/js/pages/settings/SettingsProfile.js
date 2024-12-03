@@ -44,6 +44,7 @@ const schemaProfile = zod.object({
 
 export class SettingsProfile extends Component {
 	content() {
+		this.classList.add("h-100");
 		const user = window.auth;
 		if (!user) window.router.redirect("/auth/login&redirect=/settings/profile");
 		return (/*html*/`

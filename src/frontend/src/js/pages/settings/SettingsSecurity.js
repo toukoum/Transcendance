@@ -24,7 +24,7 @@ const passwordSchema = zod.object({
 
 export class SettingsSecurity extends Component {
 	content() {
-		const user = window.auth;
+		this.classList.add("h-100");
 		return (/*html*/`
 			<settings-layout>
 				<div class="d-flex flex-column gap-3">

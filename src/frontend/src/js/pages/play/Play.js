@@ -154,6 +154,7 @@ const joinSchema = zod.object({
 
 export class Play extends Component {
 	content() {
+		this.classList.add("h-100");
 		return (/*html*/`
 		<main-layout>
 			<div class="container container-md bg-background rounded rounded-3 p-4 my-4 d-flex flex-column gap-2">

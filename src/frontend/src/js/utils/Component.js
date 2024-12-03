@@ -68,13 +68,6 @@ export class Component extends HTMLElement {
 	 * @brief Get the children of the component
 	 */
 	childrens() {
-		// let childrens = "";
-		// if (this.children.length) {
-		// 	for (let i = 0; i < this.children.length; i++) {
-		// 		childrens += this.children[i].outerHTML;
-		// 	}
-		// }
-		// return childrens;
 		return this.innerHTML;
 	}
 }

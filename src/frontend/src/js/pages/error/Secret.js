@@ -2,9 +2,10 @@ import { Component } from "../../utils/Component.js";
 
 export class Secret extends Component {
 	content() {
+		this.classList.add("h-100");
 		return (/*html*/`
 		<main-layout>
-			<div id="dvd-container" class="position-relative" style="height: 100vh;">
+			<div id="dvd-container" class="position-relative">
 				<img id="dvd-animation" src="/public/assets/secret/secret.webp" class="position-absolute" alt="Secret" style="width: 25px;">
 			</div>
 		</main-layout>
@@ -19,6 +20,13 @@ export class Secret extends Component {
 		const speed = 2;
 		const dvd = document.getElementById("dvd-animation");
 		const dvdContainer = document.getElementById("dvd-container");
+		const header = document.querySelector("header");
+		const headerHeight = header ? header.offsetHeight : 0;
+		dvdContainer.style.height = `${window.innerHeight - headerHeight}px`;
+		window.router.addListener(window, "resize", () => {
+			const newAvailableHeight = window.innerHeight - (header ? header.offsetHeight : 0);
+			dvdContainer.style.height = `${newAvailableHeight}px`;
+		});
 		const dvdWidth = dvd.width;
 		const dvdHeight = dvd.height;
 

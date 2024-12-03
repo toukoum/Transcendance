@@ -5,6 +5,7 @@ import { Component } from "../../utils/Component.js";
 
 export class Login42 extends Component {
 	content() {
+		this.classList.add("h-100");
 		return (/*html*/`
 			<main-layout>
 				<div class="wrapper d-flex flex-column gap-3 justify-content-center align-items-center" style="height: 300px;">

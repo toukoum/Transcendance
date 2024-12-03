@@ -4,6 +4,7 @@ import { api } from "../../utils/api/Api.js";
 
 export class SettingsWeb3 extends Component {
   content() {
+    this.classList.add("h-100");
     return /*html*/ `
       <settings-layout>
         <div class="d-flex flex-column gap-3">
