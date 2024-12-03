@@ -25,8 +25,10 @@ export class PlayLocal extends Component {
 
 		const urlParams = new URLSearchParams(window.location.search);
 
-		const duration = urlParams.get("duration") || 60;
-		const maxScore = urlParams.get("maxScore") || null;
+		let duration = parseInt(urlParams.get("duration") || 60);
+		if (duration < 0) duration = 60;
+		const maxScore = parseInt(urlParams.get("maxScore")) || null;
+		if (maxScore < 0) maxScore = null;
 		const map = urlParams.get("map") || "default";
 		const difficulty = urlParams.get("difficulty") || "medium";
 		const player1 = urlParams.get("player1") || "Player 1";

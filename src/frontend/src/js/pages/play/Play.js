@@ -339,9 +339,9 @@ export class Play extends Component {
 								<small id="durationLocal-error" class="form-text text-danger" style="display: none;"></small>
 							</div>
 							<!-- Max Score -->
-							<div class="form-group d-none">
+							<div class="form-group">
 								<label for="maxScoreLocal">Max Score</label>
-								<input type="number" id="maxScoreLocal" class="form-control" name="maxScoreLocal" value="" placeholder="Max Score" readonly>
+								<input type="number" id="maxScoreLocal" class="form-control" name="maxScoreLocal" value="" placeholder="Max Score">
 								<small id="maxScoreLocal-error" class="form-text text-danger" style="display: none;"></small>
 							</div>
 							<!-- MAP Select -->

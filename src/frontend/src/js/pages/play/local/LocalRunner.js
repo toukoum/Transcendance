@@ -34,14 +34,13 @@ export class LocalRunner {
 		}
 		this.game = game;
 		this.isRunning = false;
-		this.duration = this.game.settings.duration || 60;
-		this.difficulty = this.game.settings.difficulty || 'medium';
 
 		this.match = {
 			id: null,
 			state: "created",
 			duration: this.game.settings.duration,
-			maxScore: this.game.settings.maxScore,
+			maxScore: this.game.settings.maxScore || null,
+			difficulty: this.game.settings.difficulty || 'medium',
 			map: this.game.settings.map,
 			started_at: null,
 		}
@@ -65,11 +64,11 @@ export class LocalRunner {
 			console.error("[Game: Local] Game is already initialized");
 			return;
 		}
-		this.ball = new Ball(BALL_ACCELERATION_FACTOR[this.difficulty], this.difficulty == 'hard' ? BALL_MAX_SPEED.hard : this.difficulty == 'easy' ? BALL_MAX_SPEED.easy : BALL_MAX_SPEED.medium);
+		this.ball = new Ball(BALL_ACCELERATION_FACTOR[this.match.difficulty], this.match.difficulty == 'hard' ? BALL_MAX_SPEED.hard : this.match.difficulty == 'easy' ? BALL_MAX_SPEED.easy : BALL_MAX_SPEED.medium);
 		this.player_1 = new Player(this.game.settings.player1);
 		this.player_2 = new Player(this.game.settings.player2);
-		this.player_1.paddle = new Paddle((-FIELD_WIDTH / 2) - (PADDLE_WIDTH / 2), 0, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_SPEED[this.difficulty]);
-		this.player_2.paddle = new Paddle((FIELD_WIDTH / 2) + (PADDLE_WIDTH / 2), 0, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_SPEED[this.difficulty]);
+		this.player_1.paddle = new Paddle((-FIELD_WIDTH / 2) - (PADDLE_WIDTH / 2), 0, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_SPEED[this.match.difficulty]);
+		this.player_2.paddle = new Paddle((FIELD_WIDTH / 2) + (PADDLE_WIDTH / 2), 0, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_SPEED[this.match.difficulty]);
 		this.isInitialized = true;
 		this.send_state();
 	}
@@ -206,11 +205,11 @@ export class LocalRunner {
 			return true;
 		}
 		if (this.match.maxScore) {
-			if (this.player_1.score >= this.match.maxScore || this.player_2.score >= this.match.maxScore) {
+			if (this.player_1.player.score >= this.match.maxScore || this.player_2.player.score >= this.match.maxScore) {
 				return true;
 			}
 		}
-		if (this.duration && this.elapsed_time >= this.duration) {
+		if (this.match.duration && this.elapsed_time >= this.match.duration) {
 			if (this.player_1.player.score != this.player_2.player.score) {
 				return true;
 			} else {
