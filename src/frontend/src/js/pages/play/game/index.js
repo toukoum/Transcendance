@@ -43,6 +43,14 @@ export class Game extends Component {
 		window.game = new GameTHREE(settings);
 		window.game.start();
 	}
+
+	disconnectedCallback() {
+		if (window.game) {
+			window.game.stop();
+			window.game = null;
+		}
+		super.disconnectedCallback();
+	}
 }
 
 customElements.define("play-game-page", Game);

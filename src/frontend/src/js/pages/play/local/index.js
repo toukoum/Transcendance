@@ -48,8 +48,16 @@ export class PlayLocal extends Component {
 			player1,
 			player2
 		}
-		const game = new GameLocal(settings);
-		game.start();
+		window.game = new GameLocal(settings);
+		window.game.start();
+	}
+
+	disconnectedCallback() {
+		if (window.game) {
+			window.game.stop();
+			window.game = null;
+		}
+		super.disconnectedCallback();
 	}
 }
 

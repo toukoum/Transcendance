@@ -1,5 +1,9 @@
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.170.0/+esm';
-import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.124/examples/jsm/controls/OrbitControls.js';
+import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+
 import Game from "../../Game.js";
 import { Field } from './Field.js';
 // import { ServerData } from './ServerData.js';
@@ -32,20 +36,30 @@ export class Scene {
 		this.camera.position.set(this.game.settings.camera.position.x, this.game.settings.camera.position.y, this.game.settings.camera.position.z);
 		this.renderer.setPixelRatio(window.devicePixelRatio);
 		this.renderer.setClearColor(0x000029, 0.25);
-		// this.renderer.setSize(500, 500);
-		// this.renderer.setSize(window.innerWidth, window.innerHeight);
-		// this.renderer.setSize(this.game.settings.scene.width, this.game.settings.scene.height);
-		this.resize();
 		this.renderer.setClearColor(0x000029, 0.25);
+	
+		this.renderPass = new RenderPass(this.scene, this.camera);
+		this.bloomPass = new UnrealBloomPass(
+			new THREE.Vector2(window.innerWidth, window.innerHeight),
+			0.5, 0.5, 0.1
+		);
+		this.composer = new EffectComposer(this.renderer);
+		this.composer.addPass(this.renderPass);
+		this.composer.addPass(this.bloomPass);
+
+		// Controls
 		this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 		this.controls.enableDamping = true;
 		this.controls.dampingFactor = 0.25;
 		this.controls.enableZoom = true;
+		this.controls.maxPolarAngle = Math.PI / 2 - (10 * Math.PI / 180);
+		this.controls.minDistance = 5;
+		this.controls.maxDistance = 100;
 
 		/* -------------------------------- Lighting -------------------------------- */
-		const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
-		this.scene.add(ambientLight);
-		const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+		// const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+		// this.scene.add(ambientLight);
+		const directionalLight = new THREE.DirectionalLight(0xffffff, 0.1);
 		directionalLight.position.set(5, 10, 2);
 		this.scene.add(directionalLight);
 
@@ -74,7 +88,7 @@ export class Scene {
 		/* -------------------------------------------------------------------------- */
 
 		window.router.addListener(window, "resize", () => this.resize());
-
+		this.resize();
 		document.getElementById(this.game.settings.container).appendChild(this.renderer.domElement);
 	}
 	
@@ -83,15 +97,20 @@ export class Scene {
 	}
 
 	render() {
-		requestAnimationFrame(() => this.render());
+		this.animationFrameId = requestAnimationFrame(() => this.render());
 
 		this.update();
 		this.controls.update();
-		this.renderer.render(this.scene, this.camera);
+		this.composer.render();
 	}
 
 	stop() {
 		this.renderer.domElement.remove();
+
+		if (this.animationFrameId) {
+			cancelAnimationFrame(this.animationFrameId);
+			this.animationFrameId = null;
+		}
 	}
 
 	update() {
@@ -197,9 +216,10 @@ export class Scene {
 			const width = container.clientWidth;
 			const height = container.clientHeight;
 
-			this.renderer.setSize(width, height);
 			this.camera.aspect = width / height;
 			this.camera.updateProjectionMatrix();
+			this.renderer.setSize(width, height);
+			this.composer.setSize(width, height);
 		} else {
 			console.warn("[Game Scene] Container not found");
 		}

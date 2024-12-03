@@ -12,6 +12,7 @@ export class Client {
 		}
 		this.game = game;
 		this.ws = null;
+		this.isConnected = false;
 	}
 
 	initListeners() {
@@ -50,10 +51,16 @@ export class Client {
 
 	connect() {
 		this.ws = api.game.connect(this.game.settings.gameId);
+		this.isConnected = true;
 		this.initListeners();
 		if (this.ws && this.game.pingManager) {
 			this.game.pingManager.start();
 		}
+	}
+
+	disconnect() {
+		this.ws.close();
+		this.isConnected = false
 	}
 
 	handleEvent(message) {
@@ -85,7 +92,7 @@ export class Client {
 		this.ws.send({
 			type: "game.leave"
 		});
-		this.ws.close();
+		this.disconnect();
 		window.router.push("/play");
 	}
 }

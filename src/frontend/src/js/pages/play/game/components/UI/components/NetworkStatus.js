@@ -7,7 +7,7 @@ export class NetworkStatusComponent {
     init() {
         this.element = document.createElement("div");
         this.element.id = "network-status-display";
-        this.element.classList.add("network-status", "position-absolute", "bottom-0", "start-0", "p-2", "border", "rounded");
+        this.element.classList.add("network-status", "position-absolute", "bottom-0", "start-0", "p-2");
 
         this.element.innerHTML = /*html*/ `
             <span class="me-2">Ping: </span>

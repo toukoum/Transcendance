@@ -1,16 +1,11 @@
 export class Ball {
 	constructor(data) {
-		// data : {
-		// x,
-		// y,
-		// radius,
-		// vx,
-		// vy
-		// }
 		this.mesh = new window.THREE.Mesh(
 			new window.THREE.SphereGeometry(data.radius, 32, 32),
 			new window.THREE.MeshStandardMaterial({
-				color: 0xFF3B30
+				color: 0xFF3B30,
+				emissive: 0xFF3B30,
+				emissiveIntensity: 5,
 			})
 		);
 		this.mesh.position.set(data.x, data.radius, data.y);

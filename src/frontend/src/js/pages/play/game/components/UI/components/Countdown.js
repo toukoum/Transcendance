@@ -8,10 +8,7 @@ export class CountdownComponent {
     init() {
         this.element = document.createElement("div");
         this.element.id = "countdown-display";
-        this.element.style.position = "absolute";
-        this.element.style.top = "50%";
-        this.element.style.left = "50%";
-        this.element.style.transform = "translate(-50%, -50%)";
+        this.element.classList.add("position-absolute", "top-50", "start-50", "translate-middle", "user-select-none");
         this.element.style.fontSize = "5rem";
         this.element.style.color = "#fff";
         this.element.style.textAlign = "center";

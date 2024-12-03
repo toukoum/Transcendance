@@ -221,4 +221,8 @@ export class LocalRunner {
 	getTime() {
 		return new Date().getTime() / 1000;
 	}
+
+	stop() {
+		// Stop the game
+	}
 }

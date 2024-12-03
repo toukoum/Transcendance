@@ -19,7 +19,6 @@ export class LeaveButton {
 		this.element.classList.add("btn", "btn-danger", "position-absolute", "top-0", "end-0", "m-2");
 		this.element.textContent = "Leave game";
 		this.element.addEventListener("click", () => {
-			// this.game.leave();
 			this.game.client.leave();
 		});
 

@@ -151,7 +151,6 @@ export class Router {
 	 * @param {Route} route - The route to set the parameters for
 	 */
 	static #setParams(component, route) {
-		console.log(`Setting params for ${JSON.stringify(route)}`);
 		if (!(component instanceof HTMLElement)) {
 			throw new TypeError("Component must be an instance of HTMLElement");
 		}

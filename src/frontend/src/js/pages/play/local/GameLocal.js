@@ -20,4 +20,9 @@ export default class GameLocal {
 		this.scene.start();
 		this.localRunner.start();
 	}
+
+	stop() {
+		if (this.localRunner) this.localRunner.stop();
+		if (this.scene) this.scene.stop();
+	}
 }

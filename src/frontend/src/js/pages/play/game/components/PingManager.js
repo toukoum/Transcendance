@@ -13,10 +13,15 @@ export class PingManager {
 		this.pingInterval = null;    // Intervalle pour l'envoi de pings
 		this.pingDelay = 1000;       // Fréquence des pings en ms
 		this.pingMax = 5;            // Nombre de pings pour calculer une moyenne
+		this.isStarted = false;
 	}
 
 	// Démarre l'envoi des pings
 	start() {
+		if (this.isStarted) {
+			return;
+		}
+		this.isStarted = true;
 		this.pingInterval = setInterval(() => {
 			const timestamp = Date.now();
 			this.client.ws.send({ type: 'ping', timestamp });
@@ -25,7 +30,11 @@ export class PingManager {
 
 	// Arrête l'envoi des pings
 	stop() {
+		if (!this.isStarted) {
+			return;
+		}
 		clearInterval(this.pingInterval);
+		this.isStarted = false;
 	}
 
 	// Mets à jour le ping avec la réponse du serveur

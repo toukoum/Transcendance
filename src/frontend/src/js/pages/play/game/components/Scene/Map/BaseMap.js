@@ -16,6 +16,5 @@ export class BaseMap {
 		if (!scene || !scene instanceof window.THREE.Scene) {
 			throw new Error('Invalid scene instance');
 		}
-		console.log('Adding map to scene');
 	}
 }
