@@ -253,7 +253,7 @@ export class User extends Component {
       }
     } catch (error) {
       Toast.error(error.message);
-      console.error(error);
+      window.router.push("/");
     }
   }
 
