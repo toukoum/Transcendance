@@ -182,7 +182,7 @@ export class Scene {
 				this.ball.updateFromServer(this.game.serverData.ball);
 			} else {
 				this.ball = new Ball(this.game.serverData.ball);
-				this.scene.add(this.ball.mesh);
+				this.ball.addTo(this.scene);
 			}
 		}
 
